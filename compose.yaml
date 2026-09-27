@@ -82,6 +82,7 @@ services:
       PLUGIN_REGISTRY_ROOT: /var/lib/amesh/plugins/registry
       PLUGIN_REGISTRY_SIGNING_KEY_ID: compose-local
       PLUGIN_REGISTRY_SIGNING_KEY: amesh-compose-registry-signing-key-change-me
+      LOCAL_PROCESS_RUNNER_ENABLED: "true"
       DOCKER_RUNNER_ENABLED: "false"
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
@@ -124,6 +125,7 @@ services:
       SERVICE_INSTANCE_NAME: compose-executor
       SERVICE_CYCLE_SECONDS: "1"
       EXECUTION_RUNNER_MODE: local
+      LOCAL_PROCESS_RUNNER_ENABLED: "true"
       DOCKER_RUNNER_ENABLED: "false"
       WORKER_RECOVERY_GRACE_SECONDS: "180"
     depends_on:

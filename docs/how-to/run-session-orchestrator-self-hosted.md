@@ -2,8 +2,9 @@
 
 This profile runs the Agent Session Orchestrator roles in Docker while keeping
 the deployment boundary separate from the development stack. The webserver is
-published on loopback only. Execution uses the local-process runner; Docker
-runner access, Docker group membership, and the Docker socket are absent.
+published on loopback only. Execution uses the local-process runner and the profile explicitly sets
+`LOCAL_PROCESS_RUNNER_ENABLED=true`; Docker runner access, Docker group membership, and the Docker
+socket are absent.
 
 ## Docker-local profile
 

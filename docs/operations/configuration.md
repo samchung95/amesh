@@ -55,10 +55,11 @@ The equivalent environment value is JSON in `RUNNER_POLICIES`. Invalid duplicate
 runner names, or a default runner outside `allowedRunners` stop startup. Policy is evaluated before
 runner dispatch; it may select a default or reject an explicit task/API runner request.
 
-`LOCAL_PROCESS_RUNNER_ENABLED` is restart-required. When omitted it is enabled for `TENANCY_MODE=single`
-and disabled for `TENANCY_MODE=multi`. Setting it to `true` in a multi-tenant deployment is an explicit
-operator assertion that every tenant allowed to select `local` is trusted to run directly on that
-worker. Keep `allowedRunners: [kubernetes]` on untrusted namespace and worker-group rules.
+`LOCAL_PROCESS_RUNNER_ENABLED` is restart-required. When omitted it is enabled only when
+`TENANCY_MODE=single` and `APP_ENV=development`; every non-development or multi-tenant deployment
+must set it explicitly to use local-process execution. Setting it to `true` outside development is
+an explicit operator assertion that every tenant allowed to select `local` is trusted to run directly
+on that worker. Keep `allowedRunners: [kubernetes]` on untrusted namespace and worker-group rules.
 
 `DOCKER_RUNNER_ENABLED` is restart-required and defaults to `false`. `DOCKER_RUNNER_ENDPOINT` selects
 a local, rootless or remote Engine; when omitted, the standard Docker client environment is used.

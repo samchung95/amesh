@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from types import SimpleNamespace
 from typing import Any, cast
 
+import pytest
 from pydantic import SecretStr
 
 from amesh.application import (
@@ -19,9 +20,10 @@ from amesh.application import (
     build_executor_factory,
     build_http_task_policy,
     build_runner_bundle,
+    select_runner_ids,
 )
 from amesh.authentication import AuthenticationService
-from amesh.domain.runner import RunnerId, RunnerPolicy, RunnerPolicySet
+from amesh.domain.runner import RunnerId, RunnerPolicy, RunnerPolicySet, RunnerPolicyViolation
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskHandler
 from amesh.ports import KubernetesRunnerProfile, TaskRunner
@@ -93,6 +95,14 @@ def test_build_http_task_policy_unwraps_secret_proxy_settings() -> None:
     assert policy.http_proxy_url == "http://proxy.test"
     assert policy.https_proxy_url == "https://proxy.test"
     assert policy.maximum_response_bytes == 123
+
+
+def test_disabled_local_process_runner_reports_unavailable() -> None:
+    settings = RunnerSettings(is_local_process_runner_enabled=False)
+    task = TaskDefinition(id="run", type="core.shell", command=["echo", "ok"])
+
+    with pytest.raises(RunnerPolicyViolation, match="runner 'local' is not available"):
+        select_runner_ids(settings, (task,), namespace="default")
 
 
 def test_runner_bundle_uses_injected_factories_and_closes_owned_runner() -> None:

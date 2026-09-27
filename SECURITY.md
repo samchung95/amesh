@@ -16,9 +16,13 @@ version and response policy is a GA requirement under EPIC-612 and EPIC-805.
 
 ## Security boundaries
 
-The current skeleton is not a secure execution sandbox. Production claims require:
+The current skeleton is not a secure execution sandbox. The local-process runner executes on the
+worker host and is enabled by default only for single-tenant development; every non-development use
+requires `LOCAL_PROCESS_RUNNER_ENABLED=true` and trusted workloads. Production claims require:
 
 - isolated runners for untrusted code;
+- argv-style commands for local trusted process work, avoiding shell-mode command strings that
+  contain untrusted inputs, expression results or task outputs;
 - isolated third-party plugins;
 - real authentication and authorization;
 - external secret management;

@@ -62,6 +62,9 @@ must also declare immutable dependency name/version/digest records, a `dependenc
 `networkPolicy` with `access: restricted` whose egress entries are all organization-approved.
 
 Script content is delivered by standard input or a staged file. `args` remain runner argv entries,
-and `environment` remains a separate map; AMESH does not splice either into the script text.
+and `environment` remains a separate map; AMESH does not splice either into the script text. If a
+flow opts into local runner shell mode (`taskRunner.shell: true`), do not render untrusted inputs,
+expression results or task outputs into the shell command string; pass them through argv, environment
+or stdin instead.
 
 See the six runnable examples in [`examples/scripts`](../../examples/scripts).
