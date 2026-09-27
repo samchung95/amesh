@@ -521,17 +521,42 @@ async def list_executions(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    executions = await repository.list_executions(tenant_id=tenant_id, limit=1000)
+    flow_filter = _flow_equality_filter(query.filters)
+    executions = await repository.list_executions(
+        tenant_id=tenant_id,
+        limit=1000,
+        namespace=flow_filter[0] if flow_filter else None,
+        flow_id=flow_filter[1] if flow_filter else None,
+    )
+    flows: dict[tuple[str, str, int], FlowDefinition] = {}
     public_executions: list[PersistedExecution] = []
     for execution in executions:
-        flow = await repository.get_flow(
-            execution.namespace,
-            execution.flow_id,
-            tenant_id=tenant_id,
-            revision=execution.flow_revision,
-        )
-        public_executions.append(_public_execution(flow, execution))
+        key = (execution.namespace, execution.flow_id, execution.flow_revision)
+        if key not in flows:
+            flows[key] = await repository.get_flow(
+                execution.namespace,
+                execution.flow_id,
+                tenant_id=tenant_id,
+                revision=execution.flow_revision,
+            )
+        public_executions.append(_public_execution(flows[key], execution))
     return collection_response(public_executions, query, default_limit=100)
+
+
+def _flow_equality_filter(filters: list[str]) -> tuple[str, str] | None:
+    """Return the first namespace and flow_id equality filters so SQL can apply them.
+
+    collection_response still applies every filter afterwards, so repeated or conflicting
+    filters keep their in-memory meaning.
+    """
+    values: dict[str, str] = {}
+    for expression in filters:
+        field, separator, expected = expression.partition("=")
+        if separator and field in {"namespace", "flow_id"}:
+            values.setdefault(field, expected)
+    if "namespace" in values and "flow_id" in values:
+        return values["namespace"], values["flow_id"]
+    return None
 
 
 @router_2.get(

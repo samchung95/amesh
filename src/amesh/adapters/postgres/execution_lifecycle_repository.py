@@ -261,6 +261,44 @@ _LIST_EXECUTIONS = text(
     """
 )
 
+# Same rows as _LIST_EXECUTIONS for one flow. Joining flows lets PostgreSQL use
+# executions_tenant_flow_created_idx instead of scanning every tenant execution.
+_LIST_FLOW_EXECUTIONS = text(
+    """
+    SELECT
+        executions.id,
+        tenants.slug AS tenant_slug,
+        executions.state,
+        executions.epoch,
+        executions.version,
+        executions.namespace_name,
+        executions.flow_key,
+        flow_revisions.revision AS flow_revision,
+        executions.inputs,
+        executions.outputs,
+        executions.labels,
+        executions.trigger_context,
+        executions.created_by,
+        executions.created_at,
+        executions.updated_at,
+        executions.timeout_at,
+        executions.cancel_deadline_at,
+        executions.lifecycle_evidence
+    FROM executions
+    JOIN tenants ON tenants.id = executions.tenant_id
+    JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
+    JOIN flows ON flows.id = executions.flow_id
+    JOIN namespaces ON namespaces.id = flows.namespace_id
+    WHERE tenants.slug = :tenant_slug
+      AND namespaces.name = :namespace
+      AND flows.flow_key = :flow_key
+      AND executions.namespace_name = :namespace
+      AND executions.flow_key = :flow_key
+    ORDER BY executions.created_at DESC, executions.id
+    LIMIT :limit
+    """
+)
+
 _LIST_RECOVERY_CANDIDATES = text(
     """
     SELECT
@@ -1108,12 +1146,17 @@ class PostgresExecutionLifecycleRepository(PostgresExecutionPort, ExecutionLifec
         *,
         tenant_id: str,
         limit: int = 100,
+        namespace: str | None = None,
+        flow_id: str | None = None,
     ) -> list[PersistedExecution]:
+        if (namespace is None) != (flow_id is None):
+            raise ValueError("namespace and flow_id must be supplied together")
+        statement = _LIST_EXECUTIONS if namespace is None else _LIST_FLOW_EXECUTIONS
+        parameters: dict[str, object] = {"tenant_slug": tenant_id, "limit": limit}
+        if namespace is not None:
+            parameters.update(namespace=namespace, flow_key=flow_id)
         async with self._services.transactions.tenant(tenant_id) as (connection, _tenant_uuid):
-            result = await connection.execute(
-                _LIST_EXECUTIONS,
-                {"tenant_slug": tenant_id, "limit": limit},
-            )
+            result = await connection.execute(statement, parameters)
             rows = result.mappings().all()
         return [_to_execution(row) for row in rows]
 

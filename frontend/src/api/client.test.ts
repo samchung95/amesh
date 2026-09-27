@@ -116,6 +116,7 @@ describe('API client', () => {
     await api.flowMetadata('team+data', 'daily flow')
     await api.flowDataContract('team+data', 'daily flow')
     await api.executeFlow('team+data', 'daily flow', { message: 'hello' })
+    await api.flowExecutions('team+data', 'daily flow', 1)
     await api.execution('run+one')
     await api.executionGraph('run+one')
     await api.executionEvidence('run+one', 'cursor/value')
@@ -131,6 +132,7 @@ describe('API client', () => {
       '/api/v1/flows/team%2Bdata/daily%20flow/metadata',
       '/api/v1/flows/team%2Bdata/daily%20flow/data-contract',
       '/api/v1/executions',
+      '/api/v1/executions?filter=namespace%3Dteam%2Bdata&filter=flow_id%3Ddaily+flow&limit=1&sort=-updated_at',
       '/api/v1/executions/run%2Bone?taskOffset=0&taskLimit=250',
       '/api/v1/executions/run%2Bone/graph',
       '/api/v1/executions/run%2Bone/evidence?cursor=cursor%2Fvalue',

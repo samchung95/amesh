@@ -13,6 +13,11 @@ import type {
 export function createRuntimeResource(transport: ApiTransport) {
   return {
     executions: async () => transport.request(apiOperation('/api/v1/executions', 'get', "/api/v1/executions", { limit: 200 })),
+    flowExecutions: async (namespace: string, flowId: string, limit = 1) => transport.request(apiOperation('/api/v1/executions', 'get', '/api/v1/executions', {
+      filter: [`namespace=${namespace}`, `flow_id=${flowId}`],
+      limit,
+      sort: '-updated_at',
+    })),
     execution: async (executionId: string, taskOffset = 0, taskLimit = 250) =>
       transport.request(apiOperation('/api/v1/executions/{execution_id}', 'get', `/api/v1/executions/${encodeURIComponent(executionId)}`, { taskOffset, taskLimit })),
     executionAgentSessions: async (executionId: string) =>

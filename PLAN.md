@@ -19,6 +19,9 @@ separate from implementation. #95/c250 and #96/c251 remain outside this two-tick
 
 ## Decisions log
 
+- 2026-09-27 — The Workflows list gets last-run status from the existing executions endpoint,
+  capped at 50 visible rows and cached, rather than a new summary endpoint. The endpoint applies
+  per-flow filters in SQL so each lookup is an index scan (#122).
 - 2026-09-27 — Helm defaults give every workload CPU and memory requests and a memory limit, but no
   CPU limits, so throttling cannot mask PostgreSQL or queue bottlenecks. Profile M still needs
   its own benchmark (#105).

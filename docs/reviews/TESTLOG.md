@@ -1,5 +1,36 @@
 # Test Log
 
+## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
+
+Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.
+
+- Focused Vitest suites passed: `FlowEditorPage.route.test.tsx` (6), `FlowsPage.test.tsx` plus
+  `client.test.ts` (35), `AppShell.test.tsx` (1) and `client.resources.test.ts` (1). The API
+  method count in `client.resources.test.ts` rose to 193 for the new `flowExecutions` method.
+- The Workflows list makes at most `1 + min(N, 50)` extra requests for N visible rows: one
+  triggers query, plus one `limit=1` executions query per row for the first 50 rows. Both are
+  TanStack Query cached, and last-run results stay fresh for 15 s. Each query is skipped when the
+  session lacks `triggers.view` or `executions.view`. A new test renders 60 rows and asserts
+  exactly 50 last-run lookups; it fails if the cap is raised.
+- `npm run lint` (max warnings 0), `npm run test` (37 files, 153 tests, coverage thresholds met)
+  and `npm run build` passed. `pytest tests/frontend tests/documentation`: 17 passed.
+- Playwright (Chromium, mocked APIs) ran shell, apps, agent-sessions, session-orchestrator and
+  release-controls: 32 passed, 1 skipped, 1 failed. The failure is `release-controls.spec.ts >>
+  release manager applies, rolls back, kills, updates history, and passes axe`. The API client's
+  path validator rejects the encoded slash in `/api/v1/releases/WORKFLOW/examples.safe%2Fresearch`.
+  The spec fails identically on base 2645d92, so this change did not cause it.
+- Review found that `GET /api/v1/executions` filtered in memory over the tenant's 1000 newest
+  executions. A flow outside that window showed "Never run", and each row lookup scanned about
+  120K rows (parallel sequential scan on the shared runtime). When both `namespace` and `flow_id`
+  filters are present they are now applied in SQL, which uses `executions_tenant_flow_created_idx`.
+  Flow definitions load once per revision, and every filter still runs in memory afterwards.
+  `tests/api/test_execution_list_api.py` (3) and the PostgreSQL
+  `tests/adapters/postgres/test_execution_list_filters.py` (1) cover this. Against a disposable
+  PostgreSQL 17, `pytest tests/api` plus the backfill, check, cron-scheduler, migration and
+  upgrade suites gave 198 passed. Strict mypy (427 files) and Ruff passed.
+- A batched last-run summary endpoint would still cut the per-row requests for very large
+  catalogs.
+
 ## Helm default resource requests and limits — #105 (2026-09-27)
 
 Spec: GitHub #105 (audit 2026-09-26); owner decision 3a on 2026-09-27.
