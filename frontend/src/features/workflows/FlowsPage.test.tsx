@@ -54,6 +54,7 @@ const flows = [
     metadata: { labels: {}, lifecycle: 'ACTIVE', resource_version: 1, created_by: 'operator', updated_by: 'operator' },
   },
 ]
+let listedFlows = flows
 
 const session = {
   principalId: 'operator',
@@ -73,7 +74,7 @@ const session = {
 
 vi.mock('../../app/queries', () => ({
   useApiClient: () => api,
-  useFlows: () => ({ data: flows, isPending: false, error: null, refetch: vi.fn() }),
+  useFlows: () => ({ data: listedFlows, isPending: false, error: null, refetch: vi.fn() }),
   useTriggerRuntime: () => ({
     data: [{
       trigger_definition_id: 'trigger-1',
@@ -111,18 +112,23 @@ vi.mock('../../app/settings', () => ({
 afterEach(() => {
   cleanup()
   api.flowExecutions.mockClear()
+  listedFlows = flows
 })
+
+function renderFlowsPage() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <FlowsPage session={session} />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  )
+}
 
 describe('FlowsPage', () => {
   it('shows last run, trigger summary, labels and contract details', async () => {
-    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <FlowsPage session={session} />
-        </MemoryRouter>
-      </QueryClientProvider>,
-    )
+    renderFlowsPage()
 
     expect(screen.getByRole('columnheader', { name: 'Last run' })).toBeVisible()
     expect(screen.getByRole('columnheader', { name: 'Trigger' })).toBeVisible()
@@ -141,5 +147,19 @@ describe('FlowsPage', () => {
     expect(screen.getByText('abc123456789')).toBeVisible()
     expect(api.flowExecutions).toHaveBeenCalledWith('team.data', 'daily_report', 1)
     expect(api.flowExecutions).toHaveBeenCalledWith('team.ops', 'manual_cleanup', 1)
+  })
+
+  it('looks up last runs for at most 50 workflows', async () => {
+    listedFlows = Array.from({ length: 60 }, (_, index) => ({
+      ...flows[1],
+      resource_id: `bulk-${String(index)}`,
+      flow_id: `bulk_${String(index)}`,
+    }))
+    renderFlowsPage()
+
+    await waitFor(() => expect(api.flowExecutions).toHaveBeenCalledTimes(50))
+    expect(api.flowExecutions).toHaveBeenCalledWith('team.ops', 'bulk_49', 1)
+    expect(api.flowExecutions).not.toHaveBeenCalledWith('team.ops', 'bulk_50', 1)
+    expect(screen.getByText('Showing last-run details for the first 50 workflows. Filter the list to inspect a specific workflow.')).toBeVisible()
   })
 })
