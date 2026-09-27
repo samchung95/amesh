@@ -33,6 +33,13 @@ documented in the multi-tenancy runbook; the combined server still needs its exi
 and credential-store grants. Leaving the migration Secret empty uses the application Secret for
 development compatibility. Full per-component least-privilege qualification remains EPIC-612 work.
 
+Before every upgrade, take and verify a PostgreSQL/object-storage backup. AMESH migrations are
+forward-only; rollback means restoring that pre-upgrade backup and redeploying the previous release.
+If the pre-upgrade migration Job has a destructive migration pending on an existing database, set
+`migrations.backupConfirmedAt` to the verified backup time as an ISO-8601 UTC timestamp, for example
+`--set migrations.backupConfirmedAt=2026-09-27T08:00:00Z`. `migrations.backupMaxAgeHours` defaults to
+`24`. Fresh installs and upgrades with no pending destructive migrations do not need the marker.
+
 Object storage is external to the chart. Configure `objectStorage.backend`, its endpoint/account URL,
 bucket and optional encryption key. Workload identity is the default; S3 or Azure static credentials
 can instead come from `objectStorage.existingSecret`. See the

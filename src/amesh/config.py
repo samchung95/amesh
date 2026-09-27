@@ -263,6 +263,8 @@ class Settings(BaseSettings):
     database_prepared_statement_cache_size: int = Field(default=100, ge=0, le=1_000)
     database_tls_mode: Literal["disable", "require", "verify-full"] = "disable"
     database_tls_ca_file: str | None = None
+    migration_backup_confirmed_at: str | None = None
+    migration_backup_max_age_hours: float = Field(default=24, gt=0)
     database_slow_query_seconds: float = Field(default=0.5, gt=0)
     object_storage_endpoint: str = "http://localhost:9000"
     object_storage_backend: Literal["local", "s3", "azure", "gcs"] = "s3"

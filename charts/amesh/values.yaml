@@ -133,6 +133,10 @@ serviceAccount:
   create: true
   name: ""
 
+migrations:
+  backupConfirmedAt: ""
+  backupMaxAgeHours: 24
+
 database:
   existingSecret: amesh-database
   key: database-url
