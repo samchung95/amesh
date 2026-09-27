@@ -56,6 +56,22 @@ def test_small_medium_and_large_profiles_have_monotonic_replica_capacity() -> No
     assert profiles["large"]["highAvailability"]["whenUnsatisfiable"] == "DoNotSchedule"
 
 
+def test_migration_job_exposes_backup_marker_values() -> None:
+    values = _yaml(CHART / "values.yaml")
+    migrations = values["migrations"]
+    assert migrations["backupConfirmedAt"] == ""
+    assert migrations["backupMaxAgeHours"] == 24
+
+    template = (CHART / "templates" / "migration-job.yaml").read_text(encoding="utf-8")
+    for required in (
+        "MIGRATION_BACKUP_CONFIRMED_AT",
+        "MIGRATION_BACKUP_MAX_AGE_HOURS",
+        ".Values.migrations.backupConfirmedAt",
+        ".Values.migrations.backupMaxAgeHours",
+    ):
+        assert required in template
+
+
 def test_recovery_cronjob_is_opt_in_and_runs_the_qualified_cli() -> None:
     values = _yaml(CHART / "values.yaml")
     recovery = values["recovery"]

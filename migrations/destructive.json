@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "migrations": [
+    {
+      "file": "0034_flow_revision_event_retention.sql",
+      "reason": "Defines flow-revision event cleanup that deletes queued outbox messages when revision events are purged."
+    },
+    {
+      "file": "0046_audit_evidence_ledger.sql",
+      "reason": "Backfills audit evidence by redacting protected JSON fields in place, irreversibly replacing prior values."
+    }
+  ]
+}

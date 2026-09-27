@@ -50,6 +50,8 @@ def test_distributed_compose_uses_manifest_aware_migration_gate() -> None:
         "amesh.entrypoints.migrations",
     ]
     assert services["migrate"]["depends_on"]["postgres"]["condition"] == "service_healthy"
+    assert "MIGRATION_BACKUP_CONFIRMED_AT" in services["migrate"]["environment"]
+    assert "MIGRATION_BACKUP_MAX_AGE_HOURS" in services["migrate"]["environment"]
     assert services["postgres"]["volumes"] == ["postgres-data:/var/lib/postgresql/data"]
     for role in ("api", "executor", "scheduler", "worker", "indexer", "maintenance"):
         assert (
@@ -66,6 +68,7 @@ def test_native_package_declares_compact_preflight_migration_and_resource_paths(
     assert project["tool"]["setuptools"]["data-files"]["share/amesh/migrations"] == [
         "migrations/*.sql",
         "migrations/manifest.json",
+        "migrations/destructive.json",
     ]
 
     runbook = (ROOT / "docs/operations/compact-deployment.md").read_text(encoding="utf-8")

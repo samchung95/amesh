@@ -1,6 +1,6 @@
 # PostgreSQL migrations
 
-The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.entrypoints.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout. Operators and LTS fixtures can stop at an exact declared boundary with `python -m amesh.entrypoints.migrations --target 0032_configuration_feature_flags.sql`; an unknown boundary or a database already beyond it is rejected.
+The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.entrypoints.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. Destructive migrations are declared separately in `destructive.json` so checksum-protected SQL files stay immutable. When an existing database has a destructive migration pending, the runner refuses to proceed unless `MIGRATION_BACKUP_CONFIRMED_AT` names a recent verified UTC backup marker within `MIGRATION_BACKUP_MAX_AGE_HOURS` (default 24). Fresh empty installs and databases with no pending destructive migrations do not need a marker. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout. Operators and LTS fixtures can stop at an exact declared boundary with `python -m amesh.entrypoints.migrations --target 0032_configuration_feature_flags.sql`; an unknown boundary or a database already beyond it is rejected.
 
 It establishes the first explicit persistence concepts for:
 
@@ -297,7 +297,9 @@ append-time projections.
   not safe under mixed application versions.
 
 Applied SQL is immutable. Correct an applied migration with a new forward migration. The exact
-operator response for each migration is its `rollbackGuidance` entry in `manifest.json`.
+operator response for each migration is its `rollbackGuidance` entry in `manifest.json`. List any
+future migration that removes rows, rewrites retained values, truncates tables or drops table/column/type
+state in `destructive.json` with a one-line reason, and prefer expand/contract changes when possible.
 
 For integration tests, `amesh.entrypoints.migrations.create_ephemeral_database()` creates a guarded
 `amesh_test_<random>` database and `drop_ephemeral_database()` refuses any other name. Applying the

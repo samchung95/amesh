@@ -88,7 +88,7 @@ where = ["src"]
 amesh = ["resources/*.json", "web/*.html", "web/assets/*"]
 
 [tool.setuptools.data-files]
-"share/amesh/migrations" = ["migrations/*.sql", "migrations/manifest.json"]
+"share/amesh/migrations" = ["migrations/*.sql", "migrations/manifest.json", "migrations/destructive.json"]
 
 [tool.pytest.ini_options]
 addopts = "-q --strict-markers"

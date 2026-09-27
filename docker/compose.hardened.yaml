@@ -107,6 +107,8 @@ services:
       <<: *common-environment
       SERVICE_ROLE: webserver
       SERVICE_INSTANCE_NAME: hardened-migrate
+      MIGRATION_BACKUP_CONFIRMED_AT: ${MIGRATION_BACKUP_CONFIRMED_AT:-}
+      MIGRATION_BACKUP_MAX_AGE_HOURS: ${MIGRATION_BACKUP_MAX_AGE_HOURS:-24}
     depends_on:
       postgres:
         condition: service_healthy

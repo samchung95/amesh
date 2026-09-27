@@ -37,6 +37,12 @@ spec:
               value: {{ .Values.logLevel | quote }}
             - name: DATABASE_TLS_MODE
               value: {{ .Values.database.tlsMode | quote }}
+            - name: MIGRATION_BACKUP_MAX_AGE_HOURS
+              value: {{ .Values.migrations.backupMaxAgeHours | quote }}
+{{- if .Values.migrations.backupConfirmedAt }}
+            - name: MIGRATION_BACKUP_CONFIRMED_AT
+              value: {{ .Values.migrations.backupConfirmedAt | quote }}
+{{- end }}
 {{- if .Values.database.tlsCAFile }}
             - name: DATABASE_TLS_CA_FILE
               value: {{ .Values.database.tlsCAFile | quote }}

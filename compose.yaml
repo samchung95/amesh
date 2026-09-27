@@ -188,6 +188,8 @@ services:
       APP_ENV: development
       DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
       DATABASE_TLS_MODE: disable
+      MIGRATION_BACKUP_CONFIRMED_AT: ${MIGRATION_BACKUP_CONFIRMED_AT:-}
+      MIGRATION_BACKUP_MAX_AGE_HOURS: ${MIGRATION_BACKUP_MAX_AGE_HOURS:-24}
     depends_on:
       postgres:
         condition: service_healthy

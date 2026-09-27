@@ -26,6 +26,8 @@ services:
       APP_PORT: "8000"
       DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
       DATABASE_TLS_MODE: disable
+      MIGRATION_BACKUP_CONFIRMED_AT: ${MIGRATION_BACKUP_CONFIRMED_AT:-}
+      MIGRATION_BACKUP_MAX_AGE_HOURS: ${MIGRATION_BACKUP_MAX_AGE_HOURS:-24}
       OBJECT_STORAGE_BACKEND: local
       OBJECT_STORAGE_LOCAL_ROOT: /var/lib/amesh/storage
       AUTH_MODE: development

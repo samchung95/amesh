@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -218,10 +219,13 @@ def test_current_binary_requires_admin_grants_before_upgrade_repository_work() -
                     },
                 )
 
+            now = datetime.now(UTC)
             pre_admin = await apply_migrations(
                 database.database_url,
                 MIGRATIONS,
                 target_version=PRE_ADMIN_BOUNDARY,
+                backup_confirmed_at=(now - timedelta(minutes=5)).isoformat(),
+                now=now,
             )
             assert pre_admin[0] == "0033_flow_revisions.sql"
             assert pre_admin[-1] == PRE_ADMIN_BOUNDARY

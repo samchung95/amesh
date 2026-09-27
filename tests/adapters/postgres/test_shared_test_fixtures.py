@@ -21,6 +21,10 @@ POSTGRES_LIFECYCLE_EXCEPTIONS = {
         "test_fresh_databases_are_repeatable_and_migrations_are_idempotent"
     ): "requires two fresh databases and verifies migration reapplication",
     (
+        "tests/adapters/postgres/test_migration_contract.py::"
+        "test_apply_migrations_requires_backup_marker_before_destructive_upgrade"
+    ): "migrates an existing database across the destructive-migration guard",
+    (
         "tests/adapters/postgres/test_upgrade_repository.py::"
         "test_current_binary_requires_admin_grants_before_upgrade_repository_work"
     ): "verifies upgrades across historical schema boundaries",
@@ -47,6 +51,16 @@ POSTGRES_LIFECYCLE_EXCEPTION_CALLS = {
             "apply_migrations": 3,
             "create_ephemeral_database": 2,
             "drop_ephemeral_database": 2,
+        }
+    ),
+    (
+        "tests/adapters/postgres/test_migration_contract.py::"
+        "test_apply_migrations_requires_backup_marker_before_destructive_upgrade"
+    ): Counter(
+        {
+            "apply_migrations": 3,
+            "create_ephemeral_database": 1,
+            "drop_ephemeral_database": 1,
         }
     ),
     (

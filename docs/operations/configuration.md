@@ -35,6 +35,15 @@ Renamed settings are migrated before validation. `ADMIN_TOKEN` migrates to `AMES
 `TELEMETRY_ENABLED` migrates to `PRODUCT_TELEMETRY_ENABLED`; both produce deprecation warnings without
 logging their values.
 
+## Migration backup marker settings
+
+`MIGRATION_BACKUP_CONFIRMED_AT` is read by `amesh-migrate` and `python -m amesh.entrypoints.migrations`.
+Set it only after the pre-upgrade backup has been verified; the value must be an ISO-8601 UTC timestamp
+such as `2026-09-27T08:00:00Z`. `MIGRATION_BACKUP_MAX_AGE_HOURS` defaults to `24` and bounds how old
+that marker may be. Destructive forward-only upgrades listed in `migrations/destructive.json` refuse to
+run against an existing database without a valid marker. Fresh installs and databases with no pending
+destructive migration do not require it.
+
 ## Runner policy
 
 `runner_policies` is a restart-required ordered set of typed namespace/worker-group rules. The most

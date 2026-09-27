@@ -4,11 +4,13 @@ import argparse
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import re
 import ssl
 import sysconfig
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import SplitResult, urlsplit, urlunsplit
 from uuid import uuid4
@@ -18,6 +20,11 @@ import asyncpg  # type: ignore[import-untyped]
 from amesh.config import get_settings
 from amesh.database import database_ssl_argument
 from amesh.migration_planning import MigrationDescriptor as MigrationDescriptor
+from amesh.migration_planning import (
+    destructive_migration_backup_warning,
+    destructive_migration_manifest,
+    validate_destructive_migration_backup,
+)
 from amesh.migration_planning import migration_body as migration_body
 from amesh.migration_planning import migration_plan as migration_plan
 from amesh.observability import configure_structured_logging
@@ -25,6 +32,7 @@ from amesh.observability import configure_structured_logging
 _MIGRATION_LOCK = 280465470280
 _EPHEMERAL_NAME = re.compile(r"^amesh_test_[a-f0-9]{16}$")
 _MINIMUM_POSTGRESQL_VERSION = 150000
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -55,6 +63,9 @@ async def apply_migrations(
     *,
     ssl_argument: ssl.SSLContext | bool | None = None,
     target_version: str | None = None,
+    backup_confirmed_at: str | None = None,
+    backup_max_age_hours: float = 24,
+    now: datetime | None = None,
 ) -> list[str]:
     complete_plan = migration_plan(directory)
     if target_version is None:
@@ -103,6 +114,20 @@ async def apply_migrations(
                 raise RuntimeError(
                     f"database contains migrations absent from the manifest: {unknown_versions}"
                 )
+            pending = tuple(
+                descriptor for descriptor in plan if descriptor.filename not in applied_versions
+            )
+            decision = validate_destructive_migration_backup(
+                applied_versions=set(applied_versions),
+                pending_migrations=pending,
+                destructive_manifest=destructive_migration_manifest(directory),
+                backup_confirmed_at=backup_confirmed_at,
+                backup_max_age_hours=backup_max_age_hours,
+                now=now or datetime.now(UTC),
+            )
+            warning = destructive_migration_backup_warning(decision)
+            if warning is not None:
+                _LOGGER.warning(warning)
             for descriptor in plan:
                 current = await connection.fetchval(
                     "SELECT checksum FROM amesh_schema_migrations WHERE version = $1",
@@ -259,6 +284,8 @@ def main() -> None:
             migration_directory(),
             ssl_argument=database_ssl_argument(settings),
             target_version=args.target,
+            backup_confirmed_at=settings.migration_backup_confirmed_at,
+            backup_max_age_hours=settings.migration_backup_max_age_hours,
         )
     )
     print(f"applied {len(applied)} migration(s): {', '.join(applied) or 'none'}")

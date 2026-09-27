@@ -16,10 +16,15 @@ Development deployments must run the complete manifest before starting current-h
 
 ## Operator sequence
 
-1. Create and verify a coordinated recovery point before changing application or schema state.
+1. Create and verify a coordinated recovery point before changing application or schema state. For a
+   logical smoke check, run `pg_dump -Fc` against the source database and `pg_restore --list` against
+   the archive before recording the marker. Production PITR still follows the recovery runbook.
 2. Run `amesh upgrade preflight --from-version 0.1.0 --to-version 0.2.0`.
 3. Resolve every `BLOCKED` check. Review warnings and retain the report fingerprint as change evidence.
-4. Apply the target schema boundary with `amesh-migrate --target 0055_admission_policy.sql`.
+4. Apply the target schema boundary with `amesh-migrate --target 0055_admission_policy.sql`. If the
+   pending boundary includes a destructive migration listed in `migrations/destructive.json`, set
+   `MIGRATION_BACKUP_CONFIRMED_AT` to the verified backup time as an ISO-8601 UTC timestamp. The marker
+   must be no older than `MIGRATION_BACKUP_MAX_AGE_HOURS` (default 24).
 5. For a rolling-compatible report, replace roles in the reported order and verify each role before
    moving forward. The service registry rejects versions outside the published overlap contract.
 6. Preview historical event work with `amesh upgrade events-preview`. After verifying the recovery
@@ -71,7 +76,39 @@ writes immutable audit evidence. Do not bypass the preview or `--force` gate.
 
 ## Rollback boundary
 
-The `0.1.0` to `0.2.0` path declares a 168-hour rollback window. Restore the coordinated pre-upgrade
-PostgreSQL and object-storage recovery point; do not run older binaries against a database beyond
-their published schema boundary. Persisted event upcasts and config outputs are forward conversions,
-so restoration—not reverse mutation—is the recovery procedure if their validation fails.
+AMESH migrations are forward-only. The rollback model is restore-based: restore the coordinated
+pre-upgrade PostgreSQL and object-storage recovery point, then redeploy the previous AMESH release. Do
+not run older binaries against a database beyond their published schema boundary, and do not expect a
+`down` migration to mutate the schema or data back in place. Future changes should use expand/contract
+rollouts where possible so old and new binaries can overlap safely before any later contract step.
+
+The `0.1.0` to `0.2.0` path declares a 168-hour rollback window. Persisted event upcasts and config
+outputs are forward conversions, so restoration—not reverse mutation—is the recovery procedure if
+their validation fails.
+
+## Backup marker for destructive migrations
+
+The migration runner computes the pending set before applying SQL. If any pending migration is listed
+in `migrations/destructive.json` and the database already has at least one applied migration, startup
+refuses without a recent marker. Fresh installs have no existing AMESH data and continue without a
+marker. A fully migrated database with no pending migrations also starts without a marker.
+
+Compose example after a verified backup:
+
+```bash
+docker compose run --rm -e MIGRATION_BACKUP_CONFIRMED_AT=2026-09-27T08:00:00Z migrate
+```
+
+Set `MIGRATION_BACKUP_MAX_AGE_HOURS` only when the approved change record uses a wider window. The
+root Compose profile also passes those variables from the shell or `.env` file to the `migrate`
+service. The compact and hardened Compose profiles accept the same names.
+
+Helm example:
+
+```bash
+helm upgrade --install amesh charts/amesh \
+  --set migrations.backupConfirmedAt=2026-09-27T08:00:00Z
+```
+
+Set `migrations.backupMaxAgeHours` to override the 24-hour default. The pre-upgrade hook logs a warning
+when it proceeds with a valid marker because rollback remains restore-based.
