@@ -977,18 +977,18 @@ describe('API client', () => {
 
     await api.previewRelease('policy+one')
     await api.applyRelease('policy+one', 3, 'promote tested revision')
-    await api.releaseTarget('WORKFLOW', 'examples+safe+research')
-    await api.releaseHistory('WORKFLOW', 'examples+safe+research')
-    await api.rollbackRelease('WORKFLOW', 'examples+safe+research', 2, 4, 'restore known good revision')
-    await api.killSwitchRelease('WORKFLOW', 'examples+safe+research', 5, 'stop during incident review')
+    await api.releaseTarget('WORKFLOW', 'examples.safe/research')
+    await api.releaseHistory('WORKFLOW', 'examples.safe/research')
+    await api.rollbackRelease('WORKFLOW', 'examples.safe/research', 2, 4, 'restore known good revision')
+    await api.killSwitchRelease('WORKFLOW', 'examples.safe/research', 5, 'stop during incident review')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/releases/policies/policy%2Bone/preview',
       '/api/v1/releases/policies/policy%2Bone/apply',
-      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch',
-      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch/history',
-      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch/rollback',
-      '/api/v1/releases/WORKFLOW/examples%2Bsafe%2Bresearch/kill-switch',
+      '/api/v1/releases/WORKFLOW/examples.safe%2Fresearch',
+      '/api/v1/releases/WORKFLOW/examples.safe%2Fresearch/history',
+      '/api/v1/releases/WORKFLOW/examples.safe%2Fresearch/rollback',
+      '/api/v1/releases/WORKFLOW/examples.safe%2Fresearch/kill-switch',
     ])
     expect(JSON.parse((fetchMock.mock.calls[0]?.[1] as RequestInit).body as string)).toEqual({ approvals: {} })
     expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 3, reason: 'promote tested revision', approvals: {} })

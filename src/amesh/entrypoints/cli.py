@@ -1497,7 +1497,7 @@ def _release_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Re
                 "reason": args.reason,
             },
         )
-    target = f"{args.target_kind.lower()}/{quote(args.target_key, safe='')}"
+    target = f"{args.target_kind}/{quote(args.target_key, safe='')}"
     if args.release_command == "rollback":
         return client.post(
             f"/api/v1/releases/{target}/rollback",

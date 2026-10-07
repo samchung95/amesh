@@ -78,6 +78,6 @@ def test_release_rollback_cli_sends_optimistic_concurrency_fields(monkeypatch: A
 
     assert exit_code == 0
     assert FakeReleaseClient.request == (
-        "/api/v1/releases/workflow/checkout/rollback",
+        "/api/v1/releases/WORKFLOW/checkout/rollback",
         {"toRevision": 3, "expectedVersion": 7, "reason": "restore known-good"},
     )

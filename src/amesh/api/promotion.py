@@ -130,7 +130,7 @@ def build_promotion_router(
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
         return {"target": result.target, "event": result.event}
 
-    @router.post("/{target_kind}/{target_key}/rollback")
+    @router.post("/{target_kind}/{target_key:path}/rollback")
     async def rollback(
         target_kind: PromotionTargetKind,
         target_key: str,
@@ -155,7 +155,7 @@ def build_promotion_router(
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
         return {"target": result.target, "event": result.event}
 
-    @router.post("/{target_kind}/{target_key}/kill-switch")
+    @router.post("/{target_kind}/{target_key:path}/kill-switch")
     async def kill_switch(
         target_kind: PromotionTargetKind,
         target_key: str,
@@ -179,18 +179,11 @@ def build_promotion_router(
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
         return {"target": result.target, "event": result.event}
 
-    @router.get("/{target_kind}/{target_key}")
-    async def target_state(
-        target_kind: PromotionTargetKind,
-        target_key: str,
-        current_tenant: Annotated[str, Depends(tenant_dependency)],
-        current_service: Annotated[PromotionService, Depends(service_dependency)],
-        check: Annotated[Authorize, Depends(authorization_dependency)],
-    ) -> object:
-        await check("view")
-        return await current_service.get_target(current_tenant, target_kind, target_key)
-
-    @router.get("/{target_kind}/{target_key}/history")
+    # Workflow keys are "<namespace>/<flow_id>", so the key spans path segments and history must
+    # be declared before the bare target route that would otherwise swallow its suffix (#135).
+    # ponytail: a flow whose id is "history" reads as the history of its namespace; move history
+    # under its own prefix if such a flow ever needs release controls.
+    @router.get("/{target_kind}/{target_key:path}/history")
     async def target_history(
         target_kind: PromotionTargetKind,
         target_key: str,
@@ -200,6 +193,17 @@ def build_promotion_router(
     ) -> object:
         await check("view")
         return await current_service.get_history(current_tenant, target_kind, target_key)
+
+    @router.get("/{target_kind}/{target_key:path}")
+    async def target_state(
+        target_kind: PromotionTargetKind,
+        target_key: str,
+        current_tenant: Annotated[str, Depends(tenant_dependency)],
+        current_service: Annotated[PromotionService, Depends(service_dependency)],
+        check: Annotated[Authorize, Depends(authorization_dependency)],
+    ) -> object:
+        await check("view")
+        return await current_service.get_target(current_tenant, target_kind, target_key)
 
     return router
 
