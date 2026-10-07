@@ -9,7 +9,7 @@
   uninitialized schedule. The indexer projects only recent changes each cycle and runs its
   stale-source sweep, rollups and checksum verification once every 10 minutes, so a deleted source
   leaves search within one interval. The expired trigger-lease sweep reads only in-flight
-  occurrences, and AMESH connections set `jit = off`. Migration 0081 adds the four supporting
+  occurrences, and AMESH connections set `jit = off`. Migration 0081 adds the six supporting
   indexes. `scripts/qualify_idle_cost.py` times each role's idle cycle on seeded history and fails
   when one exceeds its budget (#136).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
