@@ -47,6 +47,7 @@ class AgentSessionCreateRequest(BaseModel):
     harness: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = None
     idempotency_key: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, alias="idempotencyKey")
     input: Optional[Dict[str, Any]] = None
+    interaction_protocol: Optional[StrictStr] = Field(default='STRUCTURED_V1', alias="interactionProtocol")
     invalid_output_policy: Optional[StrictStr] = Field(default='FAIL', alias="invalidOutputPolicy")
     max_repair_attempts: Optional[Annotated[int, Field(le=20, strict=True, ge=0)]] = Field(default=None, alias="maxRepairAttempts")
     memory_read_keys: Optional[Annotated[List[Optional[StrictStr]], Field(max_length=100)]] = Field(default=None, alias="memoryReadKeys")
@@ -61,7 +62,17 @@ class AgentSessionCreateRequest(BaseModel):
     timeout_seconds: Optional[Union[Annotated[float, Field(strict=True, gt=0.0)], Annotated[int, Field(strict=True, gt=0)]]] = Field(default=None, alias="timeoutSeconds")
     tool_grants: Optional[Dict[str, Any]] = Field(default=None, alias="toolGrants")
     additional_properties: Dict[str, Any] = {}
-    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "taskBrief", "timeoutMode", "timeoutSeconds", "toolGrants"]
+    __properties: ClassVar[List[str]] = ["agent", "agentRef", "agentRevision", "applicationId", "approvalTask", "budgets", "businessAssertions", "contextPolicy", "dataHandling", "harness", "idempotencyKey", "input", "interactionProtocol", "invalidOutputPolicy", "maxRepairAttempts", "memoryReadKeys", "memoryWriteKey", "modelProfile", "namespace", "requiredToolPlan", "retry", "runner", "taskBrief", "timeoutMode", "timeoutSeconds", "toolGrants"]
+
+    @field_validator('interaction_protocol')
+    def interaction_protocol_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['STRUCTURED_V1', 'NATIVE_V2', 'NATIVE_V3']):
+            raise ValueError("must be one of enum values ('STRUCTURED_V1', 'NATIVE_V2', 'NATIVE_V3')")
+        return value
 
     @field_validator('invalid_output_policy')
     def invalid_output_policy_validate_enum(cls, value):
@@ -230,6 +241,7 @@ class AgentSessionCreateRequest(BaseModel):
             "harness": obj.get("harness"),
             "idempotencyKey": obj.get("idempotencyKey"),
             "input": obj.get("input"),
+            "interactionProtocol": obj.get("interactionProtocol") if obj.get("interactionProtocol") is not None else 'STRUCTURED_V1',
             "invalidOutputPolicy": obj.get("invalidOutputPolicy") if obj.get("invalidOutputPolicy") is not None else 'FAIL',
             "maxRepairAttempts": obj.get("maxRepairAttempts"),
             "memoryReadKeys": obj.get("memoryReadKeys"),

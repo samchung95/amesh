@@ -6562,6 +6562,12 @@ export interface components {
                 [key: string]: unknown;
             };
             /**
+             * Interactionprotocol
+             * @default STRUCTURED_V1
+             * @enum {string}
+             */
+            interactionProtocol: "STRUCTURED_V1" | "NATIVE_V2" | "NATIVE_V3";
+            /**
              * Invalidoutputpolicy
              * @default FAIL
              * @enum {string}

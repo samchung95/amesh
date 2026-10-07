@@ -296,8 +296,8 @@ describe('API client', () => {
       '/api/v1/agent-sessions/s%2B1/resume',
       '/api/v1/agent-sessions/s%2B1/result',
     ])
-    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: { document: 'asset-1' }, invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
-    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: {}, invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
+    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: { document: 'asset-1' }, interactionProtocol: 'STRUCTURED_V1', invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
+    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ agentRef: 'agents/researcher@2', businessAssertions: [], dataHandling: 'DENY_SECRETS', input: {}, interactionProtocol: 'STRUCTURED_V1', invalidOutputPolicy: 'FAIL', maxRepairAttempts: 0, memoryReadKeys: [], runner: 'local', timeoutMode: 'BOUNDED' })
     expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ graceSeconds: 30, reason: 'Operator requested cancellation.' })
     expect(JSON.parse((fetchMock.mock.calls[8]?.[1] as RequestInit).body as string)).toEqual({ graceSeconds: 30, expectedVersion: 2, expectedEpoch: 3, reason: 'Operator requested pause.' })
   })

@@ -10,6 +10,7 @@ from uuid import UUID, uuid4
 import httpx
 import pytest
 from fastapi import HTTPException
+from pydantic import ValidationError
 
 from amesh.adapters.agent_session_registry import AGENT_SESSION_HARNESS_REGISTRY
 from amesh.adapters.openai_session import (
@@ -20,6 +21,7 @@ from amesh.api.models import (
     AgentSessionCreateRequest,
     AgentSessionHarnessCatalogEntry,
     AgentSessionLaunchResponse,
+    AgentSessionMessageRequest,
 )
 from amesh.app import (
     _stage_openai_session_images,
@@ -557,6 +559,173 @@ def test_create_agent_session_and_follow_up_reach_handler_dispatch(
         asyncio.run(scenario())
     finally:
         app.dependency_overrides.clear()
+
+
+def test_create_pins_the_interaction_protocol_across_follow_up_and_keyed_replay(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from amesh import app as app_module
+
+    actor = ActorContext(
+        principal_id=uuid4(), principal_type=PrincipalType.USER, display="operator"
+    )
+    captured_flows: list[FlowDefinition] = []
+    execution_id = uuid4()
+    now = datetime.now(UTC)
+    execution = PersistedExecution(
+        execution_id=execution_id,
+        tenant_id="default",
+        state=ExecutionState.RUNNING,
+        epoch=1,
+        version=1,
+        namespace="research",
+        flow_id="agent_session_stable",
+        created_at=now,
+        updated_at=now,
+    )
+
+    class Authorization:
+        async def decide(self, request: AuthorizationRequest) -> AuthorizationDecision:
+            del request
+            return AuthorizationDecision(
+                allowed=True,
+                reason_code="ROLE_GRANT",
+                summary="session protocol test",
+                policy_version=1,
+                matched_role_names=("session-operator",),
+            )
+
+        async def require(self, request: AuthorizationRequest) -> AuthorizationDecision:
+            return await self.decide(request)
+
+    class Resources:
+        async def preview_agent(self, *args: object, **kwargs: object) -> object:
+            return SimpleNamespace(
+                envelope_digest="sha256:" + "1" * 64,
+                envelope=SimpleNamespace(
+                    input_schema={},
+                    model_routes=(),
+                    tools=(),
+                    hard_limits=AgentHardLimits(
+                        maxTotalTokens=1000,
+                        maxCostUsd=Decimal("1"),
+                        maxDurationSeconds=60,
+                        maxToolCalls=10,
+                        maxTurns=4,
+                        maxLoopIterations=4,
+                        maxRecursionDepth=1,
+                        maxConcurrency=2,
+                    ),
+                    permissions=SimpleNamespace(secret_scopes=()),
+                ),
+            )
+
+    class Policies:
+        async def effective_revisions(self, *args: object, **kwargs: object) -> tuple[object, ...]:
+            return ()
+
+    class Sessions:
+        async def get_execution_by_service_session_id(
+            self, tenant_id: str, service_session_id: UUID
+        ) -> UUID:
+            if not captured_flows:
+                raise LookupError("no session")
+            return execution_id
+
+        async def list_execution_sessions(self, *args: object) -> list[object]:
+            return []
+
+    class Repository:
+        async def get_execution(self, *args: object, **kwargs: object) -> PersistedExecution:
+            return execution
+
+        async def get_flow(self, *args: object, **kwargs: object) -> FlowDefinition:
+            return captured_flows[0]
+
+    async def fake_execute_flow(*args: object, **kwargs: object) -> object:
+        flow = args[2]
+        assert isinstance(flow, FlowDefinition)
+        captured_flows.append(flow)
+        return SimpleNamespace(
+            execution=execution,
+            task_runs=[
+                PersistedTaskRun(
+                    task_run_id=uuid4(),
+                    execution_id=execution_id,
+                    task_id="agent",
+                    state=TaskRunState.RUNNING,
+                    current_attempt=1,
+                    version=1,
+                )
+            ],
+        )
+
+    monkeypatch.setattr(app_module, "_execute_flow", fake_execute_flow)
+    monkeypatch.setattr(app_module, "get_agent_session_policy_repository", lambda: Policies())
+    app.dependency_overrides.update(
+        {
+            authenticate_actor: lambda: actor,
+            require_tenant_context: lambda: "default",
+            get_settings: lambda: Settings(_env_file=None),  # type: ignore[call-arg]
+            get_authorization_service: Authorization,
+            get_repository: Repository,
+            get_task_cache_repository: lambda: object(),
+            get_shared_resource_repository: lambda: object(),
+            get_operational_control_repository: lambda: object(),
+            get_agent_session_repository: Sessions,
+            get_agent_resource_repository: Resources,
+        }
+    )
+    body = {
+        "agentRef": "research/analyst@7",
+        "input": {"question": "latest earnings"},
+        "idempotencyKey": "native-protocol",
+        "interactionProtocol": "NATIVE_V3",
+    }
+
+    async def scenario() -> list[httpx.Response]:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://amesh.test"
+        ) as client:
+            return [
+                await client.post("/api/v1/agent-sessions", json=body),
+                await client.post("/api/v1/agent-sessions", json=body),
+                await client.post(
+                    "/api/v1/agent-sessions",
+                    json={**body, "interactionProtocol": "STRUCTURED_V1"},
+                ),
+                await client.post(
+                    "/api/v1/agent-sessions",
+                    json={**body, "interactionProtocol": "NATIVE_V9"},
+                ),
+            ]
+
+    try:
+        created, replayed, conflicting, unsupported = asyncio.run(scenario())
+    finally:
+        app.dependency_overrides.clear()
+
+    assert created.status_code == 200, created.text
+    assert replayed.status_code == 200, replayed.text
+    assert conflicting.status_code == 409
+    assert "interactionProtocol" in conflicting.json()["detail"]
+    assert unsupported.status_code == 422
+    task = captured_flows[0].tasks[-1]
+    assert task.configuration["interactionProtocol"] == "NATIVE_V3"
+    follow_up, _, _ = app_module._agent_session_follow_up_flow(
+        captured_flows[0], {"question": "follow up"}
+    )
+    assert follow_up.tasks[-1].configuration["interactionProtocol"] == "NATIVE_V3"
+    with pytest.raises(ValidationError, match="interactionProtocol"):
+        AgentSessionMessageRequest.model_validate(
+            {"input": {}, "interactionProtocol": "STRUCTURED_V1"}
+        )
+    assert (
+        AgentSessionCreateRequest.model_validate(
+            {"agentRef": "research/analyst@7"}
+        ).interaction_protocol
+        == "STRUCTURED_V1"
+    )
 
 
 def test_public_idempotency_keys_are_scoped_to_the_service_session_identity() -> None:

@@ -63,6 +63,33 @@ follow-up and recovery semantics.
 The response contains `sessionId`, `executionId`, `taskRunId`, `attempt`, `executionState` and the
 session summary when it has already started. `Location` identifies the stable public session.
 
+### Choose the interaction protocol
+
+Optional `interactionProtocol` selects how the session presents pinned tools and the business
+schema to the model. It is the same opt-in that `agent.session` flow tasks accept.
+
+| Value | Behavior |
+| --- | --- |
+| `STRUCTURED_V1` (default) | Unchanged behavior: one structured action schema; tool arguments travel as a JSON string. |
+| `NATIVE_V2` | Native tool calls with each pinned tool's input schema, then a separate `amesh_finish_research` finalization. See [ADR-076](../adr/076-separated-session-finalization-and-cache-efficient-context.md). |
+| `NATIVE_V3` | `NATIVE_V2` with the same tool definitions and business response schema in every research and finalization turn. |
+
+```json
+{
+  "agentRef": "agents.demo/incident-helper@1",
+  "input": {"incident": "API latency exceeded the objective for eight minutes."},
+  "interactionProtocol": "NATIVE_V3",
+  "toolGrants": {"incident-gateway": "grant-ref-from-your-gateway"},
+  "idempotencyKey": "incident-42"
+}
+```
+
+The protocol is pinned for the life of the conversation. Follow-up messages and recovery keep it,
+and a message body cannot carry `interactionProtocol`. Repeating a create with the same idempotency
+key and a different protocol returns `409`. Omitting the field keeps `STRUCTURED_V1`. Selecting a
+protocol does not change the agent's model, provider, transport, limits or tool grants. Provider
+prompt caching depends on the route and provider, so a native protocol does not guarantee cache hits.
+
 ### Approve high-impact capabilities
 
 Set `"approvalTask": "approve"` when launching an agent that needs human approval.

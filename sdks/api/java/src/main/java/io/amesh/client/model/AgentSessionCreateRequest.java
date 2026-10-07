@@ -61,6 +61,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCreateRequest.JSON_PROPERTY_HARNESS,
   AgentSessionCreateRequest.JSON_PROPERTY_IDEMPOTENCY_KEY,
   AgentSessionCreateRequest.JSON_PROPERTY_INPUT,
+  AgentSessionCreateRequest.JSON_PROPERTY_INTERACTION_PROTOCOL,
   AgentSessionCreateRequest.JSON_PROPERTY_INVALID_OUTPUT_POLICY,
   AgentSessionCreateRequest.JSON_PROPERTY_MAX_REPAIR_ATTEMPTS,
   AgentSessionCreateRequest.JSON_PROPERTY_MEMORY_READ_KEYS,
@@ -116,6 +117,47 @@ public class AgentSessionCreateRequest {
   public static final String JSON_PROPERTY_INPUT = "input";
   @javax.annotation.Nullable
   private Map<String, Object> input = new HashMap<>();
+
+  /**
+   * Gets or Sets interactionProtocol
+   */
+  public enum InteractionProtocolEnum {
+    STRUCTURED_V1(String.valueOf("STRUCTURED_V1")),
+
+    NATIVE_V2(String.valueOf("NATIVE_V2")),
+
+    NATIVE_V3(String.valueOf("NATIVE_V3"));
+
+    private String value;
+
+    InteractionProtocolEnum(String value) {
+      this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    @JsonCreator
+    public static InteractionProtocolEnum fromValue(String value) {
+      for (InteractionProtocolEnum b : InteractionProtocolEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+  }
+
+  public static final String JSON_PROPERTY_INTERACTION_PROTOCOL = "interactionProtocol";
+  @javax.annotation.Nullable
+  private InteractionProtocolEnum interactionProtocol = InteractionProtocolEnum.STRUCTURED_V1;
 
   /**
    * Gets or Sets invalidOutputPolicy
@@ -581,6 +623,30 @@ public class AgentSessionCreateRequest {
   }
 
 
+  public AgentSessionCreateRequest interactionProtocol(@javax.annotation.Nullable InteractionProtocolEnum interactionProtocol) {
+    this.interactionProtocol = interactionProtocol;
+    return this;
+  }
+
+  /**
+   * Get interactionProtocol
+   * @return interactionProtocol
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_INTERACTION_PROTOCOL, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public InteractionProtocolEnum getInteractionProtocol() {
+    return interactionProtocol;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_INTERACTION_PROTOCOL, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInteractionProtocol(@javax.annotation.Nullable InteractionProtocolEnum interactionProtocol) {
+    this.interactionProtocol = interactionProtocol;
+  }
+
+
   public AgentSessionCreateRequest invalidOutputPolicy(@javax.annotation.Nullable InvalidOutputPolicyEnum invalidOutputPolicy) {
     this.invalidOutputPolicy = invalidOutputPolicy;
     return this;
@@ -984,6 +1050,7 @@ public class AgentSessionCreateRequest {
         equalsNullable(this.harness, agentSessionCreateRequest.harness) &&
         equalsNullable(this.idempotencyKey, agentSessionCreateRequest.idempotencyKey) &&
         Objects.equals(this.input, agentSessionCreateRequest.input) &&
+        Objects.equals(this.interactionProtocol, agentSessionCreateRequest.interactionProtocol) &&
         Objects.equals(this.invalidOutputPolicy, agentSessionCreateRequest.invalidOutputPolicy) &&
         equalsNullable(this.maxRepairAttempts, agentSessionCreateRequest.maxRepairAttempts) &&
         Objects.equals(this.memoryReadKeys, agentSessionCreateRequest.memoryReadKeys) &&
@@ -1005,7 +1072,7 @@ public class AgentSessionCreateRequest {
 
   @Override
   public int hashCode() {
-    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(taskBrief), timeoutMode, hashCodeNullable(timeoutSeconds), toolGrants);
+    return Objects.hash(hashCodeNullable(agent), hashCodeNullable(agentRef), hashCodeNullable(agentRevision), hashCodeNullable(applicationId), hashCodeNullable(approvalTask), hashCodeNullable(budgets), businessAssertions, contextPolicy, dataHandling, hashCodeNullable(harness), hashCodeNullable(idempotencyKey), input, interactionProtocol, invalidOutputPolicy, hashCodeNullable(maxRepairAttempts), memoryReadKeys, hashCodeNullable(memoryWriteKey), hashCodeNullable(modelProfile), hashCodeNullable(namespace), hashCodeNullable(requiredToolPlan), retry, runner, hashCodeNullable(taskBrief), timeoutMode, hashCodeNullable(timeoutSeconds), toolGrants);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -1031,6 +1098,7 @@ public class AgentSessionCreateRequest {
     sb.append("    harness: ").append(toIndentedString(harness)).append("\n");
     sb.append("    idempotencyKey: ").append(toIndentedString(idempotencyKey)).append("\n");
     sb.append("    input: ").append(toIndentedString(input)).append("\n");
+    sb.append("    interactionProtocol: ").append(toIndentedString(interactionProtocol)).append("\n");
     sb.append("    invalidOutputPolicy: ").append(toIndentedString(invalidOutputPolicy)).append("\n");
     sb.append("    maxRepairAttempts: ").append(toIndentedString(maxRepairAttempts)).append("\n");
     sb.append("    memoryReadKeys: ").append(toIndentedString(memoryReadKeys)).append("\n");
@@ -1158,6 +1226,11 @@ public class AgentSessionCreateRequest {
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
             getInput().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getInput().get(_key)))));
       }
+    }
+
+    // add `interactionProtocol` to the URL query string
+    if (getInteractionProtocol() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sinteractionProtocol%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getInteractionProtocol()))));
     }
 
     // add `invalidOutputPolicy` to the URL query string
