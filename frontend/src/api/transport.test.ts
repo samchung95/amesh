@@ -92,6 +92,21 @@ describe('generated OpenAPI transport contracts', () => {
     expect(() => runtimeApiUrl('/health', '/health?verbose=true')).not.toThrow()
   })
 
+  it('lets only a release target key decode to a slash', () => {
+    expect(runtimeApiUrl(
+      '/api/v1/releases/{target_kind}/{target_key}/history',
+      '/api/v1/releases/WORKFLOW/examples.safe%2Fresearch/history',
+    )).toBe('/api/v1/releases/WORKFLOW/examples.safe%2Fresearch/history')
+    expect(() => runtimeApiUrl(
+      '/api/v1/releases/{target_kind}/{target_key}',
+      '/api/v1/releases/WORKFLOW%2Fx/key',
+    )).toThrow('does not match canonical template')
+    expect(() => runtimeApiUrl(
+      '/api/v1/releases/policies/{policy_id}/preview',
+      '/api/v1/releases/policies/..%2Fadmin/preview',
+    )).toThrow('does not match canonical template')
+  })
+
   it('rejects absolute, protocol-relative, and backslash cross-origin runtime URLs', () => {
     expect(() => runtimeApiUrl('/health', 'https://evil.example/health')).toThrow(
       'Runtime API URL must be same-origin and relative',

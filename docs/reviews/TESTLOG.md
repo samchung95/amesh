@@ -1,5 +1,29 @@
 # Test Log
 
+## Release target keys with a slash — #135 (2026-10-07)
+
+Spec: GitHub #135. Chosen option: the server declares `target_key` as `{target_key:path}`, and the
+client allows `/` for that parameter only.
+
+- Red first: `test_workflow_target_key_with_a_slash_reaches_target_history_and_rollback` got
+  404 on GET target, GET history and POST rollback for `examples.safe%2Fresearch`. The new
+  `transport.test.ts` case and the release case in `client.test.ts` (now using the real key)
+  failed with the issue's exact error. All three pass after the fix. History is declared before
+  the bare target route, because the multi-segment key would otherwise swallow `/history`.
+- The transport test also asserts that the guard still rejects an encoded slash in
+  `target_kind` and `policy_id`.
+- `amesh releases` lowercased the target kind (`/api/v1/releases/workflow/...`), which the
+  `WORKFLOW`/`AGENT` enum rejects. The CLI test now asserts the uppercase path, failed first, and
+  passes.
+- Playwright (Chromium, mocked APIs) `release-controls.spec.ts`: 3 passed, including the release
+  manager journey that failed in the #120/#122 run.
+- `tests/sdk/test_generated_contracts.py` passed with no OpenAPI change, since FastAPI publishes
+  `{target_key:path}` as `{target_key}`. Vitest `transport.test.ts` plus `client.test.ts` (45),
+  ESLint, `tsc -b`, Ruff, the format check and strict mypy (396 files) passed.
+- Known ceiling: a workflow whose flow id is literally `history` would read as its namespace's
+  history. A `ponytail:` comment in `src/amesh/api/promotion.py` names the upgrade (a distinct
+  history prefix).
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.

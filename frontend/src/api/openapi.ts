@@ -163,6 +163,10 @@ function canonicalPathPattern(template: string): RegExp {
   return new RegExp(`^${escapedParts.join('')}$`, 'u')
 }
 
+// The server declares these as {name:path}, so their values may span segments. A release target
+// key is "<namespace>/<flow_id>" for workflows (#135).
+const multiSegmentParameters = new Set(['path', 'target_key'])
+
 export function runtimeApiUrl(template: OpenApiPath, url: string): string {
   const baseUrl = new URL('http://amesh.local')
   const candidate = url.trim()
@@ -177,7 +181,7 @@ export function runtimeApiUrl(template: OpenApiPath, url: string): string {
   const match = canonicalPathPattern(template).exec(pathname)
   const parameters = [...template.matchAll(/\{([^/{}]+)\}/gu)].map((item) => item[1])
   if (!match || match.slice(1).some((value, index) => (
-    parameters[index] !== 'path' && /[/\\]/u.test(decodeURIComponent(value))
+    !multiSegmentParameters.has(parameters[index]) && /[/\\]/u.test(decodeURIComponent(value))
   ))) {
     throw new Error(`Runtime API pathname "${pathname}" does not match canonical template "${template}"`)
   }

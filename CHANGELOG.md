@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The release manager opens workflow targets again. A workflow target key (`<namespace>/<flow_id>`)
+  may now contain a slash: the release routes accept it as a multi-segment `target_key`, and the
+  console's path guard allows a slash in that one parameter. `amesh releases` sends the target kind
+  in the case the API requires, so its rollback, kill-switch, target and history commands no
+  longer fail validation (#135).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its
