@@ -23,7 +23,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.agent_harness_pin import AgentHarnessPin
-from amesh_client.models.agent_session_counters_output import AgentSessionCountersOutput
+from amesh_client.models.agent_session_counters import AgentSessionCounters
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -38,7 +38,7 @@ class AgentSessionControlSummary(BaseModel):
     budgets: Optional[Dict[str, Any]] = None
     capability_pin_id: Optional[UUID] = Field(default=None, alias="capabilityPinId")
     completed_at: Optional[datetime] = Field(default=None, alias="completedAt")
-    counters: Optional[AgentSessionCountersOutput] = None
+    counters: Optional[AgentSessionCounters] = None
     created_at: datetime = Field(alias="createdAt")
     envelope_digest: Optional[StrictStr] = Field(default=None, alias="envelopeDigest")
     error: Optional[StrictStr] = None
@@ -57,7 +57,6 @@ class AgentSessionControlSummary(BaseModel):
     tenant_id: Optional[StrictStr] = Field(default=None, alias="tenantId")
     updated_at: datetime = Field(alias="updatedAt")
     version: Optional[StrictInt] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["agentRef", "applicationId", "attempt", "budgets", "capabilityPinId", "completedAt", "counters", "createdAt", "envelopeDigest", "error", "executionEpoch", "executionId", "finalResult", "harness", "modelProfile", "namespace", "phase", "policyProvenance", "result", "sessionId", "state", "taskRunId", "tenantId", "updatedAt", "version"]
 
     @field_validator('state')
@@ -97,10 +96,8 @@ class AgentSessionControlSummary(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -114,11 +111,6 @@ class AgentSessionControlSummary(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of harness
         if self.harness:
             _dict['harness'] = self.harness.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if agent_ref (nullable) is None
         # and model_fields_set contains the field
         if self.agent_ref is None and "agent_ref" in self.model_fields_set:
@@ -242,7 +234,7 @@ class AgentSessionControlSummary(BaseModel):
             "budgets": obj.get("budgets"),
             "capabilityPinId": obj.get("capabilityPinId"),
             "completedAt": obj.get("completedAt"),
-            "counters": AgentSessionCountersOutput.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
+            "counters": AgentSessionCounters.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
             "createdAt": obj.get("createdAt"),
             "envelopeDigest": obj.get("envelopeDigest"),
             "error": obj.get("error"),
@@ -262,9 +254,4 @@ class AgentSessionControlSummary(BaseModel):
             "updatedAt": obj.get("updatedAt"),
             "version": obj.get("version")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

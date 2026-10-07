@@ -286,8 +286,6 @@ func (managed *documentResource) write(
 		return apiResponse{}, nil, false
 	}
 	switch mode {
-	case writeSCIMPatch:
-		body, err = scimPatch(body)
 	case writeDocumentField:
 		body, err = documentField(body, field)
 	}

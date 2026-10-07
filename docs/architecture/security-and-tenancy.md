@@ -17,8 +17,8 @@ Traffic crossing a zone is authenticated, authorized, bounded and observable.
 
 Local bootstrap is a one-time PostgreSQL transaction with no default credential. Local passwords use
 Argon2id, and random browser sessions remain server-side, revocable, CSRF-bound and subject to inactivity
-plus absolute expiry. The provider-neutral boundary is ready for OIDC, SAML and LDAP adapters; those
-protocols and SCIM lifecycle management remain EPIC-502. API tokens are hashed, scoped, expiring and
+plus absolute expiry. OIDC is the only external identity protocol; SAML, LDAP and SCIM were removed
+by ADR-085. API tokens are hashed, scoped, expiring and
 visible only once. Service-to-service identity uses short-lived workload credentials where possible.
 
 ## Authorization

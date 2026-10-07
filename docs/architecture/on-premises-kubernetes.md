@@ -87,7 +87,7 @@ Default network policies should deny cross-zone traffic except for documented fl
 
 ## Identity and secrets
 
-The chart supports external OIDC/SAML identity, LDAP/SCIM integrations, Kubernetes workload identity where available, and external secret providers. Production values must not contain universal default credentials.
+The chart supports external OIDC identity, Kubernetes workload identity where available, and external secret providers. Production values must not contain universal default credentials.
 
 Secrets are injected by reference and resolved only for an authorized task, trigger, runner or plugin. AMESH events, logs and migration bundles must never contain secret plaintext.
 

@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -21,30 +22,29 @@ var _ MappedNullable = &AgentSessionSummary{}
 
 // AgentSessionSummary Redacted session state safe for execution-scoped inspection.
 type AgentSessionSummary struct {
-	AgentRef             NullableString              `json:"agentRef,omitempty"`
-	ApplicationId        NullableString              `json:"applicationId,omitempty"`
-	Attempt              int32                       `json:"attempt"`
-	CapabilityPinId      string                      `json:"capabilityPinId"`
-	CompletedAt          NullableTime                `json:"completedAt,omitempty"`
-	ContextReceipt       NullableAgentContextReceipt `json:"contextReceipt,omitempty"`
-	Counters             AgentSessionCountersOutput  `json:"counters"`
-	CreatedAt            time.Time                   `json:"createdAt"`
-	EnvelopeDigest       string                      `json:"envelopeDigest"`
-	Error                NullableString              `json:"error,omitempty"`
-	ExecutionId          string                      `json:"executionId"`
-	FinalResult          map[string]interface{}      `json:"finalResult,omitempty"`
-	Harness              NullableAgentHarnessPin     `json:"harness,omitempty"`
-	ModelProfile         NullableString              `json:"modelProfile,omitempty"`
-	Namespace            string                      `json:"namespace"`
-	Phase                AgentSessionPhase           `json:"phase"`
-	PolicyProvenance     map[string]interface{}      `json:"policyProvenance,omitempty"`
-	SessionId            string                      `json:"sessionId"`
-	State                AgentSessionState           `json:"state"`
-	TaskRunId            string                      `json:"taskRunId"`
-	TenantId             string                      `json:"tenantId"`
-	UpdatedAt            time.Time                   `json:"updatedAt"`
-	Version              int32                       `json:"version"`
-	AdditionalProperties map[string]interface{}
+	AgentRef         NullableString              `json:"agentRef,omitempty"`
+	ApplicationId    NullableString              `json:"applicationId,omitempty"`
+	Attempt          int32                       `json:"attempt"`
+	CapabilityPinId  string                      `json:"capabilityPinId"`
+	CompletedAt      NullableTime                `json:"completedAt,omitempty"`
+	ContextReceipt   NullableAgentContextReceipt `json:"contextReceipt,omitempty"`
+	Counters         AgentSessionCounters        `json:"counters"`
+	CreatedAt        time.Time                   `json:"createdAt"`
+	EnvelopeDigest   string                      `json:"envelopeDigest"`
+	Error            NullableString              `json:"error,omitempty"`
+	ExecutionId      string                      `json:"executionId"`
+	FinalResult      map[string]interface{}      `json:"finalResult,omitempty"`
+	Harness          NullableAgentHarnessPin     `json:"harness,omitempty"`
+	ModelProfile     NullableString              `json:"modelProfile,omitempty"`
+	Namespace        string                      `json:"namespace"`
+	Phase            AgentSessionPhase           `json:"phase"`
+	PolicyProvenance map[string]interface{}      `json:"policyProvenance,omitempty"`
+	SessionId        string                      `json:"sessionId"`
+	State            AgentSessionState           `json:"state"`
+	TaskRunId        string                      `json:"taskRunId"`
+	TenantId         string                      `json:"tenantId"`
+	UpdatedAt        time.Time                   `json:"updatedAt"`
+	Version          int32                       `json:"version"`
 }
 
 type _AgentSessionSummary AgentSessionSummary
@@ -53,7 +53,7 @@ type _AgentSessionSummary AgentSessionSummary
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentSessionSummary(attempt int32, capabilityPinId string, counters AgentSessionCountersOutput, createdAt time.Time, envelopeDigest string, executionId string, namespace string, phase AgentSessionPhase, sessionId string, state AgentSessionState, taskRunId string, tenantId string, updatedAt time.Time, version int32) *AgentSessionSummary {
+func NewAgentSessionSummary(attempt int32, capabilityPinId string, counters AgentSessionCounters, createdAt time.Time, envelopeDigest string, executionId string, namespace string, phase AgentSessionPhase, sessionId string, state AgentSessionState, taskRunId string, tenantId string, updatedAt time.Time, version int32) *AgentSessionSummary {
 	this := AgentSessionSummary{}
 	this.Attempt = attempt
 	this.CapabilityPinId = capabilityPinId
@@ -301,9 +301,9 @@ func (o *AgentSessionSummary) UnsetContextReceipt() {
 }
 
 // GetCounters returns the Counters field value
-func (o *AgentSessionSummary) GetCounters() AgentSessionCountersOutput {
+func (o *AgentSessionSummary) GetCounters() AgentSessionCounters {
 	if o == nil {
-		var ret AgentSessionCountersOutput
+		var ret AgentSessionCounters
 		return ret
 	}
 
@@ -312,7 +312,7 @@ func (o *AgentSessionSummary) GetCounters() AgentSessionCountersOutput {
 
 // GetCountersOk returns a tuple with the Counters field value
 // and a boolean to check if the value has been set.
-func (o *AgentSessionSummary) GetCountersOk() (*AgentSessionCountersOutput, bool) {
+func (o *AgentSessionSummary) GetCountersOk() (*AgentSessionCounters, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -320,7 +320,7 @@ func (o *AgentSessionSummary) GetCountersOk() (*AgentSessionCountersOutput, bool
 }
 
 // SetCounters sets field value
-func (o *AgentSessionSummary) SetCounters(v AgentSessionCountersOutput) {
+func (o *AgentSessionSummary) SetCounters(v AgentSessionCounters) {
 	o.Counters = v
 }
 
@@ -834,11 +834,6 @@ func (o AgentSessionSummary) ToMap() (map[string]interface{}, error) {
 	toSerialize["tenantId"] = o.TenantId
 	toSerialize["updatedAt"] = o.UpdatedAt
 	toSerialize["version"] = o.Version
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -879,42 +874,15 @@ func (o *AgentSessionSummary) UnmarshalJSON(data []byte) (err error) {
 
 	varAgentSessionSummary := _AgentSessionSummary{}
 
-	err = json.Unmarshal(data, &varAgentSessionSummary)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varAgentSessionSummary)
 
 	if err != nil {
 		return err
 	}
 
 	*o = AgentSessionSummary(varAgentSessionSummary)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "agentRef")
-		delete(additionalProperties, "applicationId")
-		delete(additionalProperties, "attempt")
-		delete(additionalProperties, "capabilityPinId")
-		delete(additionalProperties, "completedAt")
-		delete(additionalProperties, "contextReceipt")
-		delete(additionalProperties, "counters")
-		delete(additionalProperties, "createdAt")
-		delete(additionalProperties, "envelopeDigest")
-		delete(additionalProperties, "error")
-		delete(additionalProperties, "executionId")
-		delete(additionalProperties, "finalResult")
-		delete(additionalProperties, "harness")
-		delete(additionalProperties, "modelProfile")
-		delete(additionalProperties, "namespace")
-		delete(additionalProperties, "phase")
-		delete(additionalProperties, "policyProvenance")
-		delete(additionalProperties, "sessionId")
-		delete(additionalProperties, "state")
-		delete(additionalProperties, "taskRunId")
-		delete(additionalProperties, "tenantId")
-		delete(additionalProperties, "updatedAt")
-		delete(additionalProperties, "version")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

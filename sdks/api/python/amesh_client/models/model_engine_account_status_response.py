@@ -37,7 +37,6 @@ class ModelEngineAccountStatusResponse(BaseModel):
     rate_limits: Optional[Dict[str, Any]] = Field(default=None, alias="rateLimits")
     requires_openai_auth: Optional[StrictBool] = Field(default=None, alias="requiresOpenaiAuth")
     usage: Optional[Dict[str, Any]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["actionRequired", "adapter", "authMode", "authenticated", "engineRef", "planType", "rateLimits", "requiresOpenaiAuth", "usage"]
 
     model_config = ConfigDict(
@@ -70,10 +69,8 @@ class ModelEngineAccountStatusResponse(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,11 +78,6 @@ class ModelEngineAccountStatusResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if auth_mode (nullable) is None
         # and model_fields_set contains the field
         if self.auth_mode is None and "auth_mode" in self.model_fields_set:
@@ -138,9 +130,4 @@ class ModelEngineAccountStatusResponse(BaseModel):
             "requiresOpenaiAuth": obj.get("requiresOpenaiAuth"),
             "usage": obj.get("usage")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

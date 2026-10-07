@@ -2,7 +2,6 @@
 /* eslint-disable */
 export * from './AdministrationApi';
 export * from './AgentSessionAdministrationApi';
-export * from './AgentSessionTransfersApi';
 export * from './AgentSessionsApi';
 export * from './AgentsApi';
 export * from './AppsApi';
@@ -13,7 +12,6 @@ export * from './AuthorizationApi';
 export * from './BackfillsApi';
 export * from './BlueprintsApi';
 export * from './ChecksApi';
-export * from './CompatibilityApi';
 export * from './ConfigurationApi';
 export * from './CredentialsApi';
 export * from './DashboardsApi';
@@ -32,7 +30,6 @@ export * from './PoliciesApi';
 export * from './QualityApi';
 export * from './RealtimeApi';
 export * from './ReleasesApi';
-export * from './ScimApi';
 export * from './SearchApi';
 export * from './SimulationsApi';
 export * from './SystemApi';

@@ -12,7 +12,6 @@ type writeMode uint8
 
 const (
 	writeDocument writeMode = iota
-	writeSCIMPatch
 	writeDocumentField
 )
 
@@ -90,22 +89,6 @@ func resourceDescriptors() []resourceDescriptor {
 			UpdateMethod: "PUT", UpdatePath: "/api/v1/apps/{namespace}/{key}",
 			ReadPath: "/api/v1/apps/{namespace}/{key}", RetainOnDelete: true, RevisionField: "revision",
 			ServerManagedDefaults: []string{"namespace", "id", "revision", "createdAt", "updatedAt"},
-		},
-		{
-			Name: "user", Description: "A SCIM user managed through AMESH.",
-			CreateMethod: "POST", CreatePath: "/scim/v2/Users",
-			UpdateMethod: "PATCH", UpdatePath: "/scim/v2/Users/{server_id}", UpdateMode: writeSCIMPatch,
-			DeleteMethod: "DELETE", DeletePath: "/scim/v2/Users/{server_id}",
-			ReadPath: "/scim/v2/Users/{server_id}", ServerIDField: "id",
-			ServerManagedDefaults: []string{"id", "meta"},
-		},
-		{
-			Name: "group", Description: "A SCIM group managed through AMESH.",
-			CreateMethod: "POST", CreatePath: "/scim/v2/Groups",
-			UpdateMethod: "PATCH", UpdatePath: "/scim/v2/Groups/{server_id}", UpdateMode: writeSCIMPatch,
-			DeleteMethod: "DELETE", DeletePath: "/scim/v2/Groups/{server_id}",
-			ReadPath: "/scim/v2/Groups/{server_id}", ServerIDField: "id",
-			ServerManagedDefaults: []string{"id", "meta"},
 		},
 		{
 			Name: "role", Description: "An AMESH authorization role.",

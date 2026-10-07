@@ -103,8 +103,7 @@ can instead come from `objectStorage.existingSecret`. See the
 integrity checks and migration procedure.
 
 Enterprise identity configuration is supplied as JSON from `identity.providerConfigExistingSecret`
-using `identity.providerConfigKey` and `identity.scimConfigKey`. Set `identity.credentialSecret` to
-mount client secrets, signing keys, certificates, LDAP trust anchors and SCIM tokens at
+using `identity.providerConfigKey`. Set `identity.credentialSecret` to mount OIDC client secrets at
 `identity.mountPath`; definitions refer to those mounted paths so material can rotate without
 rebuilding the image. See the [identity federation runbook](../../docs/operations/identity-federation.md).
 

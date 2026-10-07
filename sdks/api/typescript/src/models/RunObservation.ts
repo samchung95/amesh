@@ -35,10 +35,10 @@ export interface RunObservation {
     cost?: string;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof RunObservation
      */
-    deterministicAssertions?: Array<{ [key: string]: any; } | null>;
+    deterministicAssertions?: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {Array<ShadowEffect>}
@@ -47,10 +47,10 @@ export interface RunObservation {
     effects?: Array<ShadowEffect>;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof RunObservation
      */
-    evidence?: Array<{ [key: string]: any; } | null>;
+    evidence?: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {string}
@@ -59,10 +59,10 @@ export interface RunObservation {
     latency?: string;
     /**
      *
-     * @type {Array<string | null>}
+     * @type {Array<string>}
      * @memberof RunObservation
      */
-    nondeterministicPaths?: Array<string | null>;
+    nondeterministicPaths?: Array<string>;
     /**
      *
      * @type {any}
@@ -77,16 +77,16 @@ export interface RunObservation {
     schema?: any | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof RunObservation
      */
-    taskChronology?: Array<{ [key: string]: any; } | null>;
+    taskChronology?: Array<{ [key: string]: any; }>;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof RunObservation
      */
-    toolChronology?: Array<{ [key: string]: any; } | null>;
+    toolChronology?: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {{ [key: string]: string; }}

@@ -2,20 +2,20 @@
 
 ## Status
 
-This architecture incorporates the product-owner decisions recorded through 2026-09-26. AMESH is a strict clean-room, AGPL-3.0-only governed agent-session runtime on a durable workflow backbone ([ADR-081](../adr/081-focus-on-governed-agent-session-runtime.md)). Version-pinned Kestra compatibility remains the reference for measuring the existing workflow surfaces and is a deferred horizon rather than the current product target.
+This architecture incorporates the product-owner decisions recorded through 2026-09-26. AMESH is a strict clean-room, AGPL-3.0-only governed agent-session runtime on a durable workflow backbone ([ADR-081](../adr/081-focus-on-governed-agent-session-runtime.md)). The Kestra compatibility façade, import and transfer tooling, and SAML/LDAP/SCIM federation were removed by [ADR-085](../adr/085-remove-unused-compatibility-transfer-and-federation-surfaces.md); Kestra parity is not a product target.
 
-The production durable control plane uses Python 3.12 asyncio ([ADR-016](../adr/016-python-production-core.md); the earlier [Java 25 evaluation](backend-language-evaluation.md) is retained as history). PostgreSQL, React/TypeScript, runner scope, compatibility scope, on-premises Kubernetes, profile M, minimal v1 recovery, full migration, compliance readiness, AI merge authority and the isolated plugin model are also accepted decisions. No foundational product decision blocks implementation.
+The production durable control plane uses Python 3.12 asyncio ([ADR-016](../adr/016-python-production-core.md); the earlier [Java 25 evaluation](backend-language-evaluation.md) is retained as history). PostgreSQL, React/TypeScript, runner scope, on-premises Kubernetes, profile M, minimal v1 recovery, compliance readiness, AI merge authority and the isolated plugin model are also accepted decisions. No foundational product decision blocks implementation.
 
 ## Context
 
 ```mermaid
 flowchart LR
     Author[AI workflow developer / software engineer] --> UI[React web UI]
-    Author --> CLI[Kestra-compatible CLI / native SDK / GitOps]
+    Author --> CLI[CLI / native SDK / GitOps]
     Operator[Platform engineer] --> UI
     Auditor[Auditor] --> UI
     External[External events] --> Ingress[Webhooks / trigger connectors]
-    UI --> API[Native API + Kestra compatibility façade]
+    UI --> API[Native API]
     CLI --> API
     Ingress --> Trigger[Trigger service]
     API --> Core[Durable orchestration and agent-mesh control plane]
@@ -33,7 +33,6 @@ flowchart LR
 flowchart TB
   subgraph ControlPlane[Control plane]
     Web[Webserver\nREST + realtime + React UI]
-    Compat[Kestra compatibility façade\nYAML + Pebble + REST + CLI + export]
     Exec[Executor\ndeterministic reducer]
     Sched[Scheduler]
     Trigger[Trigger service]
@@ -52,13 +51,10 @@ flowchart TB
 
   PG[(PostgreSQL\nresources + events + queue + leases + projections)]
   Store[(Object storage)]
-  IdP[OIDC / SAML / LDAP / SCIM]
+  IdP[OIDC]
   Secrets[External secret managers]
 
   Web --> Auth
-  Web --> Compat
-  Compat --> Exec
-  Compat --> PG
   Sched --> PG
   Trigger --> PG
   Exec --> PG
@@ -80,8 +76,7 @@ flowchart TB
 
 | Service | Responsibility | Must not do |
 |---|---|---|
-| Webserver | Native and compatible REST APIs, realtime streams, UI assets and authentication entry points | Run user task code or own scheduling state |
-| Compatibility façade | Preserve pinned Kestra YAML, Pebble, REST, CLI, execution and import/export behavior | Mutate core state outside commands or silently approximate unsupported behavior |
+| Webserver | Native REST APIs, realtime streams, UI assets and authentication entry points | Run user task code or own scheduling state |
 | Executor | Apply commands/events through a deterministic reducer and emit next actions | Call arbitrary external services |
 | Scheduler | Calculate temporal occurrences and acquire fenced schedule ownership | Execute tasks |
 | Trigger service | Operate polling/realtime trigger instances and durable checkpoints | Mutate execution state outside commands |
@@ -165,7 +160,7 @@ flowchart TB
 | Production topology | On-premises Kubernetes/Helm; Docker Compose development; single-host secondary | Accepted |
 | Scale | Profile M: 100k executions/day, 1k active tasks, 50 starts/s, 10m retained | Accepted |
 | Recovery | v1 RPO <= 48h and RTO <= 8h; tighter 4h/4h post-GA target | Accepted |
-| Migration | Full side-by-side resources, governance, history, logs, artifacts and audit evidence | Accepted |
+| Migration | No import or transfer tooling; whole deployments move by backup and restore ([ADR-085](../adr/085-remove-unused-compatibility-transfer-and-federation-surfaces.md)) | Accepted |
 | Compliance | SOC 2 and ISO/IEC 27001 readiness; no certification claim | Accepted |
 | Licence | AGPL-3.0-only, one fully open distribution | Accepted and confirmed |
 

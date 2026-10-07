@@ -42,7 +42,6 @@ class AgentEvaluationSpecInput(BaseModel):
     namespace: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
     rubric: Optional[List[AgentRubricCriterionInput]] = None
     title: Annotated[str, Field(min_length=1, strict=True, max_length=256)]
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["assertions", "description", "fixtures", "judge", "key", "kind", "minimumRubricScore", "namespace", "rubric", "title"]
 
     @field_validator('key', mode="before")
@@ -92,10 +91,8 @@ class AgentEvaluationSpecInput(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -123,11 +120,6 @@ class AgentEvaluationSpecInput(BaseModel):
                 if _item_rubric:
                     _items.append(_item_rubric.to_dict())
             _dict['rubric'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if judge (nullable) is None
         # and model_fields_set contains the field
         if self.judge is None and "judge" in self.model_fields_set:
@@ -156,9 +148,4 @@ class AgentEvaluationSpecInput(BaseModel):
             "rubric": [AgentRubricCriterionInput.from_dict(_item) for _item in obj["rubric"]] if obj.get("rubric") is not None else None,
             "title": obj.get("title")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

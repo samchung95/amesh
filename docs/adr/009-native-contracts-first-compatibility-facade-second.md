@@ -1,6 +1,6 @@
 # ADR-009: Native core with complete version-pinned Kestra compatibility façades
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-085](085-remove-unused-compatibility-transfer-and-federation-surfaces.md) on 2026-10-07; the compatibility façades were removed
 - **Decision question:** Q-005
 - **Date:** 2026-08-15
 

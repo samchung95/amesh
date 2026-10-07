@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,19 +21,18 @@ var _ MappedNullable = &OpenAIResponse{}
 
 // OpenAIResponse Completed or token-limited OpenAI-compatible Responses object.
 type OpenAIResponse struct {
-	CompletedAt          NullableInt32                           `json:"completed_at,omitempty"`
-	CreatedAt            int32                                   `json:"created_at"`
-	Error                map[string]interface{}                  `json:"error,omitempty"`
-	Id                   string                                  `json:"id"`
-	IncompleteDetails    NullableOpenAIResponseIncompleteDetails `json:"incomplete_details,omitempty"`
-	Instructions         NullableString                          `json:"instructions,omitempty"`
-	Model                string                                  `json:"model"`
-	Object               *string                                 `json:"object,omitempty"`
-	Output               []OpenAIResponseOutputMessage           `json:"output"`
-	OutputText           string                                  `json:"output_text"`
-	Status               string                                  `json:"status"`
-	Usage                NullableOpenAIResponseUsage             `json:"usage,omitempty"`
-	AdditionalProperties map[string]interface{}
+	CompletedAt       NullableInt32                           `json:"completed_at,omitempty"`
+	CreatedAt         int32                                   `json:"created_at"`
+	Error             map[string]interface{}                  `json:"error,omitempty"`
+	Id                string                                  `json:"id"`
+	IncompleteDetails NullableOpenAIResponseIncompleteDetails `json:"incomplete_details,omitempty"`
+	Instructions      NullableString                          `json:"instructions,omitempty"`
+	Model             string                                  `json:"model"`
+	Object            *string                                 `json:"object,omitempty"`
+	Output            []OpenAIResponseOutputMessage           `json:"output"`
+	OutputText        string                                  `json:"output_text"`
+	Status            string                                  `json:"status"`
+	Usage             NullableOpenAIResponseUsage             `json:"usage,omitempty"`
 }
 
 type _OpenAIResponse OpenAIResponse
@@ -479,11 +479,6 @@ func (o OpenAIResponse) ToMap() (map[string]interface{}, error) {
 	if o.Usage.IsSet() {
 		toSerialize["usage"] = o.Usage.Get()
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -516,31 +511,15 @@ func (o *OpenAIResponse) UnmarshalJSON(data []byte) (err error) {
 
 	varOpenAIResponse := _OpenAIResponse{}
 
-	err = json.Unmarshal(data, &varOpenAIResponse)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varOpenAIResponse)
 
 	if err != nil {
 		return err
 	}
 
 	*o = OpenAIResponse(varOpenAIResponse)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "completed_at")
-		delete(additionalProperties, "created_at")
-		delete(additionalProperties, "error")
-		delete(additionalProperties, "id")
-		delete(additionalProperties, "incomplete_details")
-		delete(additionalProperties, "instructions")
-		delete(additionalProperties, "model")
-		delete(additionalProperties, "object")
-		delete(additionalProperties, "output")
-		delete(additionalProperties, "output_text")
-		delete(additionalProperties, "status")
-		delete(additionalProperties, "usage")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

@@ -127,7 +127,6 @@ from amesh.workflow.metadata import (
 router_1 = APIRouter()
 router_2 = APIRouter()
 router_3 = APIRouter()
-router_4 = APIRouter()
 
 
 _EDITOR_CONTEXT_KEYS = frozenset(

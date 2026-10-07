@@ -69,9 +69,8 @@ persistence, runner, production credential or infrastructure access. **Setup gui
 storage, local-runner and authentication readiness and retains checklist completion only in
 tenant/user-scoped browser storage. See the [first-run guide](../docs/operations/onboarding.md).
 
-The sign-in gate lists providers routed by the entered email domain and tenant. Local and LDAP
-providers accept credentials in place; OIDC and SAML providers continue through their browser
-redirect. Operator configuration and rotation are covered by the
+The sign-in gate lists providers routed by the entered email domain and tenant. Local accounts
+accept credentials in place; OIDC providers continue through their browser redirect. Operator configuration and rotation are covered by the
 [identity federation runbook](../docs/operations/identity-federation.md).
 
 ## Debug executions

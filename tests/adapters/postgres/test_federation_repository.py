@@ -23,7 +23,6 @@ from amesh.domain import (
 )
 from amesh.ports.federation_repository import (
     AmbiguousFederatedIdentity,
-    FederationReplayRejected,
     FederationStateRejected,
 )
 
@@ -35,7 +34,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_federated_identity_state_mapping_replay_and_scim_lifecycle(
+def test_federated_identity_state_and_group_mapping(
     migrated_test_database_url: str,
 ) -> None:
     async def scenario() -> None:
@@ -126,66 +125,6 @@ def test_federated_identity_state_mapping_replay_and_scim_lifecycle(
                     default_role=None,
                 )
 
-            await repository.record_assertion(
-                "corporate-saml",
-                "assertion-1",
-                expires_at=now + timedelta(minutes=5),
-            )
-            with pytest.raises(FederationReplayRejected):
-                await repository.record_assertion(
-                    "corporate-saml",
-                    "assertion-1",
-                    expires_at=now + timedelta(minutes=5),
-                )
-
-            scim_user = await repository.create_scim(
-                "entra",
-                "User",
-                handle="scim-grace-example-com",
-                resource_name="grace@example.com",
-                display_name="Grace Hopper",
-                enabled=True,
-                external_id="entra-user-1",
-                tenant="default",
-                role="viewer",
-            )
-            scim_group = await repository.create_scim(
-                "entra",
-                "Group",
-                handle="scim-platform-team",
-                resource_name="Platform team",
-                display_name="Platform team",
-                enabled=True,
-                external_id="entra-group-1",
-                tenant="default",
-                role="viewer",
-                member_ids=(scim_user.principal_id,),
-            )
-            assert scim_group.member_ids == (scim_user.principal_id,)
-            filtered = await repository.list_scim(
-                "entra",
-                "User",
-                handle="grace@example.com",
-            )
-            assert [item.principal_id for item in filtered] == [scim_user.principal_id]
-            disabled = await repository.update_scim(
-                "entra",
-                "User",
-                scim_user.principal_id,
-                enabled=False,
-            )
-            assert not disabled.enabled
-            emptied = await repository.update_scim(
-                "entra",
-                "Group",
-                scim_group.principal_id,
-                member_ids=(),
-            )
-            assert emptied.member_ids == ()
-            await repository.delete_scim("entra", "User", scim_user.principal_id)
-            with pytest.raises(LookupError):
-                await repository.get_scim("entra", "User", scim_user.principal_id)
-
             async with engine.connect() as connection:
                 membership_count = int(
                     await connection.scalar(
@@ -227,7 +166,6 @@ def test_federated_identity_state_mapping_replay_and_scim_lifecycle(
             assert membership_count == 0
             assert tenant_binding_count == 1
             assert "federation.identity.provision" in audit_actions
-            assert "scim.user.delete" in audit_actions
         finally:
             await engine.dispose()
 

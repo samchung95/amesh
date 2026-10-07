@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface OpenAIResponseOutputText {
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof OpenAIResponseOutputText
      */
-    annotations?: Array<{ [key: string]: any; } | null>;
+    annotations?: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {string}

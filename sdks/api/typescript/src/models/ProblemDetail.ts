@@ -33,10 +33,10 @@ export interface ProblemDetail {
     detail: any | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof ProblemDetail
      */
-    errors?: Array<{ [key: string]: any; } | null> | null;
+    errors?: Array<{ [key: string]: any; }> | null;
     /**
      *
      * @type {string}

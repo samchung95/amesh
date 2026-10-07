@@ -23,7 +23,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.agent_harness_pin import AgentHarnessPin
-from amesh_client.models.agent_session_counters_output import AgentSessionCountersOutput
+from amesh_client.models.agent_session_counters import AgentSessionCounters
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -38,7 +38,7 @@ class AgentSessionFleetItem(BaseModel):
     attempt_session_id: Optional[UUID] = Field(default=None, alias="attemptSessionId")
     capability_pin_id: Optional[UUID] = Field(default=None, alias="capabilityPinId")
     completed_at: Optional[datetime] = Field(default=None, alias="completedAt")
-    counters: Optional[AgentSessionCountersOutput] = None
+    counters: Optional[AgentSessionCounters] = None
     created_at: datetime = Field(alias="createdAt")
     dependency_health: Optional[StrictStr] = Field(default='HEALTHY', alias="dependencyHealth")
     dependency_keys: Optional[Annotated[List[Optional[StrictStr]], Field(max_length=20)]] = Field(default=None, alias="dependencyKeys")
@@ -198,7 +198,7 @@ class AgentSessionFleetItem(BaseModel):
             "attemptSessionId": obj.get("attemptSessionId"),
             "capabilityPinId": obj.get("capabilityPinId"),
             "completedAt": obj.get("completedAt"),
-            "counters": AgentSessionCountersOutput.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
+            "counters": AgentSessionCounters.from_dict(obj["counters"]) if obj.get("counters") is not None else None,
             "createdAt": obj.get("createdAt"),
             "dependencyHealth": obj.get("dependencyHealth") if obj.get("dependencyHealth") is not None else 'HEALTHY',
             "dependencyKeys": obj.get("dependencyKeys"),

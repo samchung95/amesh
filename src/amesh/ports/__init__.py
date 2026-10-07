@@ -136,7 +136,6 @@ from .execution_repository import (
 from .feature_flags import FeatureFlagRepository, FeatureFlagVersionConflict
 from .federation_repository import (
     AmbiguousFederatedIdentity,
-    FederationReplayRejected,
     FederationRepository,
     FederationStateRejected,
 )
@@ -366,7 +365,6 @@ __all__ = [
     "ExecutionStateConflictError",
     "FeatureFlagRepository",
     "FeatureFlagVersionConflict",
-    "FederationReplayRejected",
     "FederationRepository",
     "FederationStateRejected",
     "FlowRegistryRepository",

@@ -27,10 +27,10 @@ export interface FlowGraphNode {
     branchId?: string | null;
     /**
      *
-     * @type {Array<string | null>}
+     * @type {Array<string>}
      * @memberof FlowGraphNode
      */
-    children?: Array<string | null>;
+    children?: Array<string>;
     /**
      *
      * @type {Array<string>}

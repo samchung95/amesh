@@ -1,4 +1,4 @@
-import { apiOperation, type ApiJsonRequestBody, type ApiQueryParameters } from '../openapi'
+import { apiOperation, type ApiQueryParameters } from '../openapi'
 import type {
   AgentSessionSummary,
   AgentSessionControlEventPage,

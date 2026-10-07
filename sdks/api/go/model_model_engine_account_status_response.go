@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,16 +21,15 @@ var _ MappedNullable = &ModelEngineAccountStatusResponse{}
 
 // ModelEngineAccountStatusResponse Namespace binding plus the port's safe account status projection.
 type ModelEngineAccountStatusResponse struct {
-	ActionRequired       *bool                  `json:"actionRequired,omitempty"`
-	Adapter              string                 `json:"adapter"`
-	AuthMode             NullableString         `json:"authMode,omitempty"`
-	Authenticated        NullableBool           `json:"authenticated"`
-	EngineRef            string                 `json:"engineRef"`
-	PlanType             NullableString         `json:"planType,omitempty"`
-	RateLimits           map[string]interface{} `json:"rateLimits,omitempty"`
-	RequiresOpenaiAuth   NullableBool           `json:"requiresOpenaiAuth,omitempty"`
-	Usage                map[string]interface{} `json:"usage,omitempty"`
-	AdditionalProperties map[string]interface{}
+	ActionRequired     *bool                  `json:"actionRequired,omitempty"`
+	Adapter            string                 `json:"adapter"`
+	AuthMode           NullableString         `json:"authMode,omitempty"`
+	Authenticated      NullableBool           `json:"authenticated"`
+	EngineRef          string                 `json:"engineRef"`
+	PlanType           NullableString         `json:"planType,omitempty"`
+	RateLimits         map[string]interface{} `json:"rateLimits,omitempty"`
+	RequiresOpenaiAuth NullableBool           `json:"requiresOpenaiAuth,omitempty"`
+	Usage              map[string]interface{} `json:"usage,omitempty"`
 }
 
 type _ModelEngineAccountStatusResponse ModelEngineAccountStatusResponse
@@ -390,11 +390,6 @@ func (o ModelEngineAccountStatusResponse) ToMap() (map[string]interface{}, error
 	if o.Usage != nil {
 		toSerialize["usage"] = o.Usage
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -424,28 +419,15 @@ func (o *ModelEngineAccountStatusResponse) UnmarshalJSON(data []byte) (err error
 
 	varModelEngineAccountStatusResponse := _ModelEngineAccountStatusResponse{}
 
-	err = json.Unmarshal(data, &varModelEngineAccountStatusResponse)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varModelEngineAccountStatusResponse)
 
 	if err != nil {
 		return err
 	}
 
 	*o = ModelEngineAccountStatusResponse(varModelEngineAccountStatusResponse)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "actionRequired")
-		delete(additionalProperties, "adapter")
-		delete(additionalProperties, "authMode")
-		delete(additionalProperties, "authenticated")
-		delete(additionalProperties, "engineRef")
-		delete(additionalProperties, "planType")
-		delete(additionalProperties, "rateLimits")
-		delete(additionalProperties, "requiresOpenaiAuth")
-		delete(additionalProperties, "usage")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

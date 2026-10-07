@@ -80,17 +80,6 @@ platform responsibilities rather than connector-specific behavior. Typed conditi
 notification delivery policy, shared timeout/retry/cancellation/secret scoping and connector fault
 fixtures are defined in the [extension contract guide](../plugin-sdk/extension-contracts.md).
 
-## Kestra migration path
-
-1. Parse the existing task/trigger configuration through the versioned compatibility model.
-2. Produce an exact field mapping, adapter mapping or blocked-gap report.
-3. Generate a native SDK project with schemas, examples and fixture tests.
-4. Port only the external interaction logic; platform state, retry and logging behavior remains in the AMESH SDK/runtime.
-5. Run configuration, behavior, failure and performance conformance.
-6. Publish a signed package and migration report.
-
-Migration tooling should make common stateless plugins mechanical. It must never hide unsupported APIs or copy upstream implementation code.
-
 ## Capability handshake
 
 1. Supervisor starts a pinned plugin package in a constrained environment.

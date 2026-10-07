@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,16 +21,15 @@ var _ MappedNullable = &OpenAIChatCompletionRequest{}
 
 // OpenAIChatCompletionRequest Supported OpenAI chat-completion request fields at the HTTP edge.
 type OpenAIChatCompletionRequest struct {
-	MaxCompletionTokens  NullableInt32             `json:"max_completion_tokens,omitempty"`
-	MaxTokens            NullableInt32             `json:"max_tokens,omitempty"`
-	Messages             []*map[string]interface{} `json:"messages"`
-	Model                string                    `json:"model"`
-	ResponseFormat       map[string]interface{}    `json:"response_format,omitempty"`
-	Stream               *bool                     `json:"stream,omitempty"`
-	Temperature          NullableFloat32           `json:"temperature,omitempty"`
-	TopP                 NullableFloat32           `json:"top_p,omitempty"`
-	User                 NullableString            `json:"user,omitempty"`
-	AdditionalProperties map[string]interface{}
+	MaxCompletionTokens NullableInt32            `json:"max_completion_tokens,omitempty"`
+	MaxTokens           NullableInt32            `json:"max_tokens,omitempty"`
+	Messages            []map[string]interface{} `json:"messages"`
+	Model               string                   `json:"model"`
+	ResponseFormat      map[string]interface{}   `json:"response_format,omitempty"`
+	Stream              *bool                    `json:"stream,omitempty"`
+	Temperature         NullableFloat32          `json:"temperature,omitempty"`
+	TopP                NullableFloat32          `json:"top_p,omitempty"`
+	User                NullableString           `json:"user,omitempty"`
 }
 
 type _OpenAIChatCompletionRequest OpenAIChatCompletionRequest
@@ -38,7 +38,7 @@ type _OpenAIChatCompletionRequest OpenAIChatCompletionRequest
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewOpenAIChatCompletionRequest(messages []*map[string]interface{}, model string) *OpenAIChatCompletionRequest {
+func NewOpenAIChatCompletionRequest(messages []map[string]interface{}, model string) *OpenAIChatCompletionRequest {
 	this := OpenAIChatCompletionRequest{}
 	this.Messages = messages
 	this.Model = model
@@ -144,9 +144,9 @@ func (o *OpenAIChatCompletionRequest) UnsetMaxTokens() {
 }
 
 // GetMessages returns the Messages field value
-func (o *OpenAIChatCompletionRequest) GetMessages() []*map[string]interface{} {
+func (o *OpenAIChatCompletionRequest) GetMessages() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 
@@ -155,7 +155,7 @@ func (o *OpenAIChatCompletionRequest) GetMessages() []*map[string]interface{} {
 
 // GetMessagesOk returns a tuple with the Messages field value
 // and a boolean to check if the value has been set.
-func (o *OpenAIChatCompletionRequest) GetMessagesOk() ([]*map[string]interface{}, bool) {
+func (o *OpenAIChatCompletionRequest) GetMessagesOk() ([]map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -163,7 +163,7 @@ func (o *OpenAIChatCompletionRequest) GetMessagesOk() ([]*map[string]interface{}
 }
 
 // SetMessages sets field value
-func (o *OpenAIChatCompletionRequest) SetMessages(v []*map[string]interface{}) {
+func (o *OpenAIChatCompletionRequest) SetMessages(v []map[string]interface{}) {
 	o.Messages = v
 }
 
@@ -418,11 +418,6 @@ func (o OpenAIChatCompletionRequest) ToMap() (map[string]interface{}, error) {
 	if o.User.IsSet() {
 		toSerialize["user"] = o.User.Get()
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -451,28 +446,15 @@ func (o *OpenAIChatCompletionRequest) UnmarshalJSON(data []byte) (err error) {
 
 	varOpenAIChatCompletionRequest := _OpenAIChatCompletionRequest{}
 
-	err = json.Unmarshal(data, &varOpenAIChatCompletionRequest)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varOpenAIChatCompletionRequest)
 
 	if err != nil {
 		return err
 	}
 
 	*o = OpenAIChatCompletionRequest(varOpenAIChatCompletionRequest)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "max_completion_tokens")
-		delete(additionalProperties, "max_tokens")
-		delete(additionalProperties, "messages")
-		delete(additionalProperties, "model")
-		delete(additionalProperties, "response_format")
-		delete(additionalProperties, "stream")
-		delete(additionalProperties, "temperature")
-		delete(additionalProperties, "top_p")
-		delete(additionalProperties, "user")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

@@ -355,24 +355,3 @@ func documentField(body []byte, field string) ([]byte, error) {
 	}
 	return json.Marshal(value)
 }
-
-func scimPatch(body []byte) ([]byte, error) {
-	var object map[string]any
-	if err := json.Unmarshal(body, &object); err != nil {
-		return nil, fmt.Errorf("decode SCIM document: %w", err)
-	}
-	operations := make([]map[string]any, 0, len(object))
-	for key, value := range object {
-		if key == "schemas" || key == "id" || key == "meta" {
-			continue
-		}
-		operations = append(operations, map[string]any{"op": "replace", "path": key, "value": value})
-	}
-	sort.Slice(operations, func(left, right int) bool {
-		return operations[left]["path"].(string) < operations[right]["path"].(string)
-	})
-	return json.Marshal(map[string]any{
-		"schemas":    []string{"urn:ietf:params:scim:api:messages:2.0:PatchOp"},
-		"Operations": operations,
-	})
-}

@@ -29,7 +29,7 @@ class FlowGraphNode(BaseModel):
     FlowGraphNode
     """ # noqa: E501
     branch_id: Optional[StrictStr] = Field(default=None, alias="branchId")
-    children: Optional[List[Optional[StrictStr]]] = None
+    children: Optional[List[StrictStr]] = None
     dependencies: Optional[List[StrictStr]] = None
     depth: Annotated[int, Field(strict=True, ge=0)]
     failure_policy: StrictStr = Field(alias="failurePolicy")

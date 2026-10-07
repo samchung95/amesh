@@ -32,11 +32,7 @@ public enum AuthenticationProviderKind {
 
   LOCAL("local"),
 
-  OIDC("oidc"),
-
-  SAML("saml"),
-
-  LDAP("ldap");
+  OIDC("oidc");
 
   private String value;
 

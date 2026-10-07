@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { EffectiveCapabilityEnvelopeOutput } from './EffectiveCapabilityEnvelopeOutput';
+import type { EffectiveCapabilityEnvelope } from './EffectiveCapabilityEnvelope';
 import {
-    EffectiveCapabilityEnvelopeOutputFromJSON,
-    EffectiveCapabilityEnvelopeOutputFromJSONTyped,
-    EffectiveCapabilityEnvelopeOutputToJSON,
-    EffectiveCapabilityEnvelopeOutputToJSONTyped,
-} from './EffectiveCapabilityEnvelopeOutput';
+    EffectiveCapabilityEnvelopeFromJSON,
+    EffectiveCapabilityEnvelopeFromJSONTyped,
+    EffectiveCapabilityEnvelopeToJSON,
+    EffectiveCapabilityEnvelopeToJSONTyped,
+} from './EffectiveCapabilityEnvelope';
 
 /**
  *
@@ -35,10 +35,10 @@ export interface AgentEnvelopePreview {
     agentRevision: number;
     /**
      *
-     * @type {EffectiveCapabilityEnvelopeOutput}
+     * @type {EffectiveCapabilityEnvelope}
      * @memberof AgentEnvelopePreview
      */
-    envelope: EffectiveCapabilityEnvelopeOutput;
+    envelope: EffectiveCapabilityEnvelope;
     /**
      *
      * @type {string}
@@ -80,7 +80,7 @@ export function AgentEnvelopePreviewFromJSONTyped(json: any, ignoreDiscriminator
     return {
 
         'agentRevision': json['agentRevision'],
-        'envelope': EffectiveCapabilityEnvelopeOutputFromJSON(json['envelope']),
+        'envelope': EffectiveCapabilityEnvelopeFromJSON(json['envelope']),
         'envelopeDigest': json['envelopeDigest'],
         'externalCallsSuppressed': json['externalCallsSuppressed'] == null ? undefined : json['externalCallsSuppressed'],
         'modelBehaviorUnknown': json['modelBehaviorUnknown'] == null ? undefined : json['modelBehaviorUnknown'],
@@ -99,7 +99,7 @@ export function AgentEnvelopePreviewToJSONTyped(value?: AgentEnvelopePreview | n
     return {
 
         'agentRevision': value['agentRevision'],
-        'envelope': EffectiveCapabilityEnvelopeOutputToJSON(value['envelope']),
+        'envelope': EffectiveCapabilityEnvelopeToJSON(value['envelope']),
         'envelopeDigest': value['envelopeDigest'],
         'externalCallsSuppressed': value['externalCallsSuppressed'],
         'modelBehaviorUnknown': value['modelBehaviorUnknown'],

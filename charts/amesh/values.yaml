@@ -19,7 +19,6 @@ auth:
 identity:
   providerConfigExistingSecret: ""
   providerConfigKey: identity-providers
-  scimConfigKey: scim-providers
   credentialSecret: ""
   mountPath: /var/run/secrets/amesh/identity
 

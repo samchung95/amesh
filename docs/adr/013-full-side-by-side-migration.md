@@ -1,6 +1,6 @@
 # ADR-013: Full side-by-side migration
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-085](085-remove-unused-compatibility-transfer-and-federation-surfaces.md) on 2026-10-07; the transfer tooling was removed
 - **Decision question:** Q-017
 - **Date:** 2026-08-15
 

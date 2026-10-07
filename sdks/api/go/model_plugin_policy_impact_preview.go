@@ -21,10 +21,10 @@ var _ MappedNullable = &PluginPolicyImpactPreview{}
 
 // PluginPolicyImpactPreview struct for PluginPolicyImpactPreview
 type PluginPolicyImpactPreview struct {
-	AffectedFlows     []*map[string]interface{} `json:"affectedFlows"`
-	Package           string                    `json:"package"`
-	RunningExecutions []*map[string]interface{} `json:"runningExecutions"`
-	Version           string                    `json:"version"`
+	AffectedFlows     []map[string]interface{} `json:"affectedFlows"`
+	Package           string                   `json:"package"`
+	RunningExecutions []map[string]interface{} `json:"runningExecutions"`
+	Version           string                   `json:"version"`
 }
 
 type _PluginPolicyImpactPreview PluginPolicyImpactPreview
@@ -33,7 +33,7 @@ type _PluginPolicyImpactPreview PluginPolicyImpactPreview
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewPluginPolicyImpactPreview(affectedFlows []*map[string]interface{}, package_ string, runningExecutions []*map[string]interface{}, version string) *PluginPolicyImpactPreview {
+func NewPluginPolicyImpactPreview(affectedFlows []map[string]interface{}, package_ string, runningExecutions []map[string]interface{}, version string) *PluginPolicyImpactPreview {
 	this := PluginPolicyImpactPreview{}
 	this.AffectedFlows = affectedFlows
 	this.Package = package_
@@ -51,9 +51,9 @@ func NewPluginPolicyImpactPreviewWithDefaults() *PluginPolicyImpactPreview {
 }
 
 // GetAffectedFlows returns the AffectedFlows field value
-func (o *PluginPolicyImpactPreview) GetAffectedFlows() []*map[string]interface{} {
+func (o *PluginPolicyImpactPreview) GetAffectedFlows() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 
@@ -62,7 +62,7 @@ func (o *PluginPolicyImpactPreview) GetAffectedFlows() []*map[string]interface{}
 
 // GetAffectedFlowsOk returns a tuple with the AffectedFlows field value
 // and a boolean to check if the value has been set.
-func (o *PluginPolicyImpactPreview) GetAffectedFlowsOk() ([]*map[string]interface{}, bool) {
+func (o *PluginPolicyImpactPreview) GetAffectedFlowsOk() ([]map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -70,7 +70,7 @@ func (o *PluginPolicyImpactPreview) GetAffectedFlowsOk() ([]*map[string]interfac
 }
 
 // SetAffectedFlows sets field value
-func (o *PluginPolicyImpactPreview) SetAffectedFlows(v []*map[string]interface{}) {
+func (o *PluginPolicyImpactPreview) SetAffectedFlows(v []map[string]interface{}) {
 	o.AffectedFlows = v
 }
 
@@ -99,9 +99,9 @@ func (o *PluginPolicyImpactPreview) SetPackage(v string) {
 }
 
 // GetRunningExecutions returns the RunningExecutions field value
-func (o *PluginPolicyImpactPreview) GetRunningExecutions() []*map[string]interface{} {
+func (o *PluginPolicyImpactPreview) GetRunningExecutions() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 
@@ -110,7 +110,7 @@ func (o *PluginPolicyImpactPreview) GetRunningExecutions() []*map[string]interfa
 
 // GetRunningExecutionsOk returns a tuple with the RunningExecutions field value
 // and a boolean to check if the value has been set.
-func (o *PluginPolicyImpactPreview) GetRunningExecutionsOk() ([]*map[string]interface{}, bool) {
+func (o *PluginPolicyImpactPreview) GetRunningExecutionsOk() ([]map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -118,7 +118,7 @@ func (o *PluginPolicyImpactPreview) GetRunningExecutionsOk() ([]*map[string]inte
 }
 
 // SetRunningExecutions sets field value
-func (o *PluginPolicyImpactPreview) SetRunningExecutions(v []*map[string]interface{}) {
+func (o *PluginPolicyImpactPreview) SetRunningExecutions(v []map[string]interface{}) {
 	o.RunningExecutions = v
 }
 

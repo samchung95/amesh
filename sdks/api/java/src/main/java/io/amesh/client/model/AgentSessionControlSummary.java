@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentHarnessPin;
-import io.amesh.client.model.AgentSessionCountersOutput;
+import io.amesh.client.model.AgentSessionCounters;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -90,7 +90,7 @@ public class AgentSessionControlSummary {
   private JsonNullable<OffsetDateTime> completedAt = JsonNullable.<OffsetDateTime>undefined();
 
   public static final String JSON_PROPERTY_COUNTERS = "counters";
-  private JsonNullable<AgentSessionCountersOutput> counters = JsonNullable.<AgentSessionCountersOutput>undefined();
+  private JsonNullable<AgentSessionCounters> counters = JsonNullable.<AgentSessionCounters>undefined();
 
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @javax.annotation.Nonnull
@@ -409,8 +409,8 @@ public class AgentSessionControlSummary {
   }
 
 
-  public AgentSessionControlSummary counters(@javax.annotation.Nullable AgentSessionCountersOutput counters) {
-    this.counters = JsonNullable.<AgentSessionCountersOutput>of(counters);
+  public AgentSessionControlSummary counters(@javax.annotation.Nullable AgentSessionCounters counters) {
+    this.counters = JsonNullable.<AgentSessionCounters>of(counters);
     return this;
   }
 
@@ -420,24 +420,24 @@ public class AgentSessionControlSummary {
    */
   @javax.annotation.Nullable
   @JsonIgnore
-  public AgentSessionCountersOutput getCounters() {
+  public AgentSessionCounters getCounters() {
         return counters.orElse(null);
   }
 
   @JsonProperty(value = JSON_PROPERTY_COUNTERS, required = false)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public JsonNullable<AgentSessionCountersOutput> getCounters_JsonNullable() {
+  public JsonNullable<AgentSessionCounters> getCounters_JsonNullable() {
     return counters;
   }
 
   @JsonProperty(JSON_PROPERTY_COUNTERS)
-  public void setCounters_JsonNullable(JsonNullable<AgentSessionCountersOutput> counters) {
+  public void setCounters_JsonNullable(JsonNullable<AgentSessionCounters> counters) {
     this.counters = counters;
   }
 
-  public void setCounters(@javax.annotation.Nullable AgentSessionCountersOutput counters) {
-    this.counters = JsonNullable.<AgentSessionCountersOutput>of(counters);
+  public void setCounters(@javax.annotation.Nullable AgentSessionCounters counters) {
+    this.counters = JsonNullable.<AgentSessionCounters>of(counters);
   }
 
 

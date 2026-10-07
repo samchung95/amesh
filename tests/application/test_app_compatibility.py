@@ -46,9 +46,9 @@ def test_legacy_app_alias_preserves_monkeypatches_and_openapi_in_fresh_process(
         separators=(",", ":"),
         ensure_ascii=False,
     ).encode()
-    assert len(canonical) == 779054
+    assert len(canonical) == 716455
     assert hashlib.sha256(canonical).hexdigest() == (
-        "3c623cd4937b25d1fded854e92ce3f10d02388513c52832fe22e4220805c6a8d"
+        "4df0b190a98f435d7fde815329d4dfec332a44903f86dc60b6c62835251955ff"
     )
 
     source_root = Path(__file__).resolve().parents[2] / "src"
@@ -84,7 +84,7 @@ print(len(document), hashlib.sha256(document).hexdigest())
         text=True,
     )
     assert probe.stdout.strip() == (
-        "779054 3c623cd4937b25d1fded854e92ce3f10d02388513c52832fe22e4220805c6a8d"
+        "716455 4df0b190a98f435d7fde815329d4dfec332a44903f86dc60b6c62835251955ff"
     )
 
 
@@ -121,7 +121,7 @@ assert cached_providers
 assert all(provider.cache_info().currsize == 0 for provider in cached_providers)
 assert "amesh.mcp_server" not in sys.modules
 assert application._default_application is None
-assert len(created.openapi()["paths"]) == 278
+assert len(created.openapi()["paths"]) == 263
 """,
         ],
         cwd=source_root.parent,

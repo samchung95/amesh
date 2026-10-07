@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import os
-import re
 import secrets
 from collections.abc import Awaitable, Callable, Iterator
 from contextlib import contextmanager
@@ -15,7 +13,6 @@ from functools import wraps
 from pathlib import Path
 from threading import RLock
 from typing import Annotated, NamedTuple, NoReturn, cast
-from urllib.parse import parse_qs
 from uuid import UUID
 
 from fastapi import (
@@ -74,13 +71,6 @@ from amesh.admission_policy import AdmissionPolicyService
 from amesh.api.model_engines import (
     ModelEngineAccountService,
 )
-from amesh.api.models import (
-    ScimGroupResource,
-    ScimMember,
-    ScimPatchRequest,
-    ScimResourceMeta,
-    ScimUserResource,
-)
 from amesh.application import (
     build_authentication_service,
 )
@@ -93,7 +83,6 @@ from amesh.authentication import (
 from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.config import (
     ConfigurationManager,
-    ScimProviderConfig,
     Settings,
     get_configuration_manager,
     get_settings,
@@ -109,7 +98,6 @@ from amesh.domain import (
     PolicyDecision,
     PolicyStage,
     PrincipalType,
-    ScimResourceRecord,
     ServiceRole,
     TenantSlug,
 )
@@ -1112,7 +1100,6 @@ def get_authentication_service() -> AuthenticationService:
     return build_authentication_service(
         settings,
         get_authentication_repository(),
-        federation_repository=get_federation_repository(),
     )
 
 
@@ -1135,47 +1122,6 @@ def get_federation_service() -> IdentityFederationService:
 FederationServiceDependency = Annotated[
     IdentityFederationService,
     Depends(get_federation_service),
-]
-
-
-async def authenticate_scim_provider(
-    settings: SettingsDependency,
-    authorization: Annotated[str | None, Header()] = None,
-) -> ScimProviderConfig:
-    if authorization is None or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="SCIM bearer token required",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    supplied = authorization[7:]
-    unavailable = False
-    for provider in settings.scim_providers:
-        try:
-            configured = Path(provider.token_file).read_text(encoding="utf-8").strip()
-        except OSError:
-            unavailable = True
-            continue
-        if configured and secrets.compare_digest(supplied, configured):
-            return provider
-    if unavailable and settings.scim_providers:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="SCIM provider credential is unavailable",
-        )
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="invalid SCIM bearer token",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-
-ScimProviderDependency = Annotated[ScimProviderConfig, Depends(authenticate_scim_provider)]
-
-
-FederationRepositoryDependency = Annotated[
-    FederationRepository,
-    Depends(get_federation_repository),
 ]
 
 
@@ -1452,156 +1398,6 @@ def _set_issued_session_cookies(
         csrf_token=issued.csrf_token.get_secret_value(),
         max_age=max_age,
     )
-
-
-def _urlencoded_form(body: bytes) -> dict[str, str]:
-    try:
-        decoded = body.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise HTTPException(status_code=400, detail="form payload must be UTF-8") from exc
-    return {key: values[-1] for key, values in parse_qs(decoded, keep_blank_values=True).items()}
-
-
-def _saml_request_data(
-    request: Request,
-    *,
-    post_data: dict[str, str] | None = None,
-) -> dict[str, object]:
-    port = request.url.port or (443 if request.url.scheme == "https" else 80)
-    return {
-        "https": "on" if request.url.scheme == "https" else "off",
-        "http_host": request.url.hostname or "localhost",
-        "server_port": str(port),
-        "script_name": request.url.path,
-        "get_data": dict(request.query_params),
-        "post_data": post_data or {},
-        "query_string": request.url.query,
-    }
-
-
-def _scim_filter_value(filter_value: str | None, attribute: str) -> str | None:
-    if filter_value is None:
-        return None
-    matched = re.fullmatch(
-        rf'\s*{re.escape(attribute)}\s+eq\s+"([^"]+)"\s*',
-        filter_value,
-        flags=re.IGNORECASE,
-    )
-    if matched is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f'SCIM filter must use {attribute} eq "value"',
-        )
-    return matched.group(1)
-
-
-def _scim_principal_handle(value: str) -> str:
-    slug = re.sub(r"[^a-z0-9_-]+", "-", value.strip().lower()).strip("-_")
-    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()[:10]
-    return f"scim-{(slug or 'resource')[:80]}-{digest}"
-
-
-def _scim_meta(record: ScimResourceRecord) -> ScimResourceMeta:
-    plural = "Users" if record.resource_type == "User" else "Groups"
-    return ScimResourceMeta(
-        resourceType=record.resource_type,
-        created=record.created_at,
-        lastModified=record.updated_at,
-        version=f'W/"{record.version}"',
-        location=f"/scim/v2/{plural}/{record.principal_id}",
-    )
-
-
-def _scim_user_resource(record: ScimResourceRecord) -> ScimUserResource:
-    return ScimUserResource(
-        id=record.principal_id,
-        externalId=record.external_id,
-        userName=record.resource_name,
-        displayName=record.display_name,
-        active=record.enabled,
-        meta=_scim_meta(record),
-    )
-
-
-def _scim_group_resource(record: ScimResourceRecord) -> ScimGroupResource:
-    return ScimGroupResource(
-        id=record.principal_id,
-        externalId=record.external_id,
-        displayName=record.display_name,
-        members=tuple(ScimMember(value=member_id) for member_id in record.member_ids),
-        meta=_scim_meta(record),
-    )
-
-
-def _scim_user_patch(payload: ScimPatchRequest) -> tuple[str | None, bool | None]:
-    display_name: str | None = None
-    active: bool | None = None
-    for operation in payload.operations:
-        if operation.op.lower() not in {"add", "replace"}:
-            raise ValueError("SCIM users support add or replace for active and displayName")
-        if operation.path is None and isinstance(operation.value, dict):
-            if "displayName" in operation.value:
-                display_name = str(operation.value["displayName"])
-            if "active" in operation.value:
-                active = bool(operation.value["active"])
-        elif operation.path and operation.path.lower() == "displayname":
-            display_name = str(operation.value)
-        elif operation.path and operation.path.lower() == "active":
-            if not isinstance(operation.value, bool):
-                raise ValueError("SCIM active patch value must be boolean")
-            active = operation.value
-        else:
-            raise ValueError("unsupported SCIM user patch path")
-    return display_name, active
-
-
-def _scim_member_values(value: object) -> set[UUID]:
-    items = value if isinstance(value, list) else [value]
-    members: set[UUID] = set()
-    for item in items:
-        if not isinstance(item, dict) or "value" not in item:
-            raise ValueError("SCIM member values must contain a value UUID")
-        members.add(UUID(str(item["value"])))
-    return members
-
-
-def _scim_group_patch(
-    payload: ScimPatchRequest,
-    current_members: tuple[UUID, ...],
-) -> tuple[str | None, tuple[UUID, ...] | None]:
-    display_name: str | None = None
-    members = set(current_members)
-    members_changed = False
-    for operation in payload.operations:
-        op = operation.op.lower()
-        path = operation.path or ""
-        if not path and isinstance(operation.value, dict):
-            if "displayName" in operation.value:
-                display_name = str(operation.value["displayName"])
-            if "members" in operation.value:
-                members = _scim_member_values(operation.value["members"])
-                members_changed = True
-            continue
-        if path.lower() == "displayname" and op in {"add", "replace"}:
-            display_name = str(operation.value)
-        elif path.lower() == "members" and op in {"add", "replace"}:
-            incoming = _scim_member_values(operation.value)
-            members = incoming if op == "replace" else members | incoming
-            members_changed = True
-        elif op == "remove":
-            matched = re.fullmatch(
-                r'members\[value\s+eq\s+"([0-9a-fA-F-]{36})"\]',
-                path,
-                flags=re.IGNORECASE,
-            )
-            if matched is None:
-                raise ValueError('SCIM member removal requires members[value eq "uuid"]')
-            members.discard(UUID(matched.group(1)))
-            members_changed = True
-        else:
-            raise ValueError("unsupported SCIM group patch operation")
-    ordered = tuple(sorted(members, key=str)) if members_changed else None
-    return display_name, ordered
 
 
 ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]

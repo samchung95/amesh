@@ -184,7 +184,7 @@ No authorization required
 
 ## CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost
 
-> AgentResourceRevisionOutput CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(ctx, namespace).Spec(spec).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> AgentResourceRevision CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(ctx, namespace).Spec(spec).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Create Agent Resource Revision
 
@@ -214,7 +214,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost`: AgentResourceRevisionOutput
+	// response from `CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost`: AgentResourceRevision
 	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost`: %v\n", resp)
 }
 ```
@@ -242,7 +242,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**AgentResourceRevisionOutput**
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -655,7 +655,7 @@ No authorization required
 
 ## GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet
 
-> AgentResourceRevisionOutput GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(ctx, namespace, kind, key).Revision(revision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> AgentResourceRevision GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(ctx, namespace, kind, key).Revision(revision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Get Agent Resource
 
@@ -687,7 +687,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet`: AgentResourceRevisionOutput
+	// response from `GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet`: AgentResourceRevision
 	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet`: %v\n", resp)
 }
 ```
@@ -719,7 +719,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**AgentResourceRevisionOutput**
+**AgentResourceRevision**
 
 ### Authorization
 
@@ -968,7 +968,7 @@ No authorization required
 
 ## ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet
 
-> []AgentResourceRevisionOutput ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(ctx, namespace).Kind(kind).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> []AgentResourceRevision ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(ctx, namespace).Kind(kind).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 List Agent Resources
 
@@ -998,7 +998,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet`: []AgentResourceRevisionOutput
+	// response from `ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet`: []AgentResourceRevision
 	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet`: %v\n", resp)
 }
 ```
@@ -1026,7 +1026,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**[]AgentResourceRevisionOutput**](AgentResourceRevisionOutput.md)
+[**[]AgentResourceRevision**](AgentResourceRevision.md)
 
 ### Authorization
 
@@ -1282,7 +1282,7 @@ No authorization required
 
 ## ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost
 
-> AgentCapabilityPinOutput ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(ctx, namespace, key).AgentResolutionRequest(agentResolutionRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> AgentCapabilityPin ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(ctx, namespace, key).AgentResolutionRequest(agentResolutionRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Resolve Agent Definition
 
@@ -1313,7 +1313,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost`: AgentCapabilityPinOutput
+	// response from `ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost`: AgentCapabilityPin
 	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost`: %v\n", resp)
 }
 ```
@@ -1343,7 +1343,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-**AgentCapabilityPinOutput**
+**AgentCapabilityPin**
 
 ### Authorization
 

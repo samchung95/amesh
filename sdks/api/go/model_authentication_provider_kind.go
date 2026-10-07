@@ -22,16 +22,12 @@ type AuthenticationProviderKind string
 const (
 	AUTHENTICATIONPROVIDERKIND_LOCAL AuthenticationProviderKind = "local"
 	AUTHENTICATIONPROVIDERKIND_OIDC  AuthenticationProviderKind = "oidc"
-	AUTHENTICATIONPROVIDERKIND_SAML  AuthenticationProviderKind = "saml"
-	AUTHENTICATIONPROVIDERKIND_LDAP  AuthenticationProviderKind = "ldap"
 )
 
 // All allowed values of AuthenticationProviderKind enum
 var AllowedAuthenticationProviderKindEnumValues = []AuthenticationProviderKind{
 	"local",
 	"oidc",
-	"saml",
-	"ldap",
 }
 
 func (v *AuthenticationProviderKind) UnmarshalJSON(src []byte) error {

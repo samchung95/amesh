@@ -28,8 +28,6 @@ class AuthenticationProviderKind(str, Enum):
     """
     LOCAL = 'local'
     OIDC = 'oidc'
-    SAML = 'saml'
-    LDAP = 'ldap'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

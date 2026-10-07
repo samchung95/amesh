@@ -52,7 +52,6 @@ encryption:
 identity:
   providerConfigExistingSecret: amesh-session-orchestrator-identity
   providerConfigKey: identity-providers
-  scimConfigKey: scim-providers
   credentialSecret: amesh-session-orchestrator-identity
 
 adminToken:

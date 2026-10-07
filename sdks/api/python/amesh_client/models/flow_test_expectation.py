@@ -30,7 +30,7 @@ class FlowTestExpectation(BaseModel):
     """ # noqa: E501
     outputs: Optional[Dict[str, Any]] = None
     state: Optional[FlowTestTaskState] = None
-    task_outputs: Optional[Dict[str, Optional[Dict[str, Any]]]] = Field(default=None, alias="taskOutputs")
+    task_outputs: Optional[Dict[str, Dict[str, Any]]] = Field(default=None, alias="taskOutputs")
     task_states: Optional[Dict[str, FlowTestTaskState]] = Field(default=None, alias="taskStates")
     __properties: ClassVar[List[str]] = ["outputs", "state", "taskOutputs", "taskStates"]
 

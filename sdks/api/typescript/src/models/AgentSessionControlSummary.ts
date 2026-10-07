@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { AgentSessionCountersOutput } from './AgentSessionCountersOutput';
+import type { AgentSessionCounters } from './AgentSessionCounters';
 import {
-    AgentSessionCountersOutputFromJSON,
-    AgentSessionCountersOutputFromJSONTyped,
-    AgentSessionCountersOutputToJSON,
-    AgentSessionCountersOutputToJSONTyped,
-} from './AgentSessionCountersOutput';
+    AgentSessionCountersFromJSON,
+    AgentSessionCountersFromJSONTyped,
+    AgentSessionCountersToJSON,
+    AgentSessionCountersToJSONTyped,
+} from './AgentSessionCounters';
 import type { AgentHarnessPin } from './AgentHarnessPin';
 import {
     AgentHarnessPinFromJSON,
@@ -72,10 +72,10 @@ export interface AgentSessionControlSummary {
     completedAt?: Date | null;
     /**
      *
-     * @type {AgentSessionCountersOutput}
+     * @type {AgentSessionCounters}
      * @memberof AgentSessionControlSummary
      */
-    counters?: AgentSessionCountersOutput | null;
+    counters?: AgentSessionCounters | null;
     /**
      *
      * @type {Date}
@@ -232,7 +232,7 @@ export function AgentSessionControlSummaryFromJSONTyped(json: any, ignoreDiscrim
         'budgets': json['budgets'] === undefined ? undefined : json['budgets'] === null ? null : json['budgets'],
         'capabilityPinId': json['capabilityPinId'] === undefined ? undefined : json['capabilityPinId'] === null ? null : json['capabilityPinId'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
-        'counters': json['counters'] === undefined ? undefined : json['counters'] === null ? null : AgentSessionCountersOutputFromJSON(json['counters']),
+        'counters': json['counters'] === undefined ? undefined : json['counters'] === null ? null : AgentSessionCountersFromJSON(json['counters']),
         'createdAt': (new Date(json['createdAt'])),
         'envelopeDigest': json['envelopeDigest'] === undefined ? undefined : json['envelopeDigest'] === null ? null : json['envelopeDigest'],
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
@@ -271,7 +271,7 @@ export function AgentSessionControlSummaryToJSONTyped(value?: AgentSessionContro
         'budgets': value['budgets'],
         'capabilityPinId': value['capabilityPinId'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
-        'counters': AgentSessionCountersOutputToJSON(value['counters']),
+        'counters': AgentSessionCountersToJSON(value['counters']),
         'createdAt': value['createdAt'].toISOString(),
         'envelopeDigest': value['envelopeDigest'],
         'error': value['error'],

@@ -21,34 +21,34 @@ var _ MappedNullable = &AgentSessionFleetItem{}
 
 // AgentSessionFleetItem struct for AgentSessionFleetItem
 type AgentSessionFleetItem struct {
-	AgentRef              NullableString              `json:"agentRef,omitempty"`
-	ApplicationId         NullableString              `json:"applicationId,omitempty"`
-	Attempt               NullableInt32               `json:"attempt,omitempty"`
-	AttemptSessionId      NullableString              `json:"attemptSessionId,omitempty"`
-	CapabilityPinId       NullableString              `json:"capabilityPinId,omitempty"`
-	CompletedAt           NullableTime                `json:"completedAt,omitempty"`
-	Counters              *AgentSessionCountersOutput `json:"counters,omitempty"`
-	CreatedAt             time.Time                   `json:"createdAt"`
-	DependencyHealth      *string                     `json:"dependencyHealth,omitempty"`
-	DependencyKeys        []*string                   `json:"dependencyKeys,omitempty"`
-	EnvelopeDigest        NullableString              `json:"envelopeDigest,omitempty"`
-	ExecutionEpoch        int32                       `json:"executionEpoch"`
-	ExecutionId           string                      `json:"executionId"`
-	ExecutionVersion      int32                       `json:"executionVersion"`
-	FailedInvocationCount *int32                      `json:"failedInvocationCount,omitempty"`
-	Harness               NullableAgentHarnessPin     `json:"harness,omitempty"`
-	ModelInvocationCount  *int32                      `json:"modelInvocationCount,omitempty"`
-	Namespace             string                      `json:"namespace"`
-	OwnerId               NullableString              `json:"ownerId,omitempty"`
-	Phase                 NullableString              `json:"phase,omitempty"`
-	PolicyProvenance      map[string]interface{}      `json:"policyProvenance,omitempty"`
-	SessionId             string                      `json:"sessionId"`
-	State                 string                      `json:"state"`
-	TaskRunId             NullableString              `json:"taskRunId,omitempty"`
-	TenantId              string                      `json:"tenantId"`
-	ToolInvocationCount   *int32                      `json:"toolInvocationCount,omitempty"`
-	UpdatedAt             time.Time                   `json:"updatedAt"`
-	Version               NullableInt32               `json:"version,omitempty"`
+	AgentRef              NullableString          `json:"agentRef,omitempty"`
+	ApplicationId         NullableString          `json:"applicationId,omitempty"`
+	Attempt               NullableInt32           `json:"attempt,omitempty"`
+	AttemptSessionId      NullableString          `json:"attemptSessionId,omitempty"`
+	CapabilityPinId       NullableString          `json:"capabilityPinId,omitempty"`
+	CompletedAt           NullableTime            `json:"completedAt,omitempty"`
+	Counters              *AgentSessionCounters   `json:"counters,omitempty"`
+	CreatedAt             time.Time               `json:"createdAt"`
+	DependencyHealth      *string                 `json:"dependencyHealth,omitempty"`
+	DependencyKeys        []*string               `json:"dependencyKeys,omitempty"`
+	EnvelopeDigest        NullableString          `json:"envelopeDigest,omitempty"`
+	ExecutionEpoch        int32                   `json:"executionEpoch"`
+	ExecutionId           string                  `json:"executionId"`
+	ExecutionVersion      int32                   `json:"executionVersion"`
+	FailedInvocationCount *int32                  `json:"failedInvocationCount,omitempty"`
+	Harness               NullableAgentHarnessPin `json:"harness,omitempty"`
+	ModelInvocationCount  *int32                  `json:"modelInvocationCount,omitempty"`
+	Namespace             string                  `json:"namespace"`
+	OwnerId               NullableString          `json:"ownerId,omitempty"`
+	Phase                 NullableString          `json:"phase,omitempty"`
+	PolicyProvenance      map[string]interface{}  `json:"policyProvenance,omitempty"`
+	SessionId             string                  `json:"sessionId"`
+	State                 string                  `json:"state"`
+	TaskRunId             NullableString          `json:"taskRunId,omitempty"`
+	TenantId              string                  `json:"tenantId"`
+	ToolInvocationCount   *int32                  `json:"toolInvocationCount,omitempty"`
+	UpdatedAt             time.Time               `json:"updatedAt"`
+	Version               NullableInt32           `json:"version,omitempty"`
 	AdditionalProperties  map[string]interface{}
 }
 
@@ -355,9 +355,9 @@ func (o *AgentSessionFleetItem) UnsetCompletedAt() {
 }
 
 // GetCounters returns the Counters field value if set, zero value otherwise.
-func (o *AgentSessionFleetItem) GetCounters() AgentSessionCountersOutput {
+func (o *AgentSessionFleetItem) GetCounters() AgentSessionCounters {
 	if o == nil || IsNil(o.Counters) {
-		var ret AgentSessionCountersOutput
+		var ret AgentSessionCounters
 		return ret
 	}
 	return *o.Counters
@@ -365,7 +365,7 @@ func (o *AgentSessionFleetItem) GetCounters() AgentSessionCountersOutput {
 
 // GetCountersOk returns a tuple with the Counters field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AgentSessionFleetItem) GetCountersOk() (*AgentSessionCountersOutput, bool) {
+func (o *AgentSessionFleetItem) GetCountersOk() (*AgentSessionCounters, bool) {
 	if o == nil || IsNil(o.Counters) {
 		return nil, false
 	}
@@ -381,8 +381,8 @@ func (o *AgentSessionFleetItem) HasCounters() bool {
 	return false
 }
 
-// SetCounters gets a reference to the given AgentSessionCountersOutput and assigns it to the Counters field.
-func (o *AgentSessionFleetItem) SetCounters(v AgentSessionCountersOutput) {
+// SetCounters gets a reference to the given AgentSessionCounters and assigns it to the Counters field.
+func (o *AgentSessionFleetItem) SetCounters(v AgentSessionCounters) {
 	o.Counters = &v
 }
 

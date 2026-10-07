@@ -56,109 +56,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Export Agent Profile Transfer */
-        get: operations["export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles__namespace___agent_key__export_get"];
-        put?: never;
-        /** Export Agent Profile Transfer */
-        post: operations["export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles__namespace___agent_key__export_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/agent-session-transfers/profiles/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Import Agent Profile Transfer */
-        post: operations["import_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_import_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/agent-session-transfers/profiles/plan": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Plan Agent Profile Transfer */
-        post: operations["plan_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_plan_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/agent-session-transfers/sessions/{session_id}/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Export Agent Session Transfer */
-        post: operations["export_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions__session_id__export_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/agent-session-transfers/sessions/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Import Agent Session Transfer */
-        post: operations["import_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_import_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/agent-session-transfers/sessions/plan": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Plan Agent Session Transfer */
-        post: operations["plan_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_plan_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/admin/agent-sessions": {
         parameters: {
             query?: never;
@@ -1159,24 +1056,6 @@ export interface paths {
         /** Complete Oidc Login */
         get: operations["complete_oidc_login_api_v1_auth_federated__provider_id__callback_get"];
         put?: never;
-        /** Complete Saml Login */
-        post: operations["complete_saml_login_api_v1_auth_federated__provider_id__callback_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/federated/{provider_id}/saml/metadata": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Saml Service Provider Metadata */
-        get: operations["saml_service_provider_metadata_api_v1_auth_federated__provider_id__saml_metadata_get"];
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1518,23 +1397,6 @@ export interface paths {
         get?: never;
         /** Upsert Check Policy */
         put: operations["upsert_check_policy_api_v1_check_policies__namespace___policy_key__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/compatibility/kestra/manifest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Kestra Compatibility Manifest */
-        get: operations["get_kestra_compatibility_manifest_api_v1_compatibility_kestra_manifest_get"];
-        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -2054,23 +1916,6 @@ export interface paths {
         put?: never;
         /** Resume Task Run */
         post: operations["resume_task_run_api_v1_executions__execution_id__task_runs__task_run_id__resume_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/executions/{namespace}/{flow_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create Kestra Execution */
-        post: operations["create_kestra_execution_api_v1_executions__namespace___flow_id__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2722,23 +2567,6 @@ export interface paths {
         put?: never;
         /** Preview Lifecycle Purge */
         post: operations["preview_lifecycle_purge_api_v1_lifecycle_previews_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/main/flows/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Validate Kestra Flow */
-        post: operations["validate_kestra_flow_api_v1_main_flows_validate_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4688,97 +4516,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/scim/v2/Groups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Scim Groups */
-        get: operations["list_scim_groups_scim_v2_Groups_get"];
-        put?: never;
-        /** Create Scim Group */
-        post: operations["create_scim_group_scim_v2_Groups_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/scim/v2/Groups/{group_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Scim Group */
-        get: operations["get_scim_group_scim_v2_Groups__group_id__get"];
-        put?: never;
-        post?: never;
-        /** Delete Scim Group */
-        delete: operations["delete_scim_group_scim_v2_Groups__group_id__delete"];
-        options?: never;
-        head?: never;
-        /** Patch Scim Group */
-        patch: operations["patch_scim_group_scim_v2_Groups__group_id__patch"];
-        trace?: never;
-    };
-    "/scim/v2/ServiceProviderConfig": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Scim Service Provider Config */
-        get: operations["scim_service_provider_config_scim_v2_ServiceProviderConfig_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/scim/v2/Users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Scim Users */
-        get: operations["list_scim_users_scim_v2_Users_get"];
-        put?: never;
-        /** Create Scim User */
-        post: operations["create_scim_user_scim_v2_Users_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/scim/v2/Users/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Scim User */
-        get: operations["get_scim_user_scim_v2_Users__user_id__get"];
-        put?: never;
-        post?: never;
-        /** Delete Scim User */
-        delete: operations["delete_scim_user_scim_v2_Users__user_id__delete"];
-        options?: never;
-        head?: never;
-        /** Patch Scim User */
-        patch: operations["patch_scim_user_scim_v2_Users__user_id__patch"];
-        trace?: never;
-    };
     "/v1/chat/completions": {
         parameters: {
             query?: never;
@@ -4995,7 +4732,7 @@ export interface components {
             partIndex?: number | null;
         };
         /** AgentCapabilityPin */
-        "AgentCapabilityPin-Input": {
+        AgentCapabilityPin: {
             /**
              * Createdat
              * Format: date-time
@@ -5003,31 +4740,7 @@ export interface components {
             createdAt: string;
             /** Createdby */
             createdBy: string;
-            envelope: components["schemas"]["EffectiveCapabilityEnvelope-Input"];
-            /** Envelopedigest */
-            envelopeDigest: string;
-            /** Namespace */
-            namespace: string;
-            /**
-             * Pinid
-             * Format: uuid
-             */
-            pinId?: string;
-            /** Subjectref */
-            subjectRef: string;
-            /** Tenantid */
-            tenantId: string;
-        };
-        /** AgentCapabilityPin */
-        "AgentCapabilityPin-Output": {
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            createdAt: string;
-            /** Createdby */
-            createdBy: string;
-            envelope: components["schemas"]["EffectiveCapabilityEnvelope-Output"];
+            envelope: components["schemas"]["EffectiveCapabilityEnvelope"];
             /** Envelopedigest */
             envelopeDigest: string;
             /** Namespace */
@@ -5260,7 +4973,7 @@ export interface components {
         AgentEnvelopePreview: {
             /** Agentrevision */
             agentRevision: number;
-            envelope: components["schemas"]["EffectiveCapabilityEnvelope-Output"];
+            envelope: components["schemas"]["EffectiveCapabilityEnvelope"];
             /** Envelopedigest */
             envelopeDigest: string;
             /**
@@ -5485,159 +5198,6 @@ export interface components {
             /** Protocol */
             protocol: string;
         };
-        /**
-         * AgentInvocationAccounting
-         * @description Bounded provider-neutral numeric evidence for one external invocation.
-         */
-        "AgentInvocationAccounting-Input": {
-            /** Cachereadtokens */
-            cacheReadTokens?: number | null;
-            /** Cachewritetokens */
-            cacheWriteTokens?: number | null;
-            /** Costamountusd */
-            costAmountUsd?: number | string | null;
-            costState: components["schemas"]["AgentInvocationCostState"];
-            /** Inputtokens */
-            inputTokens?: number | null;
-            /** Outputtokens */
-            outputTokens?: number | null;
-            /** Reasoningtokens */
-            reasoningTokens?: number | null;
-            /** Totaltokens */
-            totalTokens?: number | null;
-        };
-        /**
-         * AgentInvocationAccounting
-         * @description Bounded provider-neutral numeric evidence for one external invocation.
-         */
-        "AgentInvocationAccounting-Output": {
-            /** Cachereadtokens */
-            cacheReadTokens?: number | null;
-            /** Cachewritetokens */
-            cacheWriteTokens?: number | null;
-            /** Costamountusd */
-            costAmountUsd?: string | null;
-            costState: components["schemas"]["AgentInvocationCostState"];
-            /** Inputtokens */
-            inputTokens?: number | null;
-            /** Outputtokens */
-            outputTokens?: number | null;
-            /** Reasoningtokens */
-            reasoningTokens?: number | null;
-            /** Totaltokens */
-            totalTokens?: number | null;
-        };
-        /**
-         * AgentInvocationCostState
-         * @enum {string}
-         */
-        AgentInvocationCostState: "billed" | "unpriced" | "unavailable";
-        /**
-         * AgentInvocationKind
-         * @enum {string}
-         */
-        AgentInvocationKind: "MODEL" | "MCP";
-        /** AgentInvocationRecord */
-        "AgentInvocationRecord-Input": {
-            accounting?: components["schemas"]["AgentInvocationAccounting-Input"] | null;
-            /** Attempt */
-            attempt: number;
-            /** Completedat */
-            completedAt?: string | null;
-            /** Error */
-            error?: string | null;
-            /**
-             * Executionid
-             * Format: uuid
-             */
-            executionId: string;
-            /**
-             * Invocationid
-             * Format: uuid
-             */
-            invocationId?: string;
-            kind: components["schemas"]["AgentInvocationKind"];
-            /** Namespace */
-            namespace: string;
-            /** Operation */
-            operation: string;
-            /** Requesthash */
-            requestHash: string;
-            /** Requestmetadata */
-            requestMetadata?: {
-                [key: string]: unknown;
-            };
-            /** Result */
-            result?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Startedat
-             * Format: date-time
-             */
-            startedAt?: string;
-            state: components["schemas"]["AgentInvocationState"];
-            /**
-             * Taskrunid
-             * Format: uuid
-             */
-            taskRunId: string;
-            /** Tenantid */
-            tenantId: string;
-        };
-        /** AgentInvocationRecord */
-        "AgentInvocationRecord-Output": {
-            accounting?: components["schemas"]["AgentInvocationAccounting-Output"] | null;
-            /** Attempt */
-            attempt: number;
-            /** Completedat */
-            completedAt?: string | null;
-            /** Error */
-            error?: string | null;
-            /**
-             * Executionid
-             * Format: uuid
-             */
-            executionId: string;
-            /**
-             * Invocationid
-             * Format: uuid
-             */
-            invocationId?: string;
-            kind: components["schemas"]["AgentInvocationKind"];
-            /** Namespace */
-            namespace: string;
-            /** Operation */
-            operation: string;
-            /** Requesthash */
-            requestHash: string;
-            /** Requestmetadata */
-            requestMetadata?: {
-                [key: string]: unknown;
-            };
-            /** Result */
-            result?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Startedat
-             * Format: date-time
-             */
-            startedAt?: string;
-            state: components["schemas"]["AgentInvocationState"];
-            /**
-             * Taskrunid
-             * Format: uuid
-             */
-            taskRunId: string;
-            /** Tenantid */
-            tenantId: string;
-        };
-        /**
-         * AgentInvocationState
-         * @enum {string}
-         */
-        AgentInvocationState: "STARTED" | "SUCCEEDED" | "FAILED" | "IN_DOUBT";
         /** AgentJudgePolicy */
         "AgentJudgePolicy-Input": {
             /** Maxcompletiontokens */
@@ -5739,32 +5299,6 @@ export interface components {
          * @enum {string}
          */
         AgentMemoryScope: "NONE" | "EXECUTION" | "PRIVATE" | "SHARED";
-        /**
-         * AgentModelContinuationBinding
-         * @description A safe continuation handle bound to its canonical assistant message.
-         */
-        AgentModelContinuationBinding: {
-            continuation: components["schemas"]["AgentModelContinuationRef"];
-            /** Sourcemessageindex */
-            sourceMessageIndex: number;
-        };
-        /**
-         * AgentModelContinuationRef
-         * @description Public handle to private provider continuation state.
-         */
-        AgentModelContinuationRef: {
-            /**
-             * Invocationid
-             * Format: uuid
-             */
-            invocationId: string;
-            /** Providerid */
-            providerId: string;
-            /** Providerrevision */
-            providerRevision: string;
-            /** Tokendigest */
-            tokenDigest: string;
-        };
         /** AgentPermissions */
         AgentPermissions: {
             /**
@@ -5947,35 +5481,7 @@ export interface components {
             revision: number;
         };
         /** AgentResourceRevision */
-        "AgentResourceRevision-Input": {
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            createdAt: string;
-            /** Createdby */
-            createdBy: string;
-            /** Digest */
-            digest: string;
-            /** Key */
-            key: string;
-            kind: components["schemas"]["AgentResourceKind"];
-            /** Namespace */
-            namespace: string;
-            /**
-             * Resourceid
-             * Format: uuid
-             */
-            resourceId?: string;
-            /** Revision */
-            revision: number;
-            /** Spec */
-            spec: components["schemas"]["PromptSpec"] | components["schemas"]["SkillSpec"] | components["schemas"]["ModelPolicySpec"] | components["schemas"]["AgentEvaluationSpec-Input"] | components["schemas"]["AgentDefinitionSpec-Input"];
-            /** Tenantid */
-            tenantId: string;
-        };
-        /** AgentResourceRevision */
-        "AgentResourceRevision-Output": {
+        AgentResourceRevision: {
             /**
              * Createdat
              * Format: date-time
@@ -6224,75 +5730,6 @@ export interface components {
             /** Total */
             total: number;
         };
-        /** AgentSessionCheckpoint */
-        AgentSessionCheckpoint: {
-            /**
-             * Evaluationoutcomes
-             * @default []
-             */
-            evaluationOutcomes: {
-                [key: string]: unknown;
-            }[];
-            /** Evidencedigest */
-            evidenceDigest?: string | null;
-            /**
-             * Interactionprotocol
-             * @default STRUCTURED_V1
-             * @enum {string}
-             */
-            interactionProtocol: "STRUCTURED_V1" | "NATIVE_V2" | "NATIVE_V3";
-            /**
-             * Interactionstage
-             * @default RESEARCH
-             * @enum {string}
-             */
-            interactionStage: "RESEARCH" | "FINALIZATION";
-            /** Lastacceptedoperation */
-            lastAcceptedOperation?: string | null;
-            lastContextReceipt?: components["schemas"]["AgentContextReceipt"] | null;
-            /**
-             * Memoryentries
-             * @default []
-             */
-            memoryEntries: {
-                [key: string]: unknown;
-            }[];
-            /** Memorywrite */
-            memoryWrite?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Messages
-             * @default []
-             */
-            messages: {
-                [key: string]: unknown;
-            }[];
-            modelContinuation?: components["schemas"]["AgentModelContinuationRef"] | null;
-            /**
-             * Modelcontinuations
-             * @default []
-             */
-            modelContinuations: components["schemas"]["AgentModelContinuationBinding"][];
-            /**
-             * Nextturn
-             * @default 1
-             */
-            nextTurn: number;
-            /** Pendingaction */
-            pendingAction?: {
-                [key: string]: unknown;
-            } | null;
-            /** Pendingturn */
-            pendingTurn?: number | null;
-            /**
-             * Releaseapproved
-             * @default false
-             */
-            releaseApproved: boolean;
-            taskBrief?: components["schemas"]["AgentTaskBriefRevision"] | null;
-            toolPlan?: components["schemas"]["ToolPlanLedger"] | null;
-        };
         /** AgentSessionControlRequest */
         AgentSessionControlRequest: {
             /** Expectedepoch */
@@ -6329,7 +5766,7 @@ export interface components {
             capabilityPinId?: string | null;
             /** Completedat */
             completedAt?: string | null;
-            counters?: components["schemas"]["AgentSessionCounters-Output"] | null;
+            counters?: components["schemas"]["AgentSessionCounters"] | null;
             /**
              * Createdat
              * Format: date-time
@@ -6385,77 +5822,7 @@ export interface components {
             version?: number | null;
         };
         /** AgentSessionCounters */
-        "AgentSessionCounters-Input": {
-            /** @default exact */
-            billingCertainty: components["schemas"]["AgentBillingCertainty"];
-            /**
-             * Cachereadtokens
-             * @default 0
-             */
-            cacheReadTokens: number;
-            /**
-             * Cachewritetokens
-             * @default 0
-             */
-            cacheWriteTokens: number;
-            /**
-             * Costusd
-             * @default 0
-             */
-            costUsd: number | string;
-            /**
-             * Inputtokens
-             * @default 0
-             */
-            inputTokens: number;
-            /**
-             * Loopiterations
-             * @default 0
-             */
-            loopIterations: number;
-            /**
-             * Outputtokens
-             * @default 0
-             */
-            outputTokens: number;
-            /**
-             * Pricedmodelinvocations
-             * @default 0
-             */
-            pricedModelInvocations: number;
-            /**
-             * Reasoningtokens
-             * @default 0
-             */
-            reasoningTokens: number;
-            /**
-             * Repairattempts
-             * @default 0
-             */
-            repairAttempts: number;
-            /**
-             * Toolcalls
-             * @default 0
-             */
-            toolCalls: number;
-            /**
-             * Totaltokens
-             * @default 0
-             */
-            totalTokens: number;
-            /**
-             * Turns
-             * @default 0
-             */
-            turns: number;
-            /**
-             * Unresolvedmodelinvocations
-             * @default 0
-             */
-            unresolvedModelInvocations: number;
-        };
-        /** AgentSessionCounters */
-        "AgentSessionCounters-Output": {
+        AgentSessionCounters: {
             /** @default exact */
             billingCertainty: components["schemas"]["AgentBillingCertainty"];
             /**
@@ -6703,7 +6070,7 @@ export interface components {
             capabilityPinId?: string | null;
             /** Completedat */
             completedAt?: string | null;
-            counters?: components["schemas"]["AgentSessionCounters-Output"];
+            counters?: components["schemas"]["AgentSessionCounters"];
             /**
              * Createdat
              * Format: date-time
@@ -6989,128 +6356,6 @@ export interface components {
             /** Retentionseconds */
             retentionSeconds: number;
         };
-        /** AgentSessionRecord */
-        "AgentSessionRecord-Input": {
-            /** Attempt */
-            attempt: number;
-            /**
-             * Capabilitypinid
-             * Format: uuid
-             */
-            capabilityPinId: string;
-            checkpoint?: components["schemas"]["AgentSessionCheckpoint"];
-            /** Completedat */
-            completedAt?: string | null;
-            counters?: components["schemas"]["AgentSessionCounters-Input"];
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            createdAt?: string;
-            /** Envelopedigest */
-            envelopeDigest: string;
-            /** Error */
-            error?: string | null;
-            /**
-             * Executionid
-             * Format: uuid
-             */
-            executionId: string;
-            /** Finalresult */
-            finalResult?: {
-                [key: string]: unknown;
-            } | null;
-            harness?: components["schemas"]["AgentHarnessPin"] | null;
-            /** Namespace */
-            namespace: string;
-            /** @default READY */
-            phase: components["schemas"]["AgentSessionPhase"];
-            /**
-             * Sessionid
-             * Format: uuid
-             */
-            sessionId?: string;
-            /** @default RUNNING */
-            state: components["schemas"]["AgentSessionState"];
-            /**
-             * Taskrunid
-             * Format: uuid
-             */
-            taskRunId: string;
-            /** Tenantid */
-            tenantId: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            updatedAt?: string;
-            /**
-             * Version
-             * @default 0
-             */
-            version: number;
-        };
-        /** AgentSessionRecord */
-        "AgentSessionRecord-Output": {
-            /** Attempt */
-            attempt: number;
-            /**
-             * Capabilitypinid
-             * Format: uuid
-             */
-            capabilityPinId: string;
-            checkpoint?: components["schemas"]["AgentSessionCheckpoint"];
-            /** Completedat */
-            completedAt?: string | null;
-            counters?: components["schemas"]["AgentSessionCounters-Output"];
-            /**
-             * Createdat
-             * Format: date-time
-             */
-            createdAt?: string;
-            /** Envelopedigest */
-            envelopeDigest: string;
-            /** Error */
-            error?: string | null;
-            /**
-             * Executionid
-             * Format: uuid
-             */
-            executionId: string;
-            /** Finalresult */
-            finalResult?: {
-                [key: string]: unknown;
-            } | null;
-            harness?: components["schemas"]["AgentHarnessPin"] | null;
-            /** Namespace */
-            namespace: string;
-            /** @default READY */
-            phase: components["schemas"]["AgentSessionPhase"];
-            /**
-             * Sessionid
-             * Format: uuid
-             */
-            sessionId?: string;
-            /** @default RUNNING */
-            state: components["schemas"]["AgentSessionState"];
-            /**
-             * Taskrunid
-             * Format: uuid
-             */
-            taskRunId: string;
-            /** Tenantid */
-            tenantId: string;
-            /**
-             * Updatedat
-             * Format: date-time
-             */
-            updatedAt?: string;
-            /**
-             * Version
-             * @default 0
-             */
-            version: number;
-        };
         /** AgentSessionResultResponse */
         AgentSessionResultResponse: {
             /** Error */
@@ -7212,7 +6457,7 @@ export interface components {
             /** Completedat */
             completedAt?: string | null;
             contextReceipt?: components["schemas"]["AgentContextReceipt"] | null;
-            counters: components["schemas"]["AgentSessionCounters-Output"];
+            counters: components["schemas"]["AgentSessionCounters"];
             /**
              * Createdat
              * Format: date-time
@@ -7262,42 +6507,6 @@ export interface components {
             /** Version */
             version: number;
         };
-        /** AgentSessionTransferProfileImportRequest */
-        AgentSessionTransferProfileImportRequest: {
-            bundle: components["schemas"]["ProfileBundle-Input"];
-            /** Targetnamespace */
-            targetNamespace?: string | null;
-        };
-        /** AgentSessionTransferProfilePlanRequest */
-        AgentSessionTransferProfilePlanRequest: {
-            bundle: components["schemas"]["ProfileBundle-Input"];
-            /** Targetnamespace */
-            targetNamespace?: string | null;
-        };
-        /** AgentSessionTransferSessionExportRequest */
-        AgentSessionTransferSessionExportRequest: {
-            /** Artifactdestinationrefs */
-            artifactDestinationRefs?: {
-                [key: string]: string;
-            };
-            mode: components["schemas"]["SessionTransferMode"];
-        };
-        /** AgentSessionTransferSessionImportRequest */
-        AgentSessionTransferSessionImportRequest: {
-            bundle: components["schemas"]["SessionTransferBundle-Input"];
-            /** Credentialrebindings */
-            credentialRebindings?: {
-                [key: string]: string;
-            };
-        };
-        /** AgentSessionTransferSessionPlanRequest */
-        AgentSessionTransferSessionPlanRequest: {
-            bundle: components["schemas"]["SessionTransferBundle-Input"];
-            /** Credentialrebindings */
-            credentialRebindings?: {
-                [key: string]: string;
-            };
-        };
         /**
          * AgentStatusDetail
          * @description An AMESH-owned factual lifecycle description.
@@ -7336,42 +6545,6 @@ export interface components {
             schemaId: string;
             /** Schemaversion */
             schemaVersion: string;
-        };
-        /**
-         * AgentTaskBriefRevision
-         * @description Accepted immutable document and authenticated logical-session scope.
-         */
-        AgentTaskBriefRevision: {
-            /**
-             * Briefid
-             * Format: uuid
-             */
-            briefId: string;
-            /** Digest */
-            digest: string;
-            document: components["schemas"]["AgentTaskBrief"];
-            /** Namespace */
-            namespace: string;
-            /**
-             * Producerid
-             * Format: uuid
-             */
-            producerId: string;
-            /** Revision */
-            revision: number;
-            /**
-             * Schemaversion
-             * @default amesh.task-brief/v1
-             * @constant
-             */
-            schemaVersion: "amesh.task-brief/v1";
-            /**
-             * Sessionid
-             * Format: uuid
-             */
-            sessionId: string;
-            /** Tenantid */
-            tenantId: string;
         };
         /** AgentToolRef */
         AgentToolRef: {
@@ -8086,7 +7259,7 @@ export interface components {
          * AuthenticationProviderKind
          * @enum {string}
          */
-        AuthenticationProviderKind: "local" | "oidc" | "saml" | "ldap";
+        AuthenticationProviderKind: "local" | "oidc";
         /** AuthorizationDecision */
         AuthorizationDecision: {
             /** Allowed */
@@ -8902,19 +8075,6 @@ export interface components {
              */
             toleratedDifferences: components["schemas"]["ComparisonDifference"][];
         };
-        /** CompatibilityMapping */
-        CompatibilityMapping: {
-            /** Adapter */
-            adapter?: string | null;
-            disposition: components["schemas"]["MappingDisposition"];
-            /** Message */
-            message: string;
-            /** Path */
-            path: string;
-            sourceRange?: components["schemas"]["SourceRange"] | null;
-            /** Targetpath */
-            targetPath?: string | null;
-        };
         /**
          * ComplianceEvidenceCategory
          * @enum {string}
@@ -9606,56 +8766,14 @@ export interface components {
             worstCaseTaskRuns: number;
         };
         /** EffectiveCapabilityEnvelope */
-        "EffectiveCapabilityEnvelope-Input": {
+        EffectiveCapabilityEnvelope: {
             agent: components["schemas"]["ResolvedResourcePin"];
             evaluationPolicy: components["schemas"]["AgentEvaluationPolicy"];
             /**
              * Evaluations
              * @default []
              */
-            evaluations: components["schemas"]["ResolvedAgentEvaluation-Input"][];
-            fallbackMode: components["schemas"]["ModelFallbackMode"];
-            hardLimits: components["schemas"]["AgentHardLimits-Input"];
-            /** Inputschema */
-            inputSchema: {
-                [key: string]: unknown;
-            };
-            /** Instructions */
-            instructions: components["schemas"]["InstructionFragment"][];
-            memoryPolicy: components["schemas"]["AgentMemoryPolicy"];
-            /** Modelroutes */
-            modelRoutes: components["schemas"]["ModelRoute"][];
-            /** Outputnondeterminismdisclosure */
-            outputNondeterminismDisclosure: string;
-            /** Outputschema */
-            outputSchema: {
-                [key: string]: unknown;
-            };
-            permissions: components["schemas"]["AgentPermissions"];
-            /** Promptvariables */
-            promptVariables: {
-                [key: string]: string;
-            };
-            /** Resources */
-            resources: components["schemas"]["ResolvedResourcePin"][];
-            /**
-             * Schemaversion
-             * @default amesh.agent-envelope/v1
-             * @constant
-             */
-            schemaVersion: "amesh.agent-envelope/v1";
-            /** Tools */
-            tools: components["schemas"]["ResolvedToolPin"][];
-        };
-        /** EffectiveCapabilityEnvelope */
-        "EffectiveCapabilityEnvelope-Output": {
-            agent: components["schemas"]["ResolvedResourcePin"];
-            evaluationPolicy: components["schemas"]["AgentEvaluationPolicy"];
-            /**
-             * Evaluations
-             * @default []
-             */
-            evaluations: components["schemas"]["ResolvedAgentEvaluation-Output"][];
+            evaluations: components["schemas"]["ResolvedAgentEvaluation"][];
             fallbackMode: components["schemas"]["ModelFallbackMode"];
             hardLimits: components["schemas"]["AgentHardLimits-Output"];
             /** Inputschema */
@@ -11197,46 +10315,6 @@ export interface components {
             token: string;
         };
         JsonValue: unknown;
-        /** KestraExecutionRequest */
-        KestraExecutionRequest: {
-            /** Idempotencykey */
-            idempotencyKey?: string | null;
-            /** Inputs */
-            inputs?: {
-                [key: string]: unknown;
-            };
-            /** @default local */
-            runner: components["schemas"]["RunnerMode"];
-        };
-        /** KestraFlowImport */
-        KestraFlowImport: {
-            /** Candidatedocument */
-            candidateDocument: {
-                [key: string]: unknown;
-            };
-            /** Mappings */
-            mappings: components["schemas"]["CompatibilityMapping"][];
-            /** Patches */
-            patches: components["schemas"]["MigrationPatch"][];
-            /** Releaseclaimallowed */
-            releaseClaimAllowed: boolean;
-            /** Roundtripdocument */
-            roundTripDocument: string;
-            /**
-             * Schemaversion
-             * @default amesh.kestra-importer/v1
-             */
-            schemaVersion: string;
-            /** Semantichash */
-            semanticHash: string;
-            /**
-             * Targetversion
-             * @default 1.3.30
-             */
-            targetVersion: string;
-            /** Valid */
-            valid: boolean;
-        };
         /** KeyValueChange */
         KeyValueChange: {
             /** Cursor */
@@ -11648,11 +10726,6 @@ export interface components {
          * @enum {string}
          */
         LogSourceStream: "TASK" | "STDOUT" | "STDERR" | "PLUGIN" | "SYSTEM";
-        /**
-         * MappingDisposition
-         * @enum {string}
-         */
-        MappingDisposition: "exact" | "compatibility-adapted" | "blocked";
         /** McpConnectionDiscoveryRequest */
         McpConnectionDiscoveryRequest: {
             /** Credentialref */
@@ -11806,19 +10879,6 @@ export interface components {
          * @enum {string}
          */
         MetricKind: "COUNTER" | "GAUGE" | "TIMER" | "CUSTOM";
-        /** MigrationPatch */
-        MigrationPatch: {
-            /** Operation */
-            operation: string;
-            /** Path */
-            path: string;
-            /** Reason */
-            reason: string;
-            sourceRange?: components["schemas"]["SourceRange"] | null;
-            /** Targetpath */
-            targetPath: string;
-            value?: components["schemas"]["JsonValue"];
-        };
         /**
          * ModelDataEgress
          * @enum {string}
@@ -14194,136 +13254,6 @@ export interface components {
             /** Type */
             type: string;
         };
-        /**
-         * ProfileBundle
-         * @description Portable, immutable agent profile data with no resolved secret values.
-         */
-        "ProfileBundle-Input": {
-            /** Agentkey */
-            agentKey: string;
-            /** Agentrevision */
-            agentRevision: number;
-            /** Checksumsha256 */
-            checksumSha256: string;
-            /**
-             * Mcpconnections
-             * @default []
-             */
-            mcpConnections: components["schemas"]["McpConnectionRevision"][];
-            /** Namespace */
-            namespace: string;
-            /**
-             * Resources
-             * @default []
-             */
-            resources: components["schemas"]["AgentResourceRevision-Input"][];
-            /**
-             * Schemaversion
-             * @default amesh.profile/v1
-             */
-            schemaVersion: string;
-            /** Sourcetenantid */
-            sourceTenantId: string;
-        };
-        /**
-         * ProfileBundle
-         * @description Portable, immutable agent profile data with no resolved secret values.
-         */
-        "ProfileBundle-Output": {
-            /** Agentkey */
-            agentKey: string;
-            /** Agentrevision */
-            agentRevision: number;
-            /** Checksumsha256 */
-            checksumSha256: string;
-            /**
-             * Mcpconnections
-             * @default []
-             */
-            mcpConnections: components["schemas"]["McpConnectionRevision"][];
-            /** Namespace */
-            namespace: string;
-            /**
-             * Resources
-             * @default []
-             */
-            resources: components["schemas"]["AgentResourceRevision-Output"][];
-            /**
-             * Schemaversion
-             * @default amesh.profile/v1
-             */
-            schemaVersion: string;
-            /** Sourcetenantid */
-            sourceTenantId: string;
-        };
-        /** ProfileCompatibilityReport */
-        ProfileCompatibilityReport: {
-            /** Compatible */
-            compatible: boolean;
-            /**
-             * Issues
-             * @default []
-             */
-            issues: string[];
-            /**
-             * Mcpconnectionsexisting
-             * @default 0
-             */
-            mcpConnectionsExisting: number;
-            /**
-             * Mcpconnectionstocreate
-             * @default 0
-             */
-            mcpConnectionsToCreate: number;
-            /**
-             * Resourcesexisting
-             * @default 0
-             */
-            resourcesExisting: number;
-            /**
-             * Resourcestocreate
-             * @default 0
-             */
-            resourcesToCreate: number;
-            /** Targetnamespace */
-            targetNamespace: string;
-            /** Targettenantid */
-            targetTenantId: string;
-        };
-        /** ProfileImportResult */
-        ProfileImportResult: {
-            /** Agentkey */
-            agentKey: string;
-            /** Agentrevision */
-            agentRevision: number;
-            /**
-             * Alreadypresent
-             * @default false
-             */
-            alreadyPresent: boolean;
-            /**
-             * Bundledigest
-             * @default 0000000000000000000000000000000000000000000000000000000000000000
-             */
-            bundleDigest: string;
-            /**
-             * Importid
-             * @default
-             */
-            importId: string;
-            /** Mcpconnectionsexisting */
-            mcpConnectionsExisting: number;
-            /** Mcpconnectionsimported */
-            mcpConnectionsImported: number;
-            /** Resourcesexisting */
-            resourcesExisting: number;
-            /** Resourcesimported */
-            resourcesImported: number;
-            /** Targetnamespace */
-            targetNamespace: string;
-            /** Targettenantid */
-            targetTenantId: string;
-        };
         /** PromotionApplyRequest */
         PromotionApplyRequest: {
             /** Approvals */
@@ -14839,21 +13769,7 @@ export interface components {
             toolName: string;
         };
         /** ResolvedAgentEvaluation */
-        "ResolvedAgentEvaluation-Input": {
-            /** @default DISABLED */
-            judgeFallbackMode: components["schemas"]["ModelFallbackMode"];
-            /**
-             * Judgemodelroutes
-             * @default []
-             */
-            judgeModelRoutes: components["schemas"]["ModelRoute"][];
-            /** Judgenondeterminismdisclosure */
-            judgeNondeterminismDisclosure?: string | null;
-            resource: components["schemas"]["ResolvedResourcePin"];
-            spec: components["schemas"]["AgentEvaluationSpec-Input"];
-        };
-        /** ResolvedAgentEvaluation */
-        "ResolvedAgentEvaluation-Output": {
+        ResolvedAgentEvaluation: {
             /** @default DISABLED */
             judgeFallbackMode: components["schemas"]["ModelFallbackMode"];
             /**
@@ -15245,166 +14161,6 @@ export interface components {
             occurrences: components["schemas"]["CronOccurrence"][];
             /** Trigger Id */
             trigger_id: string;
-        };
-        /** ScimGroupRequest */
-        ScimGroupRequest: {
-            /** Displayname */
-            displayName: string;
-            /** Externalid */
-            externalId?: string | null;
-            /**
-             * Members
-             * @default []
-             */
-            members: components["schemas"]["ScimMember"][];
-            /**
-             * Schemas
-             * @default [
-             *       "urn:ietf:params:scim:schemas:core:2.0:Group"
-             *     ]
-             */
-            schemas: string[];
-        };
-        /** ScimGroupResource */
-        ScimGroupResource: {
-            /** Displayname */
-            displayName: string;
-            /** Externalid */
-            externalId?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Members
-             * @default []
-             */
-            members: components["schemas"]["ScimMember"][];
-            meta: components["schemas"]["ScimResourceMeta"];
-            /**
-             * Schemas
-             * @default [
-             *       "urn:ietf:params:scim:schemas:core:2.0:Group"
-             *     ]
-             */
-            schemas: string[];
-        };
-        /** ScimListResponse */
-        ScimListResponse: {
-            /** Itemsperpage */
-            itemsPerPage: number;
-            /** Resources */
-            Resources: (components["schemas"]["ScimUserResource"] | components["schemas"]["ScimGroupResource"])[];
-            /**
-             * Schemas
-             * @default [
-             *       "urn:ietf:params:scim:api:messages:2.0:ListResponse"
-             *     ]
-             */
-            schemas: string[];
-            /**
-             * Startindex
-             * @default 1
-             */
-            startIndex: number;
-            /** Totalresults */
-            totalResults: number;
-        };
-        /** ScimMember */
-        ScimMember: {
-            /** Display */
-            display?: string | null;
-            /**
-             * Value
-             * Format: uuid
-             */
-            value: string;
-        };
-        /** ScimPatchOperation */
-        ScimPatchOperation: {
-            /** Op */
-            op: string;
-            /** Path */
-            path?: string | null;
-            /** Value */
-            value?: unknown;
-        };
-        /** ScimPatchRequest */
-        ScimPatchRequest: {
-            /** Operations */
-            Operations: components["schemas"]["ScimPatchOperation"][];
-            /**
-             * Schemas
-             * @default [
-             *       "urn:ietf:params:scim:api:messages:2.0:PatchOp"
-             *     ]
-             */
-            schemas: string[];
-        };
-        /** ScimResourceMeta */
-        ScimResourceMeta: {
-            /**
-             * Created
-             * Format: date-time
-             */
-            created: string;
-            /**
-             * Lastmodified
-             * Format: date-time
-             */
-            lastModified: string;
-            /** Location */
-            location: string;
-            /** Resourcetype */
-            resourceType: string;
-            /** Version */
-            version: string;
-        };
-        /** ScimUserRequest */
-        ScimUserRequest: {
-            /**
-             * Active
-             * @default true
-             */
-            active: boolean;
-            /** Displayname */
-            displayName?: string | null;
-            /** Externalid */
-            externalId?: string | null;
-            /**
-             * Schemas
-             * @default [
-             *       "urn:ietf:params:scim:schemas:core:2.0:User"
-             *     ]
-             */
-            schemas: string[];
-            /** Username */
-            userName: string;
-        };
-        /** ScimUserResource */
-        ScimUserResource: {
-            /** Active */
-            active: boolean;
-            /** Displayname */
-            displayName: string;
-            /** Externalid */
-            externalId?: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            meta: components["schemas"]["ScimResourceMeta"];
-            /**
-             * Schemas
-             * @default [
-             *       "urn:ietf:params:scim:schemas:core:2.0:User"
-             *     ]
-             */
-            schemas: string[];
-            /** Username */
-            userName: string;
         };
         /** SearchDocument */
         SearchDocument: {
@@ -15844,245 +14600,6 @@ export interface components {
             /** Versionskew */
             versionSkew: boolean;
         };
-        /** SessionTaskRunEvent */
-        SessionTaskRunEvent: {
-            event: components["schemas"]["TaskRunEvent"];
-            /** Sequence */
-            sequence: number;
-            /**
-             * Taskrunid
-             * Format: uuid
-             */
-            taskRunId: string;
-        };
-        /**
-         * SessionTransferBundle
-         * @description A sealed snapshot of canonical records; no live worker state is included.
-         */
-        "SessionTransferBundle-Input": {
-            /**
-             * Activeadmissionclaimcount
-             * @default 0
-             */
-            activeAdmissionClaimCount: number;
-            /**
-             * Activeleasecount
-             * @default 0
-             */
-            activeLeaseCount: number;
-            /** Artifactdestinationrefs */
-            artifactDestinationRefs?: {
-                [key: string]: string;
-            };
-            /**
-             * Artifacts
-             * @default []
-             */
-            artifacts: components["schemas"]["ExecutionArtifact"][];
-            capabilityPin?: components["schemas"]["AgentCapabilityPin-Input"] | null;
-            /** Checksumsha256 */
-            checksumSha256: string;
-            /**
-             * Events
-             * @default []
-             */
-            events: components["schemas"]["AgentSessionEvent"][];
-            /**
-             * Evidenceevents
-             * @default []
-             */
-            evidenceEvents: components["schemas"]["ExecutionEvidenceEvent"][];
-            execution: components["schemas"]["PersistedExecution"];
-            /**
-             * Executionevents
-             * @default []
-             */
-            executionEvents: components["schemas"]["ExecutionEvent"][];
-            /**
-             * Invocations
-             * @default []
-             */
-            invocations: components["schemas"]["AgentInvocationRecord-Input"][];
-            mode: components["schemas"]["SessionTransferMode"];
-            /**
-             * Schemaversion
-             * @default amesh.session-transfer/v1
-             */
-            schemaVersion: string;
-            session: components["schemas"]["AgentSessionRecord-Input"];
-            /** Sourcetenantid */
-            sourceTenantId: string;
-            /**
-             * Taskruneventrecords
-             * @default []
-             */
-            taskRunEventRecords: components["schemas"]["SessionTaskRunEvent"][];
-            /**
-             * Taskrunevents
-             * @default []
-             */
-            taskRunEvents: components["schemas"]["TaskRunEvent"][];
-            /**
-             * Taskruns
-             * @default []
-             */
-            taskRuns: components["schemas"]["PersistedTaskRun"][];
-            /**
-             * Unresolvedapprovalcount
-             * @default 0
-             */
-            unresolvedApprovalCount: number;
-        };
-        /**
-         * SessionTransferBundle
-         * @description A sealed snapshot of canonical records; no live worker state is included.
-         */
-        "SessionTransferBundle-Output": {
-            /**
-             * Activeadmissionclaimcount
-             * @default 0
-             */
-            activeAdmissionClaimCount: number;
-            /**
-             * Activeleasecount
-             * @default 0
-             */
-            activeLeaseCount: number;
-            /** Artifactdestinationrefs */
-            artifactDestinationRefs?: {
-                [key: string]: string;
-            };
-            /**
-             * Artifacts
-             * @default []
-             */
-            artifacts: components["schemas"]["ExecutionArtifact"][];
-            capabilityPin?: components["schemas"]["AgentCapabilityPin-Output"] | null;
-            /** Checksumsha256 */
-            checksumSha256: string;
-            /**
-             * Events
-             * @default []
-             */
-            events: components["schemas"]["AgentSessionEvent"][];
-            /**
-             * Evidenceevents
-             * @default []
-             */
-            evidenceEvents: components["schemas"]["ExecutionEvidenceEvent"][];
-            execution: components["schemas"]["PersistedExecution"];
-            /**
-             * Executionevents
-             * @default []
-             */
-            executionEvents: components["schemas"]["ExecutionEvent"][];
-            /**
-             * Invocations
-             * @default []
-             */
-            invocations: components["schemas"]["AgentInvocationRecord-Output"][];
-            mode: components["schemas"]["SessionTransferMode"];
-            /**
-             * Schemaversion
-             * @default amesh.session-transfer/v1
-             */
-            schemaVersion: string;
-            session: components["schemas"]["AgentSessionRecord-Output"];
-            /** Sourcetenantid */
-            sourceTenantId: string;
-            /**
-             * Taskruneventrecords
-             * @default []
-             */
-            taskRunEventRecords: components["schemas"]["SessionTaskRunEvent"][];
-            /**
-             * Taskrunevents
-             * @default []
-             */
-            taskRunEvents: components["schemas"]["TaskRunEvent"][];
-            /**
-             * Taskruns
-             * @default []
-             */
-            taskRuns: components["schemas"]["PersistedTaskRun"][];
-            /**
-             * Unresolvedapprovalcount
-             * @default 0
-             */
-            unresolvedApprovalCount: number;
-        };
-        /**
-         * SessionTransferCompatibilityReport
-         * @description Mutation-free target compatibility result for a session transfer.
-         */
-        SessionTransferCompatibilityReport: {
-            /**
-             * Artifactdiagnostics
-             * @default []
-             */
-            artifactDiagnostics: string[];
-            /** Bundledigest */
-            bundleDigest: string;
-            /** Capabilitypincompatible */
-            capabilityPinCompatible: boolean;
-            /**
-             * Credentialrebindingdiagnostics
-             * @default []
-             */
-            credentialRebindingDiagnostics: string[];
-            /** Eligible */
-            eligible: boolean;
-            /** Flowcompatible */
-            flowCompatible: boolean;
-            /** Harnesscompatible */
-            harnessCompatible: boolean;
-            /**
-             * Issues
-             * @default []
-             */
-            issues: string[];
-            mode: components["schemas"]["SessionTransferMode"];
-            /**
-             * Schemaversion
-             * @default amesh.session-transfer-plan/v1
-             */
-            schemaVersion: string;
-            /** Sourcetenantid */
-            sourceTenantId: string;
-            /** Targettenantid */
-            targetTenantId: string;
-        };
-        /** SessionTransferImportResult */
-        SessionTransferImportResult: {
-            /**
-             * Alreadypresent
-             * @default false
-             */
-            alreadyPresent: boolean;
-            /** Bundledigest */
-            bundleDigest: string;
-            /**
-             * Credentialrebindingdiagnostics
-             * @default []
-             */
-            credentialRebindingDiagnostics: string[];
-            /** Idmapping */
-            idMapping?: {
-                [key: string]: string;
-            };
-            /** Importid */
-            importId: string;
-            mode: components["schemas"]["SessionTransferMode"];
-            /** Sessionid */
-            sessionId: string;
-            /** Targettenantid */
-            targetTenantId: string;
-        };
-        /**
-         * SessionTransferMode
-         * @enum {string}
-         */
-        SessionTransferMode: "TERMINAL_HISTORY" | "CLEAN_CHECKPOINT";
         /** SetLocalPasswordRequest */
         SetLocalPasswordRequest: {
             /**
@@ -16728,55 +15245,6 @@ export interface components {
             /** Value */
             value: number | string;
         };
-        /** TaskRunEvent */
-        TaskRunEvent: {
-            /**
-             * Actor Id
-             * @default system
-             */
-            actor_id: string;
-            /** Causation Id */
-            causation_id?: string | null;
-            /**
-             * Correlation Id
-             * Format: uuid
-             */
-            correlation_id?: string;
-            /**
-             * Event Id
-             * Format: uuid
-             */
-            event_id?: string;
-            event_type: components["schemas"]["TaskRunEventType"];
-            /** Idempotency Key */
-            idempotency_key?: string | null;
-            /**
-             * Occurred At
-             * Format: date-time
-             */
-            occurred_at?: string;
-            /** Payload */
-            payload?: {
-                [key: string]: unknown;
-            };
-            /** Reason */
-            reason?: string | null;
-            /**
-             * Schema Version
-             * @default 1
-             * @constant
-             */
-            schema_version: 1;
-            /** Trace Context */
-            trace_context?: {
-                [key: string]: string;
-            };
-        };
-        /**
-         * TaskRunEventType
-         * @enum {string}
-         */
-        TaskRunEventType: "TaskRunCreated" | "TaskRunStarted" | "TaskRunDeferred" | "TaskRunControlRecorded" | "TaskRunRetryScheduled" | "TaskRunSkipped" | "TaskRunSucceeded" | "TaskRunFailed" | "TaskRunCancelled" | "TaskRunRestarted";
         /**
          * TaskRunLifecyclePhase
          * @enum {string}
@@ -16923,88 +15391,6 @@ export interface components {
              */
             relative: number | string;
         };
-        /**
-         * ToolPlanLedger
-         * @description Immutable completion ledger that can be serialized and reloaded after restart.
-         */
-        ToolPlanLedger: {
-            /** Entries */
-            entries: components["schemas"]["ToolPlanLedgerEntry"][];
-            /** Expandeddigest */
-            expandedDigest: string;
-            /**
-             * Mode
-             * @default ORDERED
-             * @enum {string}
-             */
-            mode: "ORDERED" | "UNORDERED";
-            /** Occurrences */
-            occurrences: components["schemas"]["ToolPlanOccurrence"][];
-            /** Plandigest */
-            planDigest: string;
-            /**
-             * Schemaversion
-             * @default amesh.agent-tool-plan/v1
-             * @constant
-             */
-            schemaVersion: "amesh.agent-tool-plan/v1";
-            /** Sessionid */
-            sessionId?: string | null;
-        };
-        /**
-         * ToolPlanLedgerEntry
-         * @description Durable state for one occurrence; failed entries remain retryable.
-         */
-        ToolPlanLedgerEntry: {
-            /**
-             * Attemptcount
-             * @default 0
-             */
-            attemptCount: number;
-            /** Calldigest */
-            callDigest: string;
-            /** Errorcode */
-            errorCode?: string | null;
-            /** Lastattemptkey */
-            lastAttemptKey?: string | null;
-            /** Occurrenceid */
-            occurrenceId: string;
-            /** Resultdigest */
-            resultDigest?: string | null;
-            /** @default PENDING */
-            state: components["schemas"]["ToolPlanOccurrenceState"];
-        };
-        /**
-         * ToolPlanOccurrence
-         * @description One expanded required tool and its argument/result constraints.
-         */
-        ToolPlanOccurrence: {
-            /** Arguments */
-            arguments: {
-                [key: string]: unknown;
-            };
-            /** Calldigest */
-            callDigest: string;
-            /** Occurrenceid */
-            occurrenceId: string;
-            /** Occurrenceindex */
-            occurrenceIndex: number;
-            /** Sequence */
-            sequence: number;
-            /** Stepid */
-            stepId: string;
-            /** Successschema */
-            successSchema?: {
-                [key: string]: unknown;
-            } | null;
-            /** Toolname */
-            toolName: string;
-        };
-        /**
-         * ToolPlanOccurrenceState
-         * @enum {string}
-         */
-        ToolPlanOccurrenceState: "PENDING" | "FAILED" | "SUCCEEDED";
         /**
          * ToolProviderKind
          * @enum {string}
@@ -17873,265 +16259,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AgentSessionPolicyRevision"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles__namespace___agent_key__export_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path: {
-                agent_key: string;
-                namespace: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProfileBundle-Output"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    export_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles__namespace___agent_key__export_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path: {
-                agent_key: string;
-                namespace: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProfileBundle-Output"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    import_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_import_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AgentSessionTransferProfileImportRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProfileImportResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    plan_agent_profile_transfer_api_v1_admin_agent_session_transfers_profiles_plan_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AgentSessionTransferProfilePlanRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProfileCompatibilityReport"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    export_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions__session_id__export_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path: {
-                session_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AgentSessionTransferSessionExportRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionTransferBundle-Output"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    import_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_import_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AgentSessionTransferSessionImportRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionTransferImportResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    plan_agent_session_transfer_api_v1_admin_agent_session_transfers_sessions_plan_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AgentSessionTransferSessionPlanRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionTransferCompatibilityReport"];
                 };
             };
             /** @description Validation Error */
@@ -20747,66 +18874,6 @@ export interface operations {
             };
         };
     };
-    complete_saml_login_api_v1_auth_federated__provider_id__callback_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                provider_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            307: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    saml_service_provider_metadata_api_v1_auth_federated__provider_id__saml_metadata_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                provider_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": string;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     begin_federated_login_api_v1_auth_federated__provider_id__start_get: {
         parameters: {
             query?: {
@@ -21570,28 +19637,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_kestra_compatibility_manifest_api_v1_compatibility_kestra_manifest_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
                 };
             };
         };
@@ -22874,58 +20919,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PersistedTaskRun"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_kestra_execution_api_v1_executions__namespace___flow_id__post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-                "Idempotency-Key"?: string | null;
-                Prefer?: string | null;
-                "X-Amesh-CSRF"?: string | null;
-                "X-Amesh-Tenant"?: string | null;
-                "X-Correlation-ID"?: string | null;
-            };
-            path: {
-                flow_id: string;
-                namespace: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["KestraExecutionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExecutionDetail"];
-                };
-            };
-            /** @description Execution persisted and accepted for asynchronous processing */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExecutionDetail"];
                 };
             };
             /** @description Validation Error */
@@ -24520,26 +22513,6 @@ export interface operations {
             };
         };
     };
-    validate_kestra_flow_api_v1_main_flows_validate_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KestraFlowImport"];
-                };
-            };
-        };
-    };
     get_agent_capability_catalog_api_v1_namespaces__namespace__agent_capabilities_catalog_get: {
         parameters: {
             query?: {
@@ -24683,7 +22656,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AgentCapabilityPin-Output"];
+                    "application/json": components["schemas"]["AgentCapabilityPin"];
                 };
             };
             /** @description Validation Error */
@@ -25142,7 +23115,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AgentResourceRevision-Output"][];
+                    "application/json": components["schemas"]["AgentResourceRevision"][];
                 };
             };
             /** @description Validation Error */
@@ -25181,7 +23154,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AgentResourceRevision-Output"];
+                    "application/json": components["schemas"]["AgentResourceRevision"];
                 };
             };
             /** @description Validation Error */
@@ -25220,7 +23193,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AgentResourceRevision-Output"];
+                    "application/json": components["schemas"]["AgentResourceRevision"];
                 };
             };
             /** @description Validation Error */
@@ -29381,381 +27354,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReadinessResponse"];
-                };
-            };
-        };
-    };
-    list_scim_groups_scim_v2_Groups_get: {
-        parameters: {
-            query?: {
-                count?: number;
-                filter?: string | null;
-                startIndex?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_scim_group_scim_v2_Groups_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScimGroupRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimGroupResource"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_scim_group_scim_v2_Groups__group_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                group_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimGroupResource"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_scim_group_scim_v2_Groups__group_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                group_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    patch_scim_group_scim_v2_Groups__group_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                group_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScimPatchRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimGroupResource"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    scim_service_provider_config_scim_v2_ServiceProviderConfig_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_scim_users_scim_v2_Users_get: {
-        parameters: {
-            query?: {
-                count?: number;
-                filter?: string | null;
-                startIndex?: number;
-            };
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_scim_user_scim_v2_Users_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScimUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimUserResource"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_scim_user_scim_v2_Users__user_id__get: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimUserResource"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_scim_user_scim_v2_Users__user_id__delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    patch_scim_user_scim_v2_Users__user_id__patch: {
-        parameters: {
-            query?: never;
-            header?: {
-                authorization?: string | null;
-            };
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScimPatchRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScimUserResource"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

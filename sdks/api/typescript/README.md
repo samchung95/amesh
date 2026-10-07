@@ -69,13 +69,6 @@ All URIs are relative to *http://localhost*
 *AgentSessionAdministrationApi* | [**listAgentSessionFleetApiV1AdminAgentSessionsGet**](docs/AgentSessionAdministrationApi.md#listagentsessionfleetapiv1adminagentsessionsget) | **GET** /api/v1/admin/agent-sessions | List Agent Session Fleet
 *AgentSessionAdministrationApi* | [**listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGet**](docs/AgentSessionAdministrationApi.md#listagentsessionpoliciesapiv1adminagentsessionpoliciesget) | **GET** /api/v1/admin/agent-session-policies | List Agent Session Policies
 *AgentSessionAdministrationApi* | [**putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPut**](docs/AgentSessionAdministrationApi.md#putagentsessionpolicyapiv1adminagentsessionpoliciesput) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
-*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGet**](docs/AgentSessionTransfersApi.md#exportagentprofiletransferapiv1adminagentsessiontransfersprofilesnamespaceagentkeyexportget) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
-*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPost**](docs/AgentSessionTransfersApi.md#exportagentprofiletransferapiv1adminagentsessiontransfersprofilesnamespaceagentkeyexportpost) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
-*AgentSessionTransfersApi* | [**exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPost**](docs/AgentSessionTransfersApi.md#exportagentsessiontransferapiv1adminagentsessiontransferssessionssessionidexportpost) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
-*AgentSessionTransfersApi* | [**importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPost**](docs/AgentSessionTransfersApi.md#importagentprofiletransferapiv1adminagentsessiontransfersprofilesimportpost) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
-*AgentSessionTransfersApi* | [**importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPost**](docs/AgentSessionTransfersApi.md#importagentsessiontransferapiv1adminagentsessiontransferssessionsimportpost) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
-*AgentSessionTransfersApi* | [**planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPost**](docs/AgentSessionTransfersApi.md#planagentprofiletransferapiv1adminagentsessiontransfersprofilesplanpost) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
-*AgentSessionTransfersApi* | [**planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPost**](docs/AgentSessionTransfersApi.md#planagentsessiontransferapiv1adminagentsessiontransferssessionsplanpost) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
 *AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsApi.md#controlagentsessionapiv1agentsessionsservicesessionidactionpost) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsApi.md#createagentsessionapiv1agentsessionspost) | **POST** /api/v1/agent-sessions | Create Agent Session
 *AgentSessionsApi* | [**getAgentSessionApiV1AgentSessionsServiceSessionIdGet**](docs/AgentSessionsApi.md#getagentsessionapiv1agentsessionsservicesessionidget) | **GET** /api/v1/agent-sessions/{service_session_id} | Get Agent Session
@@ -136,13 +129,11 @@ All URIs are relative to *http://localhost*
 *AuthenticationApi* | [**beginFederatedLoginApiV1AuthFederatedProviderIdStartGet**](docs/AuthenticationApi.md#beginfederatedloginapiv1authfederatedprovideridstartget) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationApi.md#changelocalpasswordapiv1authpasswordpost) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet**](docs/AuthenticationApi.md#completeoidcloginapiv1authfederatedprovideridcallbackget) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
-*AuthenticationApi* | [**completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost**](docs/AuthenticationApi.md#completesamlloginapiv1authfederatedprovideridcallbackpost) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login
 *AuthenticationApi* | [**listAuthenticationProvidersApiV1AuthProvidersGet**](docs/AuthenticationApi.md#listauthenticationprovidersapiv1authprovidersget) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**loginApiV1AuthLoginPost**](docs/AuthenticationApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login
 *AuthenticationApi* | [**logoutAllApiV1AuthLogoutAllPost**](docs/AuthenticationApi.md#logoutallapiv1authlogoutallpost) | **POST** /api/v1/auth/logout-all | Logout All
 *AuthenticationApi* | [**logoutApiV1AuthLogoutPost**](docs/AuthenticationApi.md#logoutapiv1authlogoutpost) | **POST** /api/v1/auth/logout | Logout
 *AuthenticationApi* | [**revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete**](docs/AuthenticationApi.md#revokeprincipalsessionsapiv1adminprincipalsprincipalidsessionsdelete) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions
-*AuthenticationApi* | [**samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet**](docs/AuthenticationApi.md#samlserviceprovidermetadataapiv1authfederatedprovideridsamlmetadataget) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata
 *AuthenticationApi* | [**setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut**](docs/AuthenticationApi.md#setlocalpasswordapiv1adminprincipalsprincipalidlocalpasswordput) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password
 *AuthorizationApi* | [**addGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut**](docs/AuthorizationApi.md#addgroupmemberapiv1admingroupsgroupidmembersmemberidput) | **PUT** /api/v1/admin/groups/{group_id}/members/{member_id} | Add Group Member
 *AuthorizationApi* | [**createPrincipalApiV1AdminPrincipalsPost**](docs/AuthorizationApi.md#createprincipalapiv1adminprincipalspost) | **POST** /api/v1/admin/principals | Create Principal
@@ -170,9 +161,6 @@ All URIs are relative to *http://localhost*
 *ChecksApi* | [**listCheckEvaluationsApiV1CheckEvaluationsGet**](docs/ChecksApi.md#listcheckevaluationsapiv1checkevaluationsget) | **GET** /api/v1/check-evaluations | List Check Evaluations
 *ChecksApi* | [**listCheckPoliciesApiV1CheckPoliciesGet**](docs/ChecksApi.md#listcheckpoliciesapiv1checkpoliciesget) | **GET** /api/v1/check-policies | List Check Policies
 *ChecksApi* | [**upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut**](docs/ChecksApi.md#upsertcheckpolicyapiv1checkpoliciesnamespacepolicykeyput) | **PUT** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
-*CompatibilityApi* | [**createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost**](docs/CompatibilityApi.md#createkestraexecutionapiv1executionsnamespaceflowidpost) | **POST** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
-*CompatibilityApi* | [**getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet**](docs/CompatibilityApi.md#getkestracompatibilitymanifestapiv1compatibilitykestramanifestget) | **GET** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
-*CompatibilityApi* | [**validateKestraFlowApiV1MainFlowsValidatePost**](docs/CompatibilityApi.md#validatekestraflowapiv1mainflowsvalidatepost) | **POST** /api/v1/main/flows/validate | Validate Kestra Flow
 *ConfigurationApi* | [**evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet**](docs/ConfigurationApi.md#evaluatefeatureflagapiv1featureflagskeyevaluateget) | **GET** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationApi* | [**getConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet**](docs/ConfigurationApi.md#getconfigurationdiagnosticsapiv1configurationdiagnosticsget) | **GET** /api/v1/configuration/diagnostics | Get Configuration Diagnostics
 *ConfigurationApi* | [**getEffectiveConfigurationApiV1ConfigurationGet**](docs/ConfigurationApi.md#geteffectiveconfigurationapiv1configurationget) | **GET** /api/v1/configuration | Get Effective Configuration
@@ -342,17 +330,6 @@ All URIs are relative to *http://localhost*
 *ReleasesApi* | [**rollbackApiV1ReleasesTargetKindTargetKeyRollbackPost**](docs/ReleasesApi.md#rollbackapiv1releasestargetkindtargetkeyrollbackpost) | **POST** /api/v1/releases/{target_kind}/{target_key}/rollback | Rollback
 *ReleasesApi* | [**targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGet**](docs/ReleasesApi.md#targethistoryapiv1releasestargetkindtargetkeyhistoryget) | **GET** /api/v1/releases/{target_kind}/{target_key}/history | Target History
 *ReleasesApi* | [**targetStateApiV1ReleasesTargetKindTargetKeyGet**](docs/ReleasesApi.md#targetstateapiv1releasestargetkindtargetkeyget) | **GET** /api/v1/releases/{target_kind}/{target_key} | Target State
-*ScimApi* | [**createScimGroupScimV2GroupsPost**](docs/ScimApi.md#createscimgroupscimv2groupspost) | **POST** /scim/v2/Groups | Create Scim Group
-*ScimApi* | [**createScimUserScimV2UsersPost**](docs/ScimApi.md#createscimuserscimv2userspost) | **POST** /scim/v2/Users | Create Scim User
-*ScimApi* | [**deleteScimGroupScimV2GroupsGroupIdDelete**](docs/ScimApi.md#deletescimgroupscimv2groupsgroupiddelete) | **DELETE** /scim/v2/Groups/{group_id} | Delete Scim Group
-*ScimApi* | [**deleteScimUserScimV2UsersUserIdDelete**](docs/ScimApi.md#deletescimuserscimv2usersuseriddelete) | **DELETE** /scim/v2/Users/{user_id} | Delete Scim User
-*ScimApi* | [**getScimGroupScimV2GroupsGroupIdGet**](docs/ScimApi.md#getscimgroupscimv2groupsgroupidget) | **GET** /scim/v2/Groups/{group_id} | Get Scim Group
-*ScimApi* | [**getScimUserScimV2UsersUserIdGet**](docs/ScimApi.md#getscimuserscimv2usersuseridget) | **GET** /scim/v2/Users/{user_id} | Get Scim User
-*ScimApi* | [**listScimGroupsScimV2GroupsGet**](docs/ScimApi.md#listscimgroupsscimv2groupsget) | **GET** /scim/v2/Groups | List Scim Groups
-*ScimApi* | [**listScimUsersScimV2UsersGet**](docs/ScimApi.md#listscimusersscimv2usersget) | **GET** /scim/v2/Users | List Scim Users
-*ScimApi* | [**patchScimGroupScimV2GroupsGroupIdPatch**](docs/ScimApi.md#patchscimgroupscimv2groupsgroupidpatch) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
-*ScimApi* | [**patchScimUserScimV2UsersUserIdPatch**](docs/ScimApi.md#patchscimuserscimv2usersuseridpatch) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
-*ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGet**](docs/ScimApi.md#scimserviceproviderconfigscimv2serviceproviderconfigget) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
 *SearchApi* | [**controlSearchProjectionApiV1SearchControlPost**](docs/SearchApi.md#controlsearchprojectionapiv1searchcontrolpost) | **POST** /api/v1/search/control | Control Search Projection
 *SearchApi* | [**getSearchStatusApiV1SearchStatusGet**](docs/SearchApi.md#getsearchstatusapiv1searchstatusget) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPost**](docs/SearchApi.md#rebuildsearchprojectionapiv1searchrebuildpost) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
@@ -408,8 +385,7 @@ All URIs are relative to *http://localhost*
 - AdmissionScope
 - AgentBillingCertainty
 - AgentCacheBreakpoint
-- AgentCapabilityPinInput
-- AgentCapabilityPinOutput
+- AgentCapabilityPin
 - AgentCeilingMode
 - AgentContextPolicy
 - AgentContextReceipt
@@ -426,20 +402,11 @@ All URIs are relative to *http://localhost*
 - AgentHardLimitsInput
 - AgentHardLimitsOutput
 - AgentHarnessPin
-- AgentInvocationAccountingInput
-- AgentInvocationAccountingOutput
-- AgentInvocationCostState
-- AgentInvocationKind
-- AgentInvocationRecordInput
-- AgentInvocationRecordOutput
-- AgentInvocationState
 - AgentJudgePolicyInput
 - AgentJudgePolicyOutput
 - AgentMemoryMetadata
 - AgentMemoryPolicy
 - AgentMemoryScope
-- AgentModelContinuationBinding
-- AgentModelContinuationRef
 - AgentPermissions
 - AgentProgressActivity
 - AgentProgressEvent
@@ -451,8 +418,7 @@ All URIs are relative to *http://localhost*
 - AgentResolutionRequest
 - AgentResourceKind
 - AgentResourceRef
-- AgentResourceRevisionInput
-- AgentResourceRevisionOutput
+- AgentResourceRevision
 - AgentRevisionComparison
 - AgentRouteAssessment
 - AgentRouteAvailabilitySignal
@@ -467,11 +433,9 @@ All URIs are relative to *http://localhost*
 - AgentSessionBulkActionItemResult
 - AgentSessionBulkActionRequest
 - AgentSessionBulkActionResponse
-- AgentSessionCheckpoint
 - AgentSessionControlRequest
 - AgentSessionControlSummary
-- AgentSessionCountersInput
-- AgentSessionCountersOutput
+- AgentSessionCounters
 - AgentSessionCreateRequest
 - AgentSessionDetailResponse
 - AgentSessionEvent
@@ -487,22 +451,14 @@ All URIs are relative to *http://localhost*
 - AgentSessionPolicy
 - AgentSessionPolicyRevision
 - AgentSessionPolicyUpsertRequest
-- AgentSessionRecordInput
-- AgentSessionRecordOutput
 - AgentSessionResultResponse
 - AgentSessionServiceDetailResponse
 - AgentSessionServiceItem
 - AgentSessionSnapshotResponse
 - AgentSessionState
 - AgentSessionSummary
-- AgentSessionTransferProfileImportRequest
-- AgentSessionTransferProfilePlanRequest
-- AgentSessionTransferSessionExportRequest
-- AgentSessionTransferSessionImportRequest
-- AgentSessionTransferSessionPlanRequest
 - AgentStatusDetail
 - AgentTaskBrief
-- AgentTaskBriefRevision
 - AgentToolRef
 - Announcement
 - AnnouncementAudience
@@ -588,7 +544,6 @@ All URIs are relative to *http://localhost*
 - ComparisonDifference
 - ComparisonPolicy
 - ComparisonReport
-- CompatibilityMapping
 - ComplianceEvidenceCategory
 - ComplianceEvidenceCreate
 - ComplianceEvidenceRecord
@@ -605,8 +560,6 @@ All URIs are relative to *http://localhost*
 - Content
 - ContentAnyOfInner
 - Correlationid
-- Costamountusd
-- Costusd
 - CreateExecutionRequest
 - CreateTenantRequest
 - CredentialKind
@@ -633,8 +586,7 @@ All URIs are relative to *http://localhost*
 - DifferentialSpec
 - DnsDiagnostic
 - DynamicExecutionBound
-- EffectiveCapabilityEnvelopeInput
-- EffectiveCapabilityEnvelopeOutput
+- EffectiveCapabilityEnvelope
 - EffectivePluginPolicy
 - EvidenceArtifact
 - EvidenceBundlePageResponse
@@ -719,8 +671,6 @@ All URIs are relative to *http://localhost*
 - IsolatedPluginState
 - IssueCredentialRequest
 - IssuedCredentialResponse
-- KestraExecutionRequest
-- KestraFlowImport
 - KeyValueChange
 - KeyValueEntry
 - KeyValueExport
@@ -746,7 +696,6 @@ All URIs are relative to *http://localhost*
 - LoginRequest
 - LoginResponse
 - Lte
-- MappingDisposition
 - Maxcostusd
 - Maximum
 - Maximum1
@@ -763,7 +712,6 @@ All URIs are relative to *http://localhost*
 - McpToolImpact
 - McpToolPin
 - MetricKind
-- MigrationPatch
 - Minimum
 - Minimumrubricscore
 - Minimumscore
@@ -907,10 +855,6 @@ All URIs are relative to *http://localhost*
 - PrincipalDefinition
 - PrincipalType
 - ProblemDetail
-- ProfileBundleInput
-- ProfileBundleOutput
-- ProfileCompatibilityReport
-- ProfileImportResult
 - Projectedcostusd
 - PromotionApplyRequest
 - PromotionEvidenceKind
@@ -942,13 +886,11 @@ All URIs are relative to *http://localhost*
 - Relative
 - RequiredToolPlan
 - RequiredToolStep
-- ResolvedAgentEvaluationInput
-- ResolvedAgentEvaluationOutput
+- ResolvedAgentEvaluation
 - ResolvedResourcePin
 - ResolvedToolPin
 - ResourceLifecycle
 - ResourceMetadata
-- ResourcesInner
 - ResumeTaskRequest
 - RetryPolicy
 - Revision
@@ -965,15 +907,6 @@ All URIs are relative to *http://localhost*
 - RunnerNetworkAccess
 - RunningWorkPolicy
 - SchedulePreview
-- ScimGroupRequest
-- ScimGroupResource
-- ScimListResponse
-- ScimMember
-- ScimPatchOperation
-- ScimPatchRequest
-- ScimResourceMeta
-- ScimUserRequest
-- ScimUserResource
 - Score
 - SearchDocument
 - SearchDocumentType
@@ -1000,12 +933,6 @@ All URIs are relative to *http://localhost*
 - ServiceRoleStatus
 - ServiceState
 - ServiceTopology
-- SessionTaskRunEvent
-- SessionTransferBundleInput
-- SessionTransferBundleOutput
-- SessionTransferCompatibilityReport
-- SessionTransferImportResult
-- SessionTransferMode
 - SetLocalPasswordRequest
 - ShadowEffect
 - ShadowFixture
@@ -1043,8 +970,6 @@ All URIs are relative to *http://localhost*
 - TaskLog
 - TaskLogRecord
 - TaskMetricRecord
-- TaskRunEvent
-- TaskRunEventType
 - TaskRunLifecyclePhase
 - TaskRunState
 - TaskTimeoutMode
@@ -1054,10 +979,6 @@ All URIs are relative to *http://localhost*
 - TenantStatus
 - TimeRangeSelection
 - Tolerance
-- ToolPlanLedger
-- ToolPlanLedgerEntry
-- ToolPlanOccurrence
-- ToolPlanOccurrenceState
 - ToolProviderKind
 - TriggerActionRequest
 - TriggerOccurrence

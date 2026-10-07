@@ -134,7 +134,7 @@ class IdentityProviderConfig(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]{0,127}$")
-    kind: Literal["oidc", "saml", "ldap"]
+    kind: Literal["oidc"]
     display_name: str = Field(alias="displayName", min_length=1, max_length=255)
     domains: tuple[str, ...] = ()
     tenants: tuple[str, ...] = ()
@@ -154,34 +154,6 @@ class IdentityProviderConfig(BaseModel):
     redirect_uri: str | None = Field(default=None, alias="redirectUri")
     scopes: tuple[str, ...] = ("openid", "profile", "email")
     clock_skew_seconds: int = Field(default=60, alias="clockSkewSeconds", ge=0, le=300)
-    idp_entity_id: str | None = Field(default=None, alias="idpEntityId")
-    sso_url: str | None = Field(default=None, alias="ssoUrl")
-    slo_url: str | None = Field(default=None, alias="sloUrl")
-    idp_signing_cert_files: tuple[str, ...] = Field(
-        default=(),
-        alias="idpSigningCertFiles",
-    )
-    sp_entity_id: str | None = Field(default=None, alias="spEntityId")
-    acs_url: str | None = Field(default=None, alias="acsUrl")
-    sp_cert_file: str | None = Field(default=None, alias="spCertFile")
-    sp_private_key_file: str | None = Field(default=None, alias="spPrivateKeyFile")
-    next_sp_cert_file: str | None = Field(default=None, alias="nextSpCertFile")
-    ldap_host: str | None = Field(default=None, alias="ldapHost")
-    ldap_port: int = Field(default=636, alias="ldapPort", ge=1, le=65535)
-    ldap_start_tls: bool = Field(default=False, alias="ldapStartTls")
-    ldap_ca_file: str | None = Field(default=None, alias="ldapCaFile")
-    ldap_user_dn_template: str | None = Field(default=None, alias="ldapUserDnTemplate")
-    ldap_group_search_base: str | None = Field(default=None, alias="ldapGroupSearchBase")
-    ldap_group_filter: str = Field(
-        default="(member={user_dn})",
-        alias="ldapGroupFilter",
-        min_length=1,
-    )
-    ldap_group_name_attribute: str = Field(
-        default="cn",
-        alias="ldapGroupNameAttribute",
-        min_length=1,
-    )
 
     @field_validator("domains")
     @classmethod
@@ -193,48 +165,19 @@ class IdentityProviderConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_protocol_configuration(self) -> IdentityProviderConfig:
-        if self.kind == "oidc":
-            oidc_required = (
-                self.issuer_url,
-                self.client_id,
-                self.client_secret_file,
-                self.redirect_uri,
+        oidc_required = (
+            self.issuer_url,
+            self.client_id,
+            self.client_secret_file,
+            self.redirect_uri,
+        )
+        if any(item is None for item in oidc_required):
+            raise ValueError(
+                "OIDC providers require issuerUrl, clientId, clientSecretFile and redirectUri"
             )
-            if any(item is None for item in oidc_required):
-                raise ValueError(
-                    "OIDC providers require issuerUrl, clientId, clientSecretFile and redirectUri"
-                )
-        elif self.kind == "saml":
-            saml_required = (
-                self.idp_entity_id,
-                self.sso_url,
-                self.sp_entity_id,
-                self.acs_url,
-                self.sp_cert_file,
-                self.sp_private_key_file,
-            )
-            if any(item is None for item in saml_required) or not self.idp_signing_cert_files:
-                raise ValueError(
-                    "SAML providers require IdP/SP endpoints, SP key pair and signing certificates"
-                )
-        elif (
-            self.ldap_host is None
-            or self.ldap_ca_file is None
-            or self.ldap_user_dn_template is None
-        ):
-            raise ValueError("LDAP providers require ldapHost, ldapCaFile and ldapUserDnTemplate")
         if self.default_role is not None and self.default_tenant is None:
             raise ValueError("identity provider defaultRole requires defaultTenant")
         return self
-
-
-class ScimProviderConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    id: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]{0,127}$")
-    tenant: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]{0,127}$")
-    role: str = Field(default="viewer", pattern=r"^[a-z0-9][a-z0-9._-]{0,127}$")
-    token_file: str = Field(alias="tokenFile", min_length=1)
 
 
 class Settings(BaseSettings):
@@ -307,7 +250,6 @@ class Settings(BaseSettings):
     auth_login_max_failures: int = Field(default=5, ge=2, le=100)
     auth_login_lock_seconds: int = Field(default=900, ge=30, le=86_400)
     identity_providers: tuple[IdentityProviderConfig, ...] = ()
-    scim_providers: tuple[ScimProviderConfig, ...] = ()
     tenancy_mode: Literal["single", "multi"] = "single"
     single_tenant_slug: str = "default"
     worker_group: str = "default"
@@ -538,7 +480,6 @@ class Settings(BaseSettings):
         "trusted_plugin_approvals",
         "isolated_plugin_services",
         "identity_providers",
-        "scim_providers",
         "otel_exporter_otlp_headers",
         "network_trusted_proxy_ranges",
         "network_no_proxy",
@@ -614,11 +555,8 @@ class Settings(BaseSettings):
         if len(isolated_identities) != len(set(isolated_identities)):
             raise ValueError("ISOLATED_PLUGIN_SERVICES must contain unique exact identities")
         provider_ids = [item.id for item in self.identity_providers]
-        scim_ids = [item.id for item in self.scim_providers]
         if len(provider_ids) != len(set(provider_ids)):
             raise ValueError("IDENTITY_PROVIDERS must contain unique provider ids")
-        if len(scim_ids) != len(set(scim_ids)):
-            raise ValueError("SCIM_PROVIDERS must contain unique provider ids")
         overlap = set(approval_identities).intersection(isolated_identities)
         if overlap:
             raise ValueError("a plugin identity cannot use both trusted and isolated runtime tiers")

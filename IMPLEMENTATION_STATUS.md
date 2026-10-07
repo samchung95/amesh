@@ -22,8 +22,8 @@ file against the catalog.
   retries, cancellation and restart recovery.
 - A React control room with guided workflow creation, catalog-backed choices, active-run monitoring,
   simple execution traces, expert logs/topology/data views and agent-run inspection.
-- Local authentication, service/API credentials, users, groups, RBAC, tenant isolation, federation
-  contracts, SCIM, audit evidence and administrative controls.
+- Local authentication, service/API credentials, users, groups, RBAC, tenant isolation, OIDC
+  federation, audit evidence and administrative controls.
 - Local-process, Docker/OCI and Kubernetes runner implementations behind a common capability contract.
 - Plugin manifests, discovery, isolated runtimes, version policy, certification surfaces and a
   capability/connection catalog for provider-neutral tools.

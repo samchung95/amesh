@@ -21,16 +21,16 @@ import { mapValues } from '../runtime';
 export interface PolicyPluginContext {
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof PolicyPluginContext
      */
-    packages?: Array<{ [key: string]: any; } | null>;
+    packages?: Array<{ [key: string]: any; }>;
     /**
      *
-     * @type {Array<string | null>}
+     * @type {Array<string>}
      * @memberof PolicyPluginContext
      */
-    taskTypes?: Array<string | null>;
+    taskTypes?: Array<string>;
 }
 
 /**

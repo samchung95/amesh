@@ -27,7 +27,6 @@ x-session-environment: &session-environment
   PLUGIN_REGISTRY_SIGNING_KEY: secret://registry-signing-key
   PLUGIN_TRUST_MODE: signed-only
   IDENTITY_PROVIDERS: '[]'
-  SCIM_PROVIDERS: '[]'
   AUTH_MODE: credentials
   AUTH_POLICY: ${AMESH_SESSION_AUTH_POLICY:-local}
   EXECUTION_RUNNER_MODE: local

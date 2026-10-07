@@ -84,7 +84,6 @@ class AuthSettings:
     auth_login_rate_limit_per_minute: int = 10
     auth_login_max_failures: int = 5
     auth_login_lock_seconds: int = 60
-    identity_providers: tuple[Any, ...] = ()
 
 
 def test_build_http_task_policy_unwraps_secret_proxy_settings() -> None:
@@ -291,4 +290,3 @@ def test_authentication_builder_passes_shared_service_configuration_to_double() 
     assert isinstance(service, object)
     assert captured["token_pepper"] == SecretStr("pepper")
     assert captured["login_max_failures"] == 5
-    assert captured["providers"] == ()

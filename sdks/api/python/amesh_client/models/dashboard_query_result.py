@@ -34,10 +34,9 @@ class DashboardQueryResult(BaseModel):
     limit: Annotated[int, Field(strict=True, ge=1)]
     partial: StrictBool
     redacted: Optional[StrictBool] = False
-    rows: List[Optional[Dict[str, Any]]]
+    rows: List[Dict[str, Any]]
     sampled: StrictBool
     scanned_rows: Annotated[int, Field(strict=True, ge=0)] = Field(alias="scannedRows")
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["columns", "freshAt", "limit", "partial", "redacted", "rows", "sampled", "scannedRows"]
 
     model_config = ConfigDict(
@@ -70,10 +69,8 @@ class DashboardQueryResult(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,11 +78,6 @@ class DashboardQueryResult(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         return _dict
 
     @classmethod
@@ -107,9 +99,4 @@ class DashboardQueryResult(BaseModel):
             "sampled": obj.get("sampled"),
             "scannedRows": obj.get("scannedRows")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

@@ -390,9 +390,9 @@ export type AgentDefinitionSpec = components["schemas"]["AgentDefinitionSpec-Inp
 
 export type AgentResourceSpec = PromptSpec | SkillSpec | ModelPolicySpec | AgentEvaluationSpec | AgentDefinitionSpec
 
-export type AgentResourceRevision = components["schemas"]["AgentResourceRevision-Output"];
+export type AgentResourceRevision = components["schemas"]["AgentResourceRevision"];
 
-export type AgentCapabilityPin = components["schemas"]["AgentCapabilityPin-Output"];
+export type AgentCapabilityPin = components["schemas"]["AgentCapabilityPin"];
 
 export type AgentEnvelopePreview = components["schemas"]["AgentEnvelopePreview"];
 export type AgentSessionHarnessPin = components["schemas"]["AgentHarnessPin"];
@@ -616,8 +616,8 @@ export type GeneratedCompatibilityContracts = [
   AssertExact<IsExact<AgentCapabilityCatalog, components["schemas"]["CapabilityCatalog"]>>,
   AssertExact<IsExact<AgentEvaluationSpec, components["schemas"]["AgentEvaluationSpec-Input"]>>,
   AssertExact<IsExact<AgentDefinitionSpec, components["schemas"]["AgentDefinitionSpec-Input"]>>,
-  AssertExact<IsExact<AgentResourceRevision, components["schemas"]["AgentResourceRevision-Output"]>>,
-  AssertExact<IsExact<AgentCapabilityPin, components["schemas"]["AgentCapabilityPin-Output"]>>,
+  AssertExact<IsExact<AgentResourceRevision, components["schemas"]["AgentResourceRevision"]>>,
+  AssertExact<IsExact<AgentCapabilityPin, components["schemas"]["AgentCapabilityPin"]>>,
   AssertExact<IsExact<AgentSessionHarnessPin, components["schemas"]["AgentHarnessPin"]>>,
   AssertExact<IsExact<AgentSessionDetailPage, components["schemas"]["AgentSessionDetailResponse"]>>,
   AssertExact<IsExact<AgentSessionServiceDetailPage, components["schemas"]["AgentSessionServiceDetailResponse"]>>,

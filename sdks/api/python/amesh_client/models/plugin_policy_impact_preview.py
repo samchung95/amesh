@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,9 +27,9 @@ class PluginPolicyImpactPreview(BaseModel):
     """
     PluginPolicyImpactPreview
     """ # noqa: E501
-    affected_flows: List[Optional[Dict[str, Any]]] = Field(alias="affectedFlows")
+    affected_flows: List[Dict[str, Any]] = Field(alias="affectedFlows")
     package: StrictStr
-    running_executions: List[Optional[Dict[str, Any]]] = Field(alias="runningExecutions")
+    running_executions: List[Dict[str, Any]] = Field(alias="runningExecutions")
     version: StrictStr
     __properties: ClassVar[List[str]] = ["affectedFlows", "package", "runningExecutions", "version"]
 

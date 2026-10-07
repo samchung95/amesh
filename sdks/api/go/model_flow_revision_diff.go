@@ -21,10 +21,10 @@ var _ MappedNullable = &FlowRevisionDiff{}
 
 // FlowRevisionDiff struct for FlowRevisionDiff
 type FlowRevisionDiff struct {
-	FromRevision int32                     `json:"from_revision"`
-	Human        string                    `json:"human"`
-	Operations   []*map[string]interface{} `json:"operations"`
-	ToRevision   int32                     `json:"to_revision"`
+	FromRevision int32                    `json:"from_revision"`
+	Human        string                   `json:"human"`
+	Operations   []map[string]interface{} `json:"operations"`
+	ToRevision   int32                    `json:"to_revision"`
 }
 
 type _FlowRevisionDiff FlowRevisionDiff
@@ -33,7 +33,7 @@ type _FlowRevisionDiff FlowRevisionDiff
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewFlowRevisionDiff(fromRevision int32, human string, operations []*map[string]interface{}, toRevision int32) *FlowRevisionDiff {
+func NewFlowRevisionDiff(fromRevision int32, human string, operations []map[string]interface{}, toRevision int32) *FlowRevisionDiff {
 	this := FlowRevisionDiff{}
 	this.FromRevision = fromRevision
 	this.Human = human
@@ -99,9 +99,9 @@ func (o *FlowRevisionDiff) SetHuman(v string) {
 }
 
 // GetOperations returns the Operations field value
-func (o *FlowRevisionDiff) GetOperations() []*map[string]interface{} {
+func (o *FlowRevisionDiff) GetOperations() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 
@@ -110,7 +110,7 @@ func (o *FlowRevisionDiff) GetOperations() []*map[string]interface{} {
 
 // GetOperationsOk returns a tuple with the Operations field value
 // and a boolean to check if the value has been set.
-func (o *FlowRevisionDiff) GetOperationsOk() ([]*map[string]interface{}, bool) {
+func (o *FlowRevisionDiff) GetOperationsOk() ([]map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -118,7 +118,7 @@ func (o *FlowRevisionDiff) GetOperationsOk() ([]*map[string]interface{}, bool) {
 }
 
 // SetOperations sets field value
-func (o *FlowRevisionDiff) SetOperations(v []*map[string]interface{}) {
+func (o *FlowRevisionDiff) SetOperations(v []map[string]interface{}) {
 	o.Operations = v
 }
 

@@ -17,8 +17,6 @@ _SESSION_PATTERN = re.compile(r"^amesh_session_v1_([0-9a-f]{32})\.([A-Za-z0-9_-]
 class AuthenticationProviderKind(StrEnum):
     LOCAL = "local"
     OIDC = "oidc"
-    SAML = "saml"
-    LDAP = "ldap"
 
 
 class AuthenticationProviderDescriptor(BaseModel):

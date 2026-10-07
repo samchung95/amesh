@@ -1,5 +1,30 @@
 # Test Log
 
+## Remove unused compatibility, transfer and federation surfaces — ADR-085 (2026-10-07)
+
+Spec: ADR-085; owner decision on 2026-10-07 to delete the Kestra façade, the transfer tooling and
+SAML, LDAP and SCIM.
+
+- The OpenAPI contract lost 15 paths (278 to 263) and 58 schemas. The rest of the contract is
+  unchanged: five schemas lost their `-Input`/`-Output` split once the transfer bundles stopped
+  using them as request bodies. The pinned canonical OpenAPI length and hash in
+  `test_app_compatibility.py` were updated to the regenerated contract (716,455 bytes).
+  `workflows.router_4` held only Kestra routes and was removed.
+- The frontend types, the four SDKs (3,001 files, integrity check current) and the CLI reference
+  were regenerated. The resource client lost six transfer methods (193 to 187).
+- Against a disposable PostgreSQL 17 on Windows: 1,726 passed, 19 skipped. The 13 Pi-harness
+  failures and 53 errors came from the missing `harnesses/pi` npm install; after `npm ci` those
+  six files gave 136 passed, 1 skipped. `tests/application` plus `tests/api`: 206 passed. Ruff,
+  the format check and strict mypy (419 files) passed. The PostgreSQL federation and restricted
+  role tests passed, including the ADR-020 admin-entrypoint table check.
+- Frontend in the Playwright 1.62.1 image: Vitest 36 files, 149 tests with coverage; ESLint;
+  `tsc -b` and the Vite build; Playwright shell, session-orchestrator, agent-sessions and
+  contract-resilience gave 30 passed, 1 skipped.
+- Terraform provider in `golang:1.25`: gofmt, `go vet` and `go test ./...` passed with 12
+  resources.
+- `requirements/urs.json` and `requirements/compatibility-inventory.json` still name seven deleted
+  tests as evidence. ADR-085 records them as history, not verification.
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.

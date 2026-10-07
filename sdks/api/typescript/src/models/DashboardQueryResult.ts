@@ -51,10 +51,10 @@ export interface DashboardQueryResult {
     redacted?: boolean;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof DashboardQueryResult
      */
-    rows: Array<{ [key: string]: any; } | null>;
+    rows: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {boolean}

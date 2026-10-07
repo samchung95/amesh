@@ -19,15 +19,12 @@ var _ MappedNullable = &OpenAIResponseTextFormat{}
 
 // OpenAIResponseTextFormat Supported Responses text/structured-output format.
 type OpenAIResponseTextFormat struct {
-	Description          NullableString         `json:"description,omitempty"`
-	Name                 NullableString         `json:"name,omitempty"`
-	Schema               map[string]interface{} `json:"schema,omitempty"`
-	Strict               NullableBool           `json:"strict,omitempty"`
-	Type                 *string                `json:"type,omitempty"`
-	AdditionalProperties map[string]interface{}
+	Description NullableString         `json:"description,omitempty"`
+	Name        NullableString         `json:"name,omitempty"`
+	Schema      map[string]interface{} `json:"schema,omitempty"`
+	Strict      NullableBool           `json:"strict,omitempty"`
+	Type        *string                `json:"type,omitempty"`
 }
-
-type _OpenAIResponseTextFormat OpenAIResponseTextFormat
 
 // NewOpenAIResponseTextFormat instantiates a new OpenAIResponseTextFormat object
 // This constructor will assign default values to properties that have it defined,
@@ -269,37 +266,7 @@ func (o OpenAIResponseTextFormat) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Type) {
 		toSerialize["type"] = o.Type
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
-}
-
-func (o *OpenAIResponseTextFormat) UnmarshalJSON(data []byte) (err error) {
-	varOpenAIResponseTextFormat := _OpenAIResponseTextFormat{}
-
-	err = json.Unmarshal(data, &varOpenAIResponseTextFormat)
-
-	if err != nil {
-		return err
-	}
-
-	*o = OpenAIResponseTextFormat(varOpenAIResponseTextFormat)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "description")
-		delete(additionalProperties, "name")
-		delete(additionalProperties, "schema")
-		delete(additionalProperties, "strict")
-		delete(additionalProperties, "type")
-		o.AdditionalProperties = additionalProperties
-	}
-
-	return err
 }
 
 type NullableOpenAIResponseTextFormat struct {

@@ -35,7 +35,7 @@ class ConfigurationDiagnosticBundle(BaseModel):
     feature_flags: List[FeatureFlag] = Field(alias="featureFlags")
     generated_at: datetime = Field(alias="generatedAt")
     namespace: Optional[StrictStr] = None
-    recent_errors: List[Optional[Dict[str, Any]]] = Field(alias="recentErrors")
+    recent_errors: List[Dict[str, Any]] = Field(alias="recentErrors")
     schema_version: Optional[StrictInt] = Field(default=1, alias="schemaVersion")
     selected_metrics: Dict[str, Union[StrictFloat, StrictInt]] = Field(alias="selectedMetrics")
     tenant_id: StrictStr = Field(alias="tenantId")

@@ -19,21 +19,18 @@ var _ MappedNullable = &RunObservation{}
 
 // RunObservation Portable evidence emitted by an adapter; model output may be declared nondeterministic.
 type RunObservation struct {
-	Cost                    *string                   `json:"cost,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	DeterministicAssertions []*map[string]interface{} `json:"deterministicAssertions,omitempty"`
-	Effects                 []ShadowEffect            `json:"effects,omitempty"`
-	Evidence                []*map[string]interface{} `json:"evidence,omitempty"`
-	Latency                 *string                   `json:"latency,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	NondeterministicPaths   []*string                 `json:"nondeterministicPaths,omitempty"`
-	Output                  interface{}               `json:"output,omitempty"`
-	Schema                  interface{}               `json:"schema,omitempty"`
-	TaskChronology          []*map[string]interface{} `json:"taskChronology,omitempty"`
-	ToolChronology          []*map[string]interface{} `json:"toolChronology,omitempty"`
-	Usage                   map[string]string         `json:"usage,omitempty"`
-	AdditionalProperties    map[string]interface{}
+	Cost                    *string                  `json:"cost,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	DeterministicAssertions []map[string]interface{} `json:"deterministicAssertions,omitempty"`
+	Effects                 []ShadowEffect           `json:"effects,omitempty"`
+	Evidence                []map[string]interface{} `json:"evidence,omitempty"`
+	Latency                 *string                  `json:"latency,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	NondeterministicPaths   []string                 `json:"nondeterministicPaths,omitempty"`
+	Output                  interface{}              `json:"output,omitempty"`
+	Schema                  interface{}              `json:"schema,omitempty"`
+	TaskChronology          []map[string]interface{} `json:"taskChronology,omitempty"`
+	ToolChronology          []map[string]interface{} `json:"toolChronology,omitempty"`
+	Usage                   map[string]string        `json:"usage,omitempty"`
 }
-
-type _RunObservation RunObservation
 
 // NewRunObservation instantiates a new RunObservation object
 // This constructor will assign default values to properties that have it defined,
@@ -93,9 +90,9 @@ func (o *RunObservation) SetCost(v string) {
 }
 
 // GetDeterministicAssertions returns the DeterministicAssertions field value if set, zero value otherwise.
-func (o *RunObservation) GetDeterministicAssertions() []*map[string]interface{} {
+func (o *RunObservation) GetDeterministicAssertions() []map[string]interface{} {
 	if o == nil || IsNil(o.DeterministicAssertions) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.DeterministicAssertions
@@ -103,7 +100,7 @@ func (o *RunObservation) GetDeterministicAssertions() []*map[string]interface{} 
 
 // GetDeterministicAssertionsOk returns a tuple with the DeterministicAssertions field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *RunObservation) GetDeterministicAssertionsOk() ([]*map[string]interface{}, bool) {
+func (o *RunObservation) GetDeterministicAssertionsOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.DeterministicAssertions) {
 		return nil, false
 	}
@@ -119,8 +116,8 @@ func (o *RunObservation) HasDeterministicAssertions() bool {
 	return false
 }
 
-// SetDeterministicAssertions gets a reference to the given []*map[string]interface{} and assigns it to the DeterministicAssertions field.
-func (o *RunObservation) SetDeterministicAssertions(v []*map[string]interface{}) {
+// SetDeterministicAssertions gets a reference to the given []map[string]interface{} and assigns it to the DeterministicAssertions field.
+func (o *RunObservation) SetDeterministicAssertions(v []map[string]interface{}) {
 	o.DeterministicAssertions = v
 }
 
@@ -157,9 +154,9 @@ func (o *RunObservation) SetEffects(v []ShadowEffect) {
 }
 
 // GetEvidence returns the Evidence field value if set, zero value otherwise.
-func (o *RunObservation) GetEvidence() []*map[string]interface{} {
+func (o *RunObservation) GetEvidence() []map[string]interface{} {
 	if o == nil || IsNil(o.Evidence) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.Evidence
@@ -167,7 +164,7 @@ func (o *RunObservation) GetEvidence() []*map[string]interface{} {
 
 // GetEvidenceOk returns a tuple with the Evidence field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *RunObservation) GetEvidenceOk() ([]*map[string]interface{}, bool) {
+func (o *RunObservation) GetEvidenceOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Evidence) {
 		return nil, false
 	}
@@ -183,8 +180,8 @@ func (o *RunObservation) HasEvidence() bool {
 	return false
 }
 
-// SetEvidence gets a reference to the given []*map[string]interface{} and assigns it to the Evidence field.
-func (o *RunObservation) SetEvidence(v []*map[string]interface{}) {
+// SetEvidence gets a reference to the given []map[string]interface{} and assigns it to the Evidence field.
+func (o *RunObservation) SetEvidence(v []map[string]interface{}) {
 	o.Evidence = v
 }
 
@@ -221,9 +218,9 @@ func (o *RunObservation) SetLatency(v string) {
 }
 
 // GetNondeterministicPaths returns the NondeterministicPaths field value if set, zero value otherwise.
-func (o *RunObservation) GetNondeterministicPaths() []*string {
+func (o *RunObservation) GetNondeterministicPaths() []string {
 	if o == nil || IsNil(o.NondeterministicPaths) {
-		var ret []*string
+		var ret []string
 		return ret
 	}
 	return o.NondeterministicPaths
@@ -231,7 +228,7 @@ func (o *RunObservation) GetNondeterministicPaths() []*string {
 
 // GetNondeterministicPathsOk returns a tuple with the NondeterministicPaths field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *RunObservation) GetNondeterministicPathsOk() ([]*string, bool) {
+func (o *RunObservation) GetNondeterministicPathsOk() ([]string, bool) {
 	if o == nil || IsNil(o.NondeterministicPaths) {
 		return nil, false
 	}
@@ -247,8 +244,8 @@ func (o *RunObservation) HasNondeterministicPaths() bool {
 	return false
 }
 
-// SetNondeterministicPaths gets a reference to the given []*string and assigns it to the NondeterministicPaths field.
-func (o *RunObservation) SetNondeterministicPaths(v []*string) {
+// SetNondeterministicPaths gets a reference to the given []string and assigns it to the NondeterministicPaths field.
+func (o *RunObservation) SetNondeterministicPaths(v []string) {
 	o.NondeterministicPaths = v
 }
 
@@ -319,9 +316,9 @@ func (o *RunObservation) SetSchema(v interface{}) {
 }
 
 // GetTaskChronology returns the TaskChronology field value if set, zero value otherwise.
-func (o *RunObservation) GetTaskChronology() []*map[string]interface{} {
+func (o *RunObservation) GetTaskChronology() []map[string]interface{} {
 	if o == nil || IsNil(o.TaskChronology) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.TaskChronology
@@ -329,7 +326,7 @@ func (o *RunObservation) GetTaskChronology() []*map[string]interface{} {
 
 // GetTaskChronologyOk returns a tuple with the TaskChronology field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *RunObservation) GetTaskChronologyOk() ([]*map[string]interface{}, bool) {
+func (o *RunObservation) GetTaskChronologyOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.TaskChronology) {
 		return nil, false
 	}
@@ -345,15 +342,15 @@ func (o *RunObservation) HasTaskChronology() bool {
 	return false
 }
 
-// SetTaskChronology gets a reference to the given []*map[string]interface{} and assigns it to the TaskChronology field.
-func (o *RunObservation) SetTaskChronology(v []*map[string]interface{}) {
+// SetTaskChronology gets a reference to the given []map[string]interface{} and assigns it to the TaskChronology field.
+func (o *RunObservation) SetTaskChronology(v []map[string]interface{}) {
 	o.TaskChronology = v
 }
 
 // GetToolChronology returns the ToolChronology field value if set, zero value otherwise.
-func (o *RunObservation) GetToolChronology() []*map[string]interface{} {
+func (o *RunObservation) GetToolChronology() []map[string]interface{} {
 	if o == nil || IsNil(o.ToolChronology) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.ToolChronology
@@ -361,7 +358,7 @@ func (o *RunObservation) GetToolChronology() []*map[string]interface{} {
 
 // GetToolChronologyOk returns a tuple with the ToolChronology field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *RunObservation) GetToolChronologyOk() ([]*map[string]interface{}, bool) {
+func (o *RunObservation) GetToolChronologyOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.ToolChronology) {
 		return nil, false
 	}
@@ -377,8 +374,8 @@ func (o *RunObservation) HasToolChronology() bool {
 	return false
 }
 
-// SetToolChronology gets a reference to the given []*map[string]interface{} and assigns it to the ToolChronology field.
-func (o *RunObservation) SetToolChronology(v []*map[string]interface{}) {
+// SetToolChronology gets a reference to the given []map[string]interface{} and assigns it to the ToolChronology field.
+func (o *RunObservation) SetToolChronology(v []map[string]interface{}) {
 	o.ToolChronology = v
 }
 
@@ -457,43 +454,7 @@ func (o RunObservation) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Usage) {
 		toSerialize["usage"] = o.Usage
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
-}
-
-func (o *RunObservation) UnmarshalJSON(data []byte) (err error) {
-	varRunObservation := _RunObservation{}
-
-	err = json.Unmarshal(data, &varRunObservation)
-
-	if err != nil {
-		return err
-	}
-
-	*o = RunObservation(varRunObservation)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "cost")
-		delete(additionalProperties, "deterministicAssertions")
-		delete(additionalProperties, "effects")
-		delete(additionalProperties, "evidence")
-		delete(additionalProperties, "latency")
-		delete(additionalProperties, "nondeterministicPaths")
-		delete(additionalProperties, "output")
-		delete(additionalProperties, "schema")
-		delete(additionalProperties, "taskChronology")
-		delete(additionalProperties, "toolChronology")
-		delete(additionalProperties, "usage")
-		o.AdditionalProperties = additionalProperties
-	}
-
-	return err
 }
 
 type NullableRunObservation struct {

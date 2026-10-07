@@ -41,7 +41,7 @@ class AgentSessionCreateRequest(BaseModel):
     application_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = Field(default=None, alias="applicationId")
     approval_task: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, alias="approvalTask")
     budgets: Optional[Dict[str, Any]] = None
-    business_assertions: Optional[Annotated[List[Optional[Dict[str, Any]]], Field(max_length=100)]] = Field(default=None, alias="businessAssertions")
+    business_assertions: Optional[Annotated[List[Dict[str, Any]], Field(max_length=100)]] = Field(default=None, alias="businessAssertions")
     context_policy: Optional[AgentContextPolicy] = Field(default=None, alias="contextPolicy")
     data_handling: Optional[ModelDataEgress] = Field(default=None, alias="dataHandling")
     harness: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = None

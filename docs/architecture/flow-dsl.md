@@ -121,5 +121,4 @@ Run `uv run python scripts/generate_contracts.py` after a contract change. It de
 - the execution schemas and OpenAPI contract.
 
 Generated-artifact tests fail when checked-in output drifts from implementation types. ADR-021 records
-the parser and registry decision; the version-pinned Kestra import/conformance façade remains assigned
-to EPIC-704.
+the parser and registry decision. There is no Kestra import façade ([ADR-085](../adr/085-remove-unused-compatibility-transfer-and-federation-surfaces.md)).

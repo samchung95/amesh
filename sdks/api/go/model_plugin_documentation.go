@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,14 +21,13 @@ var _ MappedNullable = &PluginDocumentation{}
 
 // PluginDocumentation struct for PluginDocumentation
 type PluginDocumentation struct {
-	Category             string                    `json:"category"`
-	Description          string                    `json:"description"`
-	DocumentationUrl     NullableString            `json:"documentationUrl,omitempty"`
-	Examples             []*map[string]interface{} `json:"examples,omitempty"`
-	Icon                 NullableString            `json:"icon,omitempty"`
-	PropertyOrder        []*string                 `json:"propertyOrder,omitempty"`
-	Title                string                    `json:"title"`
-	AdditionalProperties map[string]interface{}
+	Category         string                   `json:"category"`
+	Description      string                   `json:"description"`
+	DocumentationUrl NullableString           `json:"documentationUrl,omitempty"`
+	Examples         []map[string]interface{} `json:"examples,omitempty"`
+	Icon             NullableString           `json:"icon,omitempty"`
+	PropertyOrder    []string                 `json:"propertyOrder,omitempty"`
+	Title            string                   `json:"title"`
 }
 
 type _PluginDocumentation PluginDocumentation
@@ -144,9 +144,9 @@ func (o *PluginDocumentation) UnsetDocumentationUrl() {
 }
 
 // GetExamples returns the Examples field value if set, zero value otherwise.
-func (o *PluginDocumentation) GetExamples() []*map[string]interface{} {
+func (o *PluginDocumentation) GetExamples() []map[string]interface{} {
 	if o == nil || IsNil(o.Examples) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.Examples
@@ -154,7 +154,7 @@ func (o *PluginDocumentation) GetExamples() []*map[string]interface{} {
 
 // GetExamplesOk returns a tuple with the Examples field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *PluginDocumentation) GetExamplesOk() ([]*map[string]interface{}, bool) {
+func (o *PluginDocumentation) GetExamplesOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Examples) {
 		return nil, false
 	}
@@ -170,8 +170,8 @@ func (o *PluginDocumentation) HasExamples() bool {
 	return false
 }
 
-// SetExamples gets a reference to the given []*map[string]interface{} and assigns it to the Examples field.
-func (o *PluginDocumentation) SetExamples(v []*map[string]interface{}) {
+// SetExamples gets a reference to the given []map[string]interface{} and assigns it to the Examples field.
+func (o *PluginDocumentation) SetExamples(v []map[string]interface{}) {
 	o.Examples = v
 }
 
@@ -219,9 +219,9 @@ func (o *PluginDocumentation) UnsetIcon() {
 }
 
 // GetPropertyOrder returns the PropertyOrder field value if set, zero value otherwise.
-func (o *PluginDocumentation) GetPropertyOrder() []*string {
+func (o *PluginDocumentation) GetPropertyOrder() []string {
 	if o == nil || IsNil(o.PropertyOrder) {
-		var ret []*string
+		var ret []string
 		return ret
 	}
 	return o.PropertyOrder
@@ -229,7 +229,7 @@ func (o *PluginDocumentation) GetPropertyOrder() []*string {
 
 // GetPropertyOrderOk returns a tuple with the PropertyOrder field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *PluginDocumentation) GetPropertyOrderOk() ([]*string, bool) {
+func (o *PluginDocumentation) GetPropertyOrderOk() ([]string, bool) {
 	if o == nil || IsNil(o.PropertyOrder) {
 		return nil, false
 	}
@@ -245,8 +245,8 @@ func (o *PluginDocumentation) HasPropertyOrder() bool {
 	return false
 }
 
-// SetPropertyOrder gets a reference to the given []*string and assigns it to the PropertyOrder field.
-func (o *PluginDocumentation) SetPropertyOrder(v []*string) {
+// SetPropertyOrder gets a reference to the given []string and assigns it to the PropertyOrder field.
+func (o *PluginDocumentation) SetPropertyOrder(v []string) {
 	o.PropertyOrder = v
 }
 
@@ -299,11 +299,6 @@ func (o PluginDocumentation) ToMap() (map[string]interface{}, error) {
 		toSerialize["propertyOrder"] = o.PropertyOrder
 	}
 	toSerialize["title"] = o.Title
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -333,26 +328,15 @@ func (o *PluginDocumentation) UnmarshalJSON(data []byte) (err error) {
 
 	varPluginDocumentation := _PluginDocumentation{}
 
-	err = json.Unmarshal(data, &varPluginDocumentation)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varPluginDocumentation)
 
 	if err != nil {
 		return err
 	}
 
 	*o = PluginDocumentation(varPluginDocumentation)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "category")
-		delete(additionalProperties, "description")
-		delete(additionalProperties, "documentationUrl")
-		delete(additionalProperties, "examples")
-		delete(additionalProperties, "icon")
-		delete(additionalProperties, "propertyOrder")
-		delete(additionalProperties, "title")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

@@ -43,7 +43,6 @@ class OpenAIResponse(BaseModel):
     output_text: StrictStr
     status: StrictStr
     usage: Optional[OpenAIResponseUsage] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["completed_at", "created_at", "error", "id", "incomplete_details", "instructions", "model", "object", "output", "output_text", "status", "usage"]
 
     @field_validator('object')
@@ -93,10 +92,8 @@ class OpenAIResponse(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -117,11 +114,6 @@ class OpenAIResponse(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of usage
         if self.usage:
             _dict['usage'] = self.usage.to_dict()
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if completed_at (nullable) is None
         # and model_fields_set contains the field
         if self.completed_at is None and "completed_at" in self.model_fields_set:
@@ -172,9 +164,4 @@ class OpenAIResponse(BaseModel):
             "status": obj.get("status"),
             "usage": OpenAIResponseUsage.from_dict(obj["usage"]) if obj.get("usage") is not None else None
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

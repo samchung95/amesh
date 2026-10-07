@@ -195,7 +195,6 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/auth/providers**', (route) => route.fulfill({ json: [
     { id: 'local', kind: 'local', display_name: 'Local account', interactive: true, login_mode: 'password', domains: [], tenants: [] },
     { id: 'corporate-oidc', kind: 'oidc', display_name: 'Corporate OIDC', interactive: true, login_mode: 'redirect', domains: ['example.com'], tenants: ['default'] },
-    { id: 'directory', kind: 'ldap', display_name: 'Corporate directory', interactive: true, login_mode: 'password', domains: ['example.com'], tenants: ['default'] },
   ] }))
   await page.route('**/api/v1/admin/controls**', (route) => {
     const request = route.request()
@@ -487,16 +486,14 @@ test.beforeEach(async ({ page }) => {
   await mockApi(page)
 })
 
-test('routes local, redirect and directory identity providers before login', async ({ page }, testInfo) => {
+test('routes local and redirect identity providers before login', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop identity routing acceptance')
   await page.goto('/')
   const providers = page.locator('.identity-provider-list')
   await expect(providers.getByRole('button', { name: 'Local account', exact: true })).toBeVisible()
   await expect(providers.getByRole('button', { name: 'Continue with Corporate OIDC' })).toBeVisible()
-  await expect(providers.getByRole('button', { name: 'Corporate directory' })).toBeVisible()
   await page.getByLabel('User handle').fill('ada@example.com')
-  await providers.getByRole('button', { name: 'Corporate directory' }).click()
-  await expect(providers.getByRole('button', { name: 'Corporate directory' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(providers.getByRole('button', { name: 'Local account', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('connects, navigates resources, preserves deep links and opens the command palette', async ({ page }, testInfo) => {

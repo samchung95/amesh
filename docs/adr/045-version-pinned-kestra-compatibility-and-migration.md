@@ -1,6 +1,6 @@
 # ADR-045: Version-pinned Kestra compatibility and side-by-side migration
 
-- Status: Accepted
+- Status: Superseded by [ADR-085](085-remove-unused-compatibility-transfer-and-federation-surfaces.md) on 2026-10-07
 - Date: 2026-08-23
 - Scope: EPIC-704
 

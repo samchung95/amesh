@@ -33,10 +33,10 @@ export interface OpenAIChatCompletionRequest {
     maxTokens?: number | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof OpenAIChatCompletionRequest
      */
-    messages: Array<{ [key: string]: any; } | null>;
+    messages: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {string}

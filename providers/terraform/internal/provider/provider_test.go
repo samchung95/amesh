@@ -11,8 +11,8 @@ func TestProviderRegistersEveryRequiredResourceAndDataSource(t *testing.T) {
 	configured := &ameshProvider{version: "test"}
 	resources := configured.Resources(context.Background())
 	dataSources := configured.DataSources(context.Background())
-	if len(resources) != 14 || len(dataSources) != 14 {
-		t.Fatalf("expected 14 resources and data sources, got %d and %d", len(resources), len(dataSources))
+	if len(resources) != 12 || len(dataSources) != 12 {
+		t.Fatalf("expected 12 resources and data sources, got %d and %d", len(resources), len(dataSources))
 	}
 	names := make([]string, 0, len(resourceDescriptors()))
 	for _, descriptor := range resourceDescriptors() {
@@ -23,8 +23,8 @@ func TestProviderRegistersEveryRequiredResourceAndDataSource(t *testing.T) {
 	}
 	sort.Strings(names)
 	wanted := []string{
-		"app", "binding", "dashboard", "file", "flow", "group", "key_value", "namespace",
-		"plugin_policy", "role", "service_account", "tenant", "user", "worker_group",
+		"app", "binding", "dashboard", "file", "flow", "key_value", "namespace",
+		"plugin_policy", "role", "service_account", "tenant", "worker_group",
 	}
 	for index := range wanted {
 		if names[index] != wanted[index] {

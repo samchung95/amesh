@@ -2,7 +2,7 @@
 
 Status: accepted by the product owner on 2026-09-26. Amends decision-register entries Q-003, Q-005
 and Q-019. It re-orders priorities only; it does not delete code, requirements, inventories or
-tests.
+tests. [ADR-085](085-remove-unused-compatibility-transfer-and-federation-surfaces.md) later removed the unused compatibility, transfer and federation surfaces.
 
 Context: the accepted vision covers three products at once: Kestra OSS parity, an enterprise-class
 distribution and a governed agent mesh. The 2026-09-26 repository audit (GitHub #108) found that
