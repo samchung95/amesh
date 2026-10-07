@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Awaitable, Callable
-from contextlib import AbstractAsyncContextManager
+from contextlib import AbstractAsyncContextManager, suppress
 from dataclasses import dataclass
 from typing import Any, Protocol, cast
 from uuid import UUID
 
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition
-from amesh.executor import InProcessExecutor, SubflowCoordinator
+from amesh.executor import InProcessExecutor, SubflowCoordinator, TaskExecutionError
 from amesh.observability import current_trace_context
 from amesh.ports import (
     ExecutionLaunchSource,
@@ -122,11 +122,14 @@ class ExecutionLaunchService:
                     execution.execution_id,
                 ) as acquired:
                     if acquired:
-                        await executor.run_to_completion(
-                            flow,
-                            execution.execution_id,
-                            tenant_id=tenant_id,
-                        )
+                        # The executor raises only after it persisted the terminal state,
+                        # so a failed run is returned as its execution, not a server error.
+                        with suppress(TaskExecutionError):
+                            await executor.run_to_completion(
+                                flow,
+                                execution.execution_id,
+                                tenant_id=tenant_id,
+                            )
             current = await self._repository.get_execution(
                 execution.execution_id,
                 tenant_id=tenant_id,
