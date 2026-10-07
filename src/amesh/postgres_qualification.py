@@ -16,9 +16,15 @@ REQUIRED_CRITICAL_INDEXES = frozenset(
         "durable_work_queue_claim_idx",
         "durable_work_queue_expired_claim_idx",
         "durable_work_queue_shard_claim_idx",
+        "execution_logs_tenant_ingested_idx",
+        "execution_metrics_tenant_ingested_idx",
+        "executions_recovery_open_idx",
         "executions_tenant_state_updated_idx",
+        "executions_tenant_updated_idx",
         "messages_outbox_pending_idx",
         "scheduler_states_due_idx",
+        "task_runs_tenant_updated_idx",
+        "trigger_occurrences_processing_lease_idx",
     }
 )
 

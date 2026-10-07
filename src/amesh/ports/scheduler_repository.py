@@ -36,6 +36,15 @@ class ScheduleState(BaseModel):
 class SchedulerRepository(Protocol):
     async def database_time(self) -> datetime: ...
 
+    async def list_due_flows(
+        self,
+        *,
+        tenant_id: str,
+        due_before: datetime,
+    ) -> list[tuple[str, str]]:
+        """Return (namespace, flow id) of active flows with an uninitialized or due schedule."""
+        ...
+
     async def claim_schedule(
         self,
         *,

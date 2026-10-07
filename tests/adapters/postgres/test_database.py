@@ -1,10 +1,27 @@
 from __future__ import annotations
 
+import asyncio
 import ssl
 from typing import Any
 
+from sqlalchemy import text
+
 from amesh import database
 from amesh.config import Settings
+
+
+def test_runtime_connections_disable_jit(migrated_test_database_url: str) -> None:
+    async def scenario() -> str | None:
+        engine = database.create_database_engine(
+            Settings(_env_file=None, database_url=migrated_test_database_url)
+        )
+        try:
+            async with engine.connect() as connection:
+                return await connection.scalar(text("SHOW jit"))
+        finally:
+            await engine.dispose()
+
+    assert asyncio.run(scenario()) == "off"
 
 
 def test_database_engine_applies_pool_cache_and_replica_settings(monkeypatch: Any) -> None:
@@ -77,4 +94,4 @@ def test_database_tls_disable_is_explicit(monkeypatch: Any) -> None:
 
     database.create_database_engine(Settings(_env_file=None))
 
-    assert captured["connect_args"] == {"ssl": False}
+    assert captured["connect_args"]["ssl"] is False

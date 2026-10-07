@@ -47,7 +47,6 @@ from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import (
     ExecutionState,
-    FlowLifecycle,
     OperationalBoundary,
     PolicyDecision,
     PolicyStage,
@@ -183,14 +182,11 @@ async def schedule_once(
     scheduled = 0
     failures: list[str] = []
     for tenant_id in tenant_ids:
-        for persisted_flow in await repository.list_flows(tenant_id=tenant_id):
-            if persisted_flow.lifecycle is not FlowLifecycle.ACTIVE:
-                continue
-            flow = await repository.get_flow(
-                persisted_flow.namespace,
-                persisted_flow.flow_id,
-                tenant_id=tenant_id,
-            )
+        for namespace, flow_id in await scheduler_repository.list_due_flows(
+            tenant_id=tenant_id,
+            due_before=scheduled_at,
+        ):
+            flow = await repository.get_flow(namespace, flow_id, tenant_id=tenant_id)
             try:
                 scheduled += len(
                     await scheduler.fire_due_occurrences(
@@ -202,10 +198,7 @@ async def schedule_once(
             except (TenantAdminGrantsUnavailableError, DBAPIError, OSError):
                 raise
             except Exception as exc:
-                failures.append(
-                    f"{tenant_id}/{persisted_flow.namespace}/{persisted_flow.flow_id}: "
-                    f"{type(exc).__name__}: {exc}"
-                )
+                failures.append(f"{tenant_id}/{namespace}/{flow_id}: {type(exc).__name__}: {exc}")
     if failures:
         raise ScheduleCycleError(scheduled=scheduled, failures=failures)
     return scheduled

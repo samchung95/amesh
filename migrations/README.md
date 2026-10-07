@@ -287,6 +287,12 @@ exclusive migration backfills those projections from the canonical journal, pres
 truncation receipts and enforces composite tenant/session and exact event ownership through foreign
 keys. The session journal remains the authoritative transcript; the new tables are rebuildable
 append-time projections.
+Migration `0081_idle_loop_indexes.sql` adds six indexes so an idle role cycle reads open or recent
+work instead of scanning settled history (#136). It indexes open executions for recovery, recent
+changes on executions, task runs, execution logs and execution metrics for incremental search
+projection, and processing trigger occurrences for the expired-lease sweep. The plain
+`CREATE INDEX` blocks writes to those five tables while it builds (about 1.5 s on an 11 GB
+history), so apply it in a quiet window on large databases.
 
 ## Migration modes
 

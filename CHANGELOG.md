@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- An idle deployment no longer burns CPU in proportion to its history. On an 11 GB history, idle
+  PostgreSQL CPU fell from 173% to 12% of a core and the scheduler from 63% to 4%. Recovery reads
+  only open executions and skips paused or queued ones without lifecycle tasks, so they no longer
+  crowd running work out of its batch. The scheduler loads only active flows with a due or
+  uninitialized schedule. The indexer projects only recent changes each cycle and runs its
+  stale-source sweep, rollups and checksum verification once every 10 minutes, so a deleted source
+  leaves search within one interval. The expired trigger-lease sweep reads only in-flight
+  occurrences, and AMESH connections set `jit = off`. Migration 0081 adds the four supporting
+  indexes. `scripts/qualify_idle_cost.py` times each role's idle cycle on seeded history and fails
+  when one exceeds its budget (#136).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its

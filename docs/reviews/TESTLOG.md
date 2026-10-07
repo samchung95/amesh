@@ -1,5 +1,60 @@
 # Test Log
 
+## Idle CPU proportional to history — #136 (2026-10-07)
+
+Spec: GitHub #136. Measured on an isolated clone of the shared runtime database (PostgreSQL 17,
+11 GB, 121K executions, 271K task runs, 1.4M audit events, 560K trigger occurrences, about 2,000
+flows). The clone ran with its own role stack; mean container CPU was sampled with `docker stats`
+and statement time with `pg_stat_statements`.
+
+| Container | Before (87459d6) | After |
+| --- | ---: | ---: |
+| PostgreSQL | 172.6% | JIT_PG |
+| executor | 11.1% | JIT_EXECUTOR |
+| scheduler | 63.3% | JIT_SCHEDULER |
+| worker | 1.0% | JIT_WORKER |
+| indexer | 0.4% | JIT_INDEXER |
+| maintenance | 0.1% | JIT_MAINTENANCE |
+
+PostgreSQL statement time fell from 1,448 ms to JIT_DB ms per wall-clock second. Each cause was
+confirmed on the clone before it was fixed:
+
+- The indexer anti-joined each source's full history against `search_documents` every second,
+  then ran its stale-source sweep, rollups and 14-checksum verification whenever nothing was
+  projected. The audit candidate alone took 3.7 s. Idle cycles now read only the last 2 minutes
+  of changes through the new `(tenant_id, updated_at)` indexes (about 2 ms each). The full pass
+  runs at most once every 10 minutes, so a deleted or late-committed source converges within one
+  interval rather than one cycle.
+- The recovery query took 839 ms because its `OR EXISTS` defeated every index. It is now a
+  `UNION` of two index-driven branches (0.8 ms). It also returned 39 paused executions every
+  cycle, which the executor reloaded, compiled and skipped. Recovery now returns a non-running
+  open execution only when its flow has lifecycle tasks. Before, 100 such settled executions
+  would have filled the `LIMIT 100` batch and starved running work.
+- The scheduler loaded and compiled every active flow (about 1,800 `get_flow` calls per second)
+  to find the few with schedules. `list_due_flows` returns only active flows whose cron or
+  interval schedule is due or uninitialized (4.4 ms per cycle).
+- The expired trigger-lease `UPDATE` took 131 ms per cycle, a sequential scan over 560K settled
+  occurrences with none in flight. A partial index on processing occurrences fixes it.
+- After those fixes, the execution and task-run candidates still took about 15 ms each under the
+  `amesh_runtime` role, against 2 ms as the table owner. Row security inflated the planner's cost
+  to 171K, past `jit_above_cost`, and PostgreSQL spent about 18 ms JIT-compiling a plan that
+  executed in 0.1 ms. AMESH connections now set `jit = off`, which brings them to 1.3 ms.
+- The maintenance reconcile gate was left unchanged. Its invariant queries take about 650 ms
+  twice a minute (about 1% of PostgreSQL), and the role idled at 0.1% before the change.
+
+Migration 0081 applied in about 1.5 s on the clone. `scripts/qualify_idle_cost.py --seed` on a
+fresh PostgreSQL 17 database (100K executions with task runs, 200K audit events, 500K settled
+occurrences, 1,000 flows) reported these idle-cycle p95 values: SEED_RESULT.
+
+Red-green regression tests:
+- `test_paused_execution_is_a_recovery_candidate_only_when_its_flow_has_lifecycle_tasks`
+- `test_recovery_candidates_include_terminal_execution_only_with_pending_lifecycle_work`
+- `test_scheduler_loads_only_active_flows_with_due_schedules`
+- `test_idle_projection_defers_full_reconciliation_to_the_full_pass_interval`
+- `test_runtime_connections_disable_jit`
+
+TEST_RESULTS
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.

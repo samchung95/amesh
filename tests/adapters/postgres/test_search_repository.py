@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from time import perf_counter
 
@@ -50,7 +50,7 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds(
         try:
             executions = PostgresExecutionRepository(engine)
             metadata = PostgresMetadataRepository(engine)
-            search = PostgresSearchRepository(engine)
+            search = PostgresSearchRepository(engine, full_pass_interval=timedelta(0))
             flow = FlowDefinition.model_validate(
                 {
                     "id": "searchable_flow",
@@ -317,7 +317,7 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds(
                 labels={"team": "concurrent-rebuild"},
             )
             assert await search.project_once(tenant_id="default", limit=1_000) > 0
-            resumed_search = PostgresSearchRepository(engine)
+            resumed_search = PostgresSearchRepository(engine, full_pass_interval=timedelta(0))
             assert await resumed_search.project_once(tenant_id="default", limit=1_000) == 0
             rebuilt = await search.status(tenant_id="default")
             assert rebuilt.condition is SearchProjectionCondition.READY
@@ -493,6 +493,68 @@ def test_search_projection_filters_paginates_isolates_and_rebuilds(
                 latencies.append(perf_counter() - started)
                 assert len(result.items) == 50
             assert sorted(latencies)[18] < 0.5
+        finally:
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_idle_projection_defers_full_reconciliation_to_the_full_pass_interval(
+    migrated_test_database_url: str,
+) -> None:
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        try:
+            executions = PostgresExecutionRepository(engine)
+            metadata = PostgresMetadataRepository(engine)
+            search = PostgresSearchRepository(engine, full_pass_interval=timedelta(seconds=2))
+            flow = FlowDefinition.model_validate(
+                {
+                    "id": "idle_flow",
+                    "namespace": "tests.search.idle",
+                    "tasks": [{"id": "return", "type": "core.return"}],
+                }
+            )
+            execution = await executions.create_execution(flow, tenant_id="default", inputs={})
+            log = ExecutionLogEntry(
+                log_id=new_runtime_id(),
+                execution_id=execution.execution_id,
+                level=LogLevel.INFO,
+                logger="search.idle",
+                message="idle needle",
+                occurred_at=datetime.now(UTC),
+            )
+            await metadata.append_log(log, tenant_id="default")
+            assert await search.project_once(tenant_id="default", limit=1_000) > 0
+            assert await search.project_once(tenant_id="default", limit=1_000) == 0
+
+            async with tenant_transaction(engine, "default") as (connection, tenant_uuid):
+                await connection.execute(
+                    text("DELETE FROM execution_logs WHERE tenant_id = :tenant_uuid AND id = :id"),
+                    {"tenant_uuid": tenant_uuid, "id": log.log_id},
+                )
+            # An idle cycle inside the interval skips the history-wide sweep...
+            assert await search.project_once(tenant_id="default", limit=1_000) == 0
+            # ...but still projects recent source changes.
+            fresh = await executions.create_execution(flow, tenant_id="default", inputs={})
+            assert await search.project_once(tenant_id="default", limit=1_000) > 0
+            found = await search.search(
+                SearchRequest(
+                    query=str(fresh.execution_id),
+                    types=(SearchDocumentType.EXECUTION,),
+                ),
+                tenant_id="default",
+                authorized_types=(SearchDocumentType.EXECUTION,),
+            )
+            assert [item.document_id for item in found.items] == [str(fresh.execution_id)]
+
+            await asyncio.sleep(2.1)
+            # The due full pass reconciles the deleted source.
+            assert await search.project_once(tenant_id="default", limit=1_000) > 0
+            assert await search.project_once(tenant_id="default", limit=1_000) == 0
+            status = await search.status(tenant_id="default")
+            assert status.condition is SearchProjectionCondition.READY
+            assert status.documents_indexed == status.source_documents
         finally:
             await engine.dispose()
 

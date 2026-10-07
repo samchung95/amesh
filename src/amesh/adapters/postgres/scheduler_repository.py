@@ -112,6 +112,35 @@ _COMPLETE_SCHEDULE = text(
     """
 )
 
+# Mirrors schedule_once's evaluation set (status ACTIVE, active revision, cron/interval triggers)
+# and keeps only triggers claim_schedule could act on: missing or cleared cursor, or due (#136).
+# ponytail: walks the tenant's active flows (~15ms per 2K); seed cursors at activation to make it
+# a pure scheduler_states_due_idx scan.
+_LIST_DUE_FLOWS = text(
+    """
+    SELECT DISTINCT namespaces.name AS namespace, flows.flow_key
+    FROM flows
+    JOIN namespaces ON namespaces.id = flows.namespace_id
+    JOIN flow_revisions
+      ON flow_revisions.tenant_id = flows.tenant_id
+     AND flow_revisions.flow_id = flows.id
+     AND flow_revisions.revision = flows.active_revision
+    JOIN trigger_definitions
+      ON trigger_definitions.tenant_id = flow_revisions.tenant_id
+     AND trigger_definitions.flow_revision_id = flow_revisions.id
+    LEFT JOIN scheduler_states
+      ON scheduler_states.trigger_definition_id = trigger_definitions.id
+    WHERE flows.tenant_id = :tenant_id
+      AND flows.status = 'ACTIVE'
+      AND trigger_definitions.trigger_type IN ('core.cron', 'core.interval')
+      AND (
+          scheduler_states.next_fire_at IS NULL
+          OR scheduler_states.next_fire_at <= :due_before
+      )
+    ORDER BY namespaces.name, flows.flow_key
+    """
+)
+
 _GET_BY_ID = text(
     """
     SELECT *
@@ -139,6 +168,21 @@ class PostgresSchedulerRepository(PostgresRepositoryBase, SchedulerRepository):
         if not isinstance(value, datetime):
             raise TypeError("PostgreSQL returned a non-datetime clock value")
         return value
+
+    async def list_due_flows(
+        self,
+        *,
+        tenant_id: str,
+        due_before: datetime,
+    ) -> list[tuple[str, str]]:
+        async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
+            rows = (
+                await connection.execute(
+                    _LIST_DUE_FLOWS,
+                    {"tenant_id": tenant_uuid, "due_before": due_before},
+                )
+            ).all()
+        return [(str(row.namespace), str(row.flow_key)) for row in rows]
 
     async def claim_schedule(
         self,

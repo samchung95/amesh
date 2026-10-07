@@ -4,7 +4,7 @@ import base64
 import hashlib
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import text
@@ -215,7 +215,21 @@ _REQUEST_REBUILD_INSERT_INTO_SEARCH_DOCUMENTS_V = text(
 
 _SCHEMA_VERSION = 2
 _ARCHIVE_DAYS = 7
+# Idle cycles project only recent changes; the history-wide candidate scan, stale-source sweep,
+# rollups and checksum verification run at most once per interval (#136).
+# ponytail: deleted or late-committed sources converge within one interval, not one cycle.
+_FULL_PASS_INTERVAL = timedelta(minutes=10)
+_INCREMENTAL_WINDOW = timedelta(minutes=2)
+_ALL_CHANGES = datetime.min.replace(tzinfo=UTC)
 LOGGER = logging.getLogger("amesh.adapters.postgres.search_repository")
+
+_FULL_PASS_CLOCK = text(
+    """
+    SELECT clock_timestamp() AS now, max(updated_at) AS last_full_pass
+    FROM search_projection_checkpoints
+    WHERE tenant_id = :tenant_uuid AND projection_version = :target_version
+    """
+)
 
 _ENSURE_STATE = text(
     """
@@ -296,6 +310,10 @@ _FLOW_PROJECTION = text(
     """
 )
 
+# Row security keeps PostgreSQL from pushing a join clause with a non-leakproof call (the id::text
+# cast) into the protected search_documents_v2 scan, so each changed source row hash-joined every
+# document of its type. The OFFSET 0 lateral computes the text id per source row, leaving a
+# leakproof text equality the primary key serves (#136).
 _EXECUTION_PROJECTION = text(
     """
     WITH candidates AS (
@@ -316,12 +334,14 @@ _EXECUTION_PROJECTION = text(
                executions.updated_at AS source_updated_at,
                executions.version AS source_version
         FROM executions
+        CROSS JOIN LATERAL (SELECT executions.id::text AS document_id OFFSET 0) AS source
         LEFT JOIN search_documents_v2 AS documents
           ON documents.tenant_id = executions.tenant_id
          AND documents.projection_version = :target_version
          AND documents.document_type = 'EXECUTION'
-         AND documents.document_id = executions.id::text
+         AND documents.document_id = source.document_id
         WHERE executions.tenant_id = :tenant_uuid
+          AND executions.updated_at >= :changed_since
           AND executions.lifecycle <> 'TOMBSTONED'
           AND (CAST(:rebuild_from AS timestamptz) IS NULL
                OR executions.created_at >= CAST(:rebuild_from AS timestamptz))
@@ -387,12 +407,14 @@ _TASK_RUN_PROJECTION = text(
         JOIN executions
           ON executions.tenant_id = task_runs.tenant_id
          AND executions.id = task_runs.execution_id
+        CROSS JOIN LATERAL (SELECT task_runs.id::text AS document_id OFFSET 0) AS source
         LEFT JOIN search_documents_v2 AS documents
           ON documents.tenant_id = task_runs.tenant_id
          AND documents.projection_version = :target_version
          AND documents.document_type = 'TASK_RUN'
-         AND documents.document_id = task_runs.id::text
+         AND documents.document_id = source.document_id
         WHERE task_runs.tenant_id = :tenant_uuid
+          AND task_runs.updated_at >= :changed_since
           AND (CAST(:rebuild_from AS timestamptz) IS NULL
                OR task_runs.created_at >= CAST(:rebuild_from AS timestamptz))
           AND (CAST(:rebuild_to AS timestamptz) IS NULL
@@ -455,12 +477,14 @@ _LOG_PROJECTION = text(
         JOIN executions
           ON executions.tenant_id = logs.tenant_id
          AND executions.id = logs.execution_id
+        CROSS JOIN LATERAL (SELECT logs.id::text AS document_id OFFSET 0) AS source
         LEFT JOIN search_documents_v2 AS documents
           ON documents.tenant_id = logs.tenant_id
          AND documents.projection_version = :target_version
          AND documents.document_type = 'LOG'
-         AND documents.document_id = logs.id::text
+         AND documents.document_id = source.document_id
         WHERE logs.tenant_id = :tenant_uuid
+          AND logs.ingested_at >= :changed_since
           AND (CAST(:rebuild_from AS timestamptz) IS NULL
                OR logs.occurred_at >= CAST(:rebuild_from AS timestamptz))
           AND (CAST(:rebuild_to AS timestamptz) IS NULL
@@ -511,12 +535,14 @@ _METRIC_PROJECTION = text(
         JOIN executions
           ON executions.tenant_id = metrics.tenant_id
          AND executions.id = metrics.execution_id
+        CROSS JOIN LATERAL (SELECT metrics.id::text AS document_id OFFSET 0) AS source
         LEFT JOIN search_documents_v2 AS documents
           ON documents.tenant_id = metrics.tenant_id
          AND documents.projection_version = :target_version
          AND documents.document_type = 'METRIC'
-         AND documents.document_id = metrics.id::text
+         AND documents.document_id = source.document_id
         WHERE metrics.tenant_id = :tenant_uuid
+          AND metrics.ingested_at >= :changed_since
           AND (CAST(:rebuild_from AS timestamptz) IS NULL
                OR metrics.occurred_at >= CAST(:rebuild_from AS timestamptz))
           AND (CAST(:rebuild_to AS timestamptz) IS NULL
@@ -630,12 +656,14 @@ _AUDIT_PROJECTION = text(
                audit.occurred_at AS source_updated_at,
                audit.id AS source_version
         FROM audit_events AS audit
+        CROSS JOIN LATERAL (SELECT audit.id::text AS document_id OFFSET 0) AS source
         LEFT JOIN search_documents_v2 AS documents
           ON documents.tenant_id = audit.tenant_id
          AND documents.projection_version = :target_version
          AND documents.document_type = 'AUDIT'
-         AND documents.document_id = audit.id::text
+         AND documents.document_id = source.document_id
         WHERE audit.tenant_id = :tenant_uuid
+          AND audit.occurred_at >= :changed_since
           AND (CAST(:rebuild_from AS timestamptz) IS NULL
                OR audit.occurred_at >= CAST(:rebuild_from AS timestamptz))
           AND (CAST(:rebuild_to AS timestamptz) IS NULL
@@ -1016,8 +1044,14 @@ def _status_from_row(row: RowMapping) -> SearchProjectionStatus:
 class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchProjector):
     """Optional tenant-isolated PostgreSQL FTS/trigram projection and projector."""
 
-    def __init__(self, engine: AsyncEngine) -> None:
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        full_pass_interval: timedelta = _FULL_PASS_INTERVAL,
+    ) -> None:
         super().__init__(engine)
+        self._full_pass_interval = full_pass_interval
 
     async def project_once(self, *, tenant_id: str, limit: int = 500) -> int:
         bounded_limit = max(1, min(limit, 5_000))
@@ -1059,12 +1093,23 @@ class PostgresSearchRepository(PostgresRepositoryBase, SearchRepository, SearchP
                     "rebuild_to": None,
                     "archive_days": _ARCHIVE_DAYS,
                 }
+                clock = (await connection.execute(_FULL_PASS_CLOCK, parameters)).mappings().one()
+                full_pass = (
+                    rebuilding
+                    or clock["last_full_pass"] is None
+                    or clock["last_full_pass"] <= clock["now"] - self._full_pass_interval
+                )
+                parameters["changed_since"] = (
+                    _ALL_CHANGES if full_pass else clock["now"] - _INCREMENTAL_WINDOW
+                )
                 projected = 0
                 for document_type in SearchDocumentType:
                     projected += int(
                         await connection.scalar(_DOCUMENT_PROJECTORS[document_type], parameters)
                         or 0
                     )
+                if projected == 0 and not full_pass:
+                    return 0
                 deleted = 0
                 if projected == 0:
                     deleted = await _archive_and_delete_stale(connection, parameters)
