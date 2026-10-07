@@ -31,14 +31,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:$PATH"
 
 # Recovery refuses a pg_dump older than the server, and bookworm ships client 15. The PGDG key
-# comes from Debian's signed postgresql-common package.
-RUN apt-get update \
+# comes from Debian's signed postgresql-common package. That package creates a postgres system
+# user, so amesh is created first with the ids USER and the volume init containers rely on.
+RUN addgroup --system --gid 101 amesh \
+    && adduser --system --uid 100 --ingroup amesh amesh \
+    && apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates postgresql-common \
     && /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
     && apt-get install -y --no-install-recommends postgresql-client-17 \
     && rm -rf /var/lib/apt/lists/* \
-    && addgroup --system amesh \
-    && adduser --system --ingroup amesh amesh \
     && install -d -o amesh -g amesh /var/lib/amesh/plugins
 
 WORKDIR /app

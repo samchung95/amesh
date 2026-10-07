@@ -100,6 +100,7 @@ test "$(command -v codex)" = "/opt/amesh/model-engines/node_modules/.bin/codex"
 test "$(command -v copilot)" = "/opt/amesh/model-engines/node_modules/.bin/copilot"
 test "$(command -v script)" = "/usr/bin/script"
 test "$(id -u):$(id -g)" = "100:101"
+test "$(id -un):$(id -gn)" = "amesh:amesh"
 test "$(stat -c '%u:%g:%a' /var/lib/amesh/model-engines)" = "100:101:700"
 test -w /var/lib/amesh/model-engines
 test "$COPILOT_AUTO_UPDATE" = "false"
