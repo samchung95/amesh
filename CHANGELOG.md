@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Administration → Access now grants the role that was picked. The role list sent its label
+  ("Viewer · viewer") as the role name, so every binding failed with "Request validation failed".
+  An untouched list showed "Flow author" while submitting `viewer`; it now starts empty and must be
+  chosen (#151).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its
