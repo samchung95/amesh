@@ -1,5 +1,21 @@
 # Test Log
 
+## Failed synchronous run returns its execution — #149 (2026-10-08)
+
+Spec: GitHub #149 (UX walkthrough 2026-10-07, journeys J2 and J3).
+
+- Cause: `run_to_completion` persists the terminal state and then raises `TaskExecutionError`.
+  `ExecutionLaunchService.launch` let that exception escape, so every synchronous launch route
+  answered 500. All three raise sites persist the terminal state first, so `launch` now suppresses
+  the error and returns the stored execution.
+- New `tests/api/test_execution_launch_failure_api.py` runs a `core.fail` task through
+  `POST /api/v1/executions/{namespace}/{flow}`. Before the fix it got 500 "Internal Server Error";
+  now it gets 200 with `state: FAILED`, matching the stored row.
+- Against a disposable PostgreSQL 17: `tests/application`, `test_mvp_api`, `test_agent_sessions_api`,
+  `test_subflow_api` and the new test passed. Ruff and strict mypy on the changed module passed.
+- The UI needed no change: **Run workflow** (flow detail and editor) and **Start session** already
+  navigate to the returned run on success.
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.

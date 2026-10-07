@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- A synchronously launched run that fails now returns `200` with its FAILED execution instead of
+  HTTP 500. This covers `POST /executions`, `POST /executions/{namespace}/{flow}`, agent sessions,
+  triggers and workflow runs. **Run workflow** and **Start session** now open the failed run
+  (#149).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its

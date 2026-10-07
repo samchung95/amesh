@@ -22,7 +22,9 @@
   `filter=field=value`, `sort=field,-field`, and `fields=field,field` query parameters are opt-in;
   `X-Total-Count` and `X-Next-Cursor` carry page metadata.
 - Create an execution synchronously by default, or send `Prefer: respond-async` to receive `202`,
-  `Preference-Applied`, and a `Location` to poll. `Idempotency-Key` is the preferred replay key.
+  `Preference-Applied`, and a `Location` to poll. A synchronous run that fails, times out or is
+  otherwise unsatisfiable still returns `200` with its terminal execution, not a server error.
+  `Idempotency-Key` is the preferred replay key.
   Set `flowRevision` in the launch body to pin an exact immutable flow revision; when omitted, the
   active revision is used.
   The Compose profile runs the executor recovery role with the local process runner; Kubernetes keeps
