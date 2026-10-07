@@ -913,7 +913,7 @@ class PostgresMetadataRepository(PostgresRepositoryBase, MetadataRepository):
     ) -> ExecutionLogEntry:
         async with self._services.transactions.tenant(tenant_id) as (connection, tenant_uuid):
             settings = await connection.scalar(
-                text("SELECT settings FROM tenants WHERE id = :tenant_id FOR UPDATE"),
+                text("SELECT settings FROM tenants WHERE id = :tenant_id FOR NO KEY UPDATE"),
                 {"tenant_id": tenant_uuid},
             )
             if settings is None:

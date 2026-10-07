@@ -100,6 +100,7 @@ test "$(command -v codex)" = "/opt/amesh/model-engines/node_modules/.bin/codex"
 test "$(command -v copilot)" = "/opt/amesh/model-engines/node_modules/.bin/copilot"
 test "$(command -v script)" = "/usr/bin/script"
 test "$(id -u):$(id -g)" = "100:101"
+test "$(id -un):$(id -gn)" = "amesh:amesh"
 test "$(stat -c '%u:%g:%a' /var/lib/amesh/model-engines)" = "100:101:700"
 test -w /var/lib/amesh/model-engines
 test "$COPILOT_AUTO_UPDATE" = "false"
@@ -107,6 +108,9 @@ test "$(codex --version)" = "codex-cli 0.151.0"
 copilot --version | grep -Fx "GitHub Copilot CLI 1.0.82."
 ! command -v npm
 '@
+    # Windows PowerShell writes the console input encoding's BOM into a piped native stdin, and a
+    # UTF-8 console makes /bin/sh read the first command as "<BOM>test".
+    [Console]::InputEncoding = New-Object System.Text.UTF8Encoding $false
     $modelEngineProbe | & docker run --rm -i --entrypoint /bin/sh amesh:model-engines-probe -seu
     if ($LASTEXITCODE -ne 0) {
         throw "docker command failed with exit code $LASTEXITCODE"

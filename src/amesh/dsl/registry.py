@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from functools import cache
 from typing import Any
 
 from jsonschema import Draft202012Validator
@@ -136,22 +137,21 @@ class ResourceSchemaRegistry:
         return {"schemaVersion": RESOURCE_CATALOG_VERSION, "resources": resources}
 
     def copy(self) -> ResourceSchemaRegistry:
-        specification_keys = {
-            (ResourceKind.TASK, specification.type)
-            for specification in self._task_specifications.values()
-        }
-        descriptors = (
-            descriptor
-            for key, descriptor in self._descriptors.items()
-            if key not in specification_keys
-        )
-        return ResourceSchemaRegistry(
-            descriptors,
-            task_specifications=self._task_specifications.values(),
-        )
+        # Everything registered is already validated, so the copy shares it and only the
+        # lookup tables are new: registering into the copy leaves this registry unchanged.
+        clone = ResourceSchemaRegistry()
+        clone._descriptors = dict(self._descriptors)
+        clone._validators = dict(self._validators)
+        clone._task_specifications = dict(self._task_specifications)
+        return clone
 
 
 def default_resource_registry() -> ResourceSchemaRegistry:
+    return _builtin_resource_registry().copy()
+
+
+@cache
+def _builtin_resource_registry() -> ResourceSchemaRegistry:
     from .specifications import (
         agent_task_specifications,
         core_task_specifications,
