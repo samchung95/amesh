@@ -45,8 +45,14 @@ test, a 24-hour soak, and a timed backup/restore drill with a runbook. The runbo
 - **Soak.** Started on 2026-10-07 at 1.2 starts/s with a 1 s stub, about 104,000 sessions a day.
   - It runs on an image of this branch merged with #143 (#136 idle CPU), because #143 fixes recovery
     and JIT costs that grow with history. Without it, a 24-hour soak would mostly re-measure #136.
-  - The report is `data/session-load-report.json`, and the result is appended here when the soak
-    finishes.
+  - At 5.5 hours (19,853 s), 21,489 of 21,622 sessions had succeeded and **132 had failed**, so the
+    soak cannot pass. 130 failures came from one episode between 11:01 and 11:38 UTC. It began with
+    `QueuePool` exhaustion, then 64 "Pi agent-session worker timed out" failures, while throughput
+    fell to about 40%. Host memory was critically low during that window, but the trigger is
+    unconfirmed. Without #147 the runtime turns a stall into failures instead of degrading. The other
+    two failures, at 12:20, raised `ValueError: progress frames must remain in chronological order`,
+    a separate defect still to be filed.
+  - A clean 24-hour result needs a rerun after #147.
 
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
