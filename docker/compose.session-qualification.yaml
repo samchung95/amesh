@@ -132,6 +132,9 @@ services:
       --report /reports/session-load-report.json $${QUALIFICATION_ARGS}"
     environment:
       QUALIFICATION_ARGS: ${QUALIFICATION_ARGS:---rate 1.2 --duration-seconds 86400}
+    # The driver serves nothing; its exit status and report are the result.
+    healthcheck:
+      disable: true
     volumes:
       - ../scripts/qualify_session_load.py:/qualify/qualify_session_load.py:ro
       - ../data:/reports
