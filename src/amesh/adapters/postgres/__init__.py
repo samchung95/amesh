@@ -49,7 +49,6 @@ from .shared_resources import PostgresSharedResourceRepository
 from .task_cache_repository import PostgresTaskCacheRepository
 from .tenant_repository import PostgresTenantRepository
 from .tool_invocation import PostgresToolInvocationJournal
-from .transfer_repository import PostgresTransferRepository
 from .trigger_runtime_repository import PostgresTriggerRuntimeRepository
 from .upgrade_repository import PostgresUpgradeRepository
 from .worker_repository import PostgresWorkerRepository
@@ -100,7 +99,6 @@ __all__ = [
     "PostgresTaskRunRepository",
     "PostgresTenantRepository",
     "PostgresToolInvocationJournal",
-    "PostgresTransferRepository",
     "PostgresTriggerRuntimeRepository",
     "PostgresUpgradeRepository",
     "PostgresWorkerRepository",

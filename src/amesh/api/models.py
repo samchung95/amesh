@@ -49,13 +49,6 @@ from amesh.ports import (
     PersistedTaskRunSummary,
     TaskCacheMode,
 )
-from amesh.profile_transfer import (
-    ProfileBundle,
-)
-from amesh.session_transfer import (
-    SessionTransferBundle,
-    SessionTransferMode,
-)
 
 
 class HealthResponse(BaseModel):
@@ -413,14 +406,6 @@ class CreateExecutionRequest(BaseModel):
     cache_mode: TaskCacheMode = Field(default=TaskCacheMode.USE, alias="cacheMode")
 
 
-class KestraExecutionRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid")
-
-    inputs: dict[str, Any] = Field(default_factory=dict)
-    runner: RunnerMode = RunnerMode.LOCAL
-    idempotency_key: str | None = Field(default=None, alias="idempotencyKey")
-
-
 class TaskCachePurgeRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -688,39 +673,6 @@ class AgentSessionHarnessCatalogEntry(BaseModel):
     adapter: str
     adapter_version: str = Field(alias="adapterVersion")
     protocol: str
-
-
-class AgentSessionTransferProfilePlanRequest(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    bundle: ProfileBundle
-    target_namespace: str | None = Field(default=None, alias="targetNamespace")
-
-
-class AgentSessionTransferProfileImportRequest(AgentSessionTransferProfilePlanRequest):
-    pass
-
-
-class AgentSessionTransferSessionExportRequest(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    mode: SessionTransferMode
-    artifact_destination_refs: dict[str, str] = Field(
-        default_factory=dict, alias="artifactDestinationRefs"
-    )
-
-
-class AgentSessionTransferSessionPlanRequest(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    bundle: SessionTransferBundle
-    credential_rebindings: dict[str, str] = Field(
-        default_factory=dict, alias="credentialRebindings"
-    )
-
-
-class AgentSessionTransferSessionImportRequest(AgentSessionTransferSessionPlanRequest):
-    pass
 
 
 class AgentSessionServiceDetailResponse(BaseModel):

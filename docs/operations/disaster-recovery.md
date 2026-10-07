@@ -96,21 +96,6 @@ continuous-WAL archive operated for the deployment:
 Never combine a database point from one manifest with object versions from another. If a provider has
 purged a recorded object version, recovery must fail rather than silently use the current object.
 
-## Tenant-scoped transfer
-
-Tenant export/import carries the tenant policy, active flow definitions and exact object versions in a
-canonical SHA-256-protected bundle. Import creates a new tenant slug and copies every object through the
-same verified streaming path.
-
-```bash
-uv run --extra runtime amesh tenant-transfer export source tenant-transfer.json \
-  --actor operator:tenant-export
-uv run --extra runtime amesh tenant-transfer import tenant-transfer.json destination \
-  --actor operator:tenant-import
-```
-
-The destination slug must not already exist. A checksum mismatch is rejected before tenant creation.
-
 ## Reference objectives and measured evidence
 
 The first stable profile targets RPO at most 48 hours and RTO at most 8 hours. The default daily

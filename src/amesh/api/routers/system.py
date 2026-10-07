@@ -185,14 +185,6 @@ async def get_ui_session(
         ),
         "agentSessionPolicies.view": ("agent_session_policy", PermissionAction.VIEW),
         "agentSessionPolicies.manage": ("agent_session_policy", PermissionAction.MANAGE),
-        "agentSessionMigration.view": (
-            "agent_session_migration",
-            PermissionAction.VIEW,
-        ),
-        "agentSessionMigration.manage": (
-            "agent_session_migration",
-            PermissionAction.MANAGE,
-        ),
         "apps.view": ("app", PermissionAction.VIEW),
         "apps.manage": ("app", PermissionAction.UPDATE),
         "apps.execute": ("app", PermissionAction.EXECUTE),

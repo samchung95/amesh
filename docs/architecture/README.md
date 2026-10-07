@@ -186,11 +186,9 @@ flowchart TB
 - [API and UI](api-and-ui.md)
 - [Deployment](deployment.md)
 - [On-premises Kubernetes reference](on-premises-kubernetes.md)
-- [Full migration architecture](migration.md)
 - [Observability](observability.md)
 - [Failure model](failure-model.md)
 - [HA and disaster recovery](ha-and-dr.md)
-- [Compatibility architecture](compatibility.md)
 
 ## Engineering governance
 

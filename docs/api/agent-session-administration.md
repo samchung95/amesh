@@ -75,45 +75,5 @@ only purge authority. Active and paused sessions are never selected; a session b
 its immutable launch-policy retention expires and a matching lifecycle job runs. Non-session
 executions continue to use their lifecycle-policy cutoff.
 
-## Portable profiles and sessions
-
-Migration is a distinct administrative capability. Export and compatibility planning require
-`agent_session_migration:view`; import requires `agent_session_migration:manage`. The tenant is
-always taken from `X-Amesh-Tenant`, never from an elevated request parameter.
-
-Profile routes are:
-
-- `GET|POST /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agentKey}/export`;
-- `POST /api/v1/admin/agent-session-transfers/profiles/plan`; and
-- `POST /api/v1/admin/agent-session-transfers/profiles/import`.
-
-The `amesh.profile/v1` bundle contains the selected immutable agent revision and its exact prompt,
-skill, model-policy, evaluation, schema and MCP connection histories. Its SHA-256 checksum covers the
-canonical bundle. Secret values are rejected during export; only stable credential references may be
-present. Plan the bundle against the destination before import. The plan reports conflicts and the
-number of resources and MCP references that will be created or reused without mutating the target.
-
-Session routes are:
-
-- `POST /api/v1/admin/agent-session-transfers/sessions/{sessionId}/export`;
-- `POST /api/v1/admin/agent-session-transfers/sessions/plan`; and
-- `POST /api/v1/admin/agent-session-transfers/sessions/import`.
-
-Choose `TERMINAL_HISTORY` for a completed session or `CLEAN_CHECKPOINT` for a running session whose
-canonical execution is paused at the `READY` boundary. Export rejects active leases, admission
-claims, unresolved approvals, pending checkpoint actions and `STARTED` model or tool invocations.
-The plan is read-only and reports exact flow revision, capability pin, harness, credential-reference
-and staged-artifact compatibility. A credential acknowledgement maps each discovered stable
-reference to itself; it never carries the credential value or renames an immutable reference.
-When no artifact map is supplied, export records each source URI as its destination URI. API clients
-may instead provide a complete `artifactDestinationRefs` map at export time. In either case the
-destination objects must already exist under the target tenant with the exported size and checksum.
-
-Imports preserve canonical public identity, immutable pins, event cursors, evidence and artifact
-checksums while remapping tenant-local database identifiers deterministically. Repeating the same
-bundle is idempotent and returns `alreadyPresent: true`; reusing an import identity with a different
-digest is rejected. Clients must retain the exported JSON unchanged between a successful plan and
-import.
-
 The application-facing session endpoints remain documented in the
 [agent session service API](agent-session-service.md).

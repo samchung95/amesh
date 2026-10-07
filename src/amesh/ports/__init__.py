@@ -253,12 +253,6 @@ from .tenant_repository import (
     TenantUnavailableError,
 )
 from .tool_provider import ToolInvocationJournal, ToolProvider
-from .transfer_repository import (
-    ProfileImportReceipt,
-    ProfileTransferImportRepository,
-    SessionTransferImportRepository,
-    TransferRepository,
-)
 from .trigger_runtime import (
     PollingTriggerAdapter,
     RealtimeTriggerAdapter,
@@ -434,8 +428,6 @@ __all__ = [
     "PolicyVersionChanged",
     "PollingTriggerAdapter",
     "PortError",
-    "ProfileImportReceipt",
-    "ProfileTransferImportRepository",
     "PromotionRepository",
     "ProviderDiagnosticError",
     "ProviderError",
@@ -480,7 +472,6 @@ __all__ = [
     "ServiceFenceError",
     "ServiceRegistryRepository",
     "ServiceVersionSkewError",
-    "SessionTransferImportRepository",
     "SharedResourceRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
@@ -508,7 +499,6 @@ __all__ = [
     "ToolInvocationJournal",
     "ToolProvider",
     "TransactionManager",
-    "TransferRepository",
     "TransportDiagnostics",
     "TransportRetentionResult",
     "TriggerAdapterOccurrence",

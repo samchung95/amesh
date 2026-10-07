@@ -31,9 +31,6 @@ from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from amesh.adapters.agent_session_registry import (
-    AGENT_SESSION_HARNESS_REGISTRY,
-)
 from amesh.adapters.codex_app_server import CodexAccountManager, CodexAppServerConfig
 from amesh.adapters.copilot_cli import CopilotAccountManager, CopilotCliConfig
 from amesh.adapters.postgres import (
@@ -69,7 +66,6 @@ from amesh.adapters.postgres import (
     PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
-    PostgresTransferRepository,
     PostgresTriggerRuntimeRepository,
     PostgresUpgradeRepository,
     PostgresWorkerRepository,
@@ -183,7 +179,6 @@ from amesh.ports import (
     TaskCacheRepository,
     TenantQuotaExceeded,
     TenantRepository,
-    TransferRepository,
     TriggerRuntimeRepository,
     WorkerRepository,
 )
@@ -192,9 +187,6 @@ from amesh.ports.dashboard_repository import (
 )
 from amesh.ports.retention_repository import RetentionRepository
 from amesh.ports.upgrade_repository import UpgradeRepository
-from amesh.profile_transfer import (
-    ProfileTransferService,
-)
 from amesh.promotion import PromotionService
 from amesh.quality import (
     ConfigurationPin,
@@ -833,44 +825,6 @@ def get_agent_resource_repository() -> AgentResourceRepository:
 AgentResourceRepositoryDependency = Annotated[
     AgentResourceRepository,
     Depends(get_agent_resource_repository),
-]
-
-
-@provider
-def get_transfer_repository() -> TransferRepository:
-    compatible_harnesses = {
-        (
-            metadata["adapter"],
-            metadata["adapterVersion"],
-            metadata["protocol"],
-        )
-        for metadata in AGENT_SESSION_HARNESS_REGISTRY.values()
-    }
-    return PostgresTransferRepository(
-        database_engine(),
-        object_store=build_object_store(get_settings()),
-        compatible_harnesses=compatible_harnesses,
-    )
-
-
-TransferRepositoryDependency = Annotated[
-    TransferRepository,
-    Depends(get_transfer_repository),
-]
-
-
-@provider
-def get_profile_transfer_service() -> ProfileTransferService:
-    return ProfileTransferService(
-        get_agent_resource_repository(),
-        get_agent_primitive_repository(),
-        get_transfer_repository(),
-    )
-
-
-ProfileTransferServiceDependency = Annotated[
-    ProfileTransferService,
-    Depends(get_profile_transfer_service),
 ]
 
 

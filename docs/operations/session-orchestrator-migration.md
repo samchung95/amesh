@@ -5,9 +5,6 @@ versioned object store are the authoritative state. Containers, pods, service re
 claims, scheduler ownership and search projections are disposable process state; never copy them as
 the migration mechanism.
 
-Use profile or session transfer from the Session Orchestrator workbench when moving selected agents
-or eligible sessions. Use this runbook only when moving the whole deployment.
-
 ## Preconditions
 
 - Source and destination use the same AMESH release, migration manifest and harness adapter pins.
