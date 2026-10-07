@@ -143,6 +143,12 @@ export interface AgentSessionCreateRequest {
     input?: { [key: string]: any; };
     /**
      *
+     * @type {AgentSessionCreateRequestInteractionProtocolEnum}
+     * @memberof AgentSessionCreateRequest
+     */
+    interactionProtocol?: AgentSessionCreateRequestInteractionProtocolEnum;
+    /**
+     *
      * @type {AgentSessionCreateRequestInvalidOutputPolicyEnum}
      * @memberof AgentSessionCreateRequest
      */
@@ -225,6 +231,16 @@ export interface AgentSessionCreateRequest {
 /**
  * @export
  */
+export const AgentSessionCreateRequestInteractionProtocolEnum = {
+    StructuredV1: 'STRUCTURED_V1',
+    NativeV2: 'NATIVE_V2',
+    NativeV3: 'NATIVE_V3'
+} as const;
+export type AgentSessionCreateRequestInteractionProtocolEnum = typeof AgentSessionCreateRequestInteractionProtocolEnum[keyof typeof AgentSessionCreateRequestInteractionProtocolEnum];
+
+/**
+ * @export
+ */
 export const AgentSessionCreateRequestInvalidOutputPolicyEnum = {
     Fail: 'FAIL',
     Repair: 'REPAIR'
@@ -261,6 +277,7 @@ export function AgentSessionCreateRequestFromJSONTyped(json: any, ignoreDiscrimi
         'harness': json['harness'] === undefined ? undefined : json['harness'] === null ? null : json['harness'],
         'idempotencyKey': json['idempotencyKey'] === undefined ? undefined : json['idempotencyKey'] === null ? null : json['idempotencyKey'],
         'input': json['input'] == null ? undefined : json['input'],
+        'interactionProtocol': json['interactionProtocol'] == null ? undefined : json['interactionProtocol'],
         'invalidOutputPolicy': json['invalidOutputPolicy'] == null ? undefined : json['invalidOutputPolicy'],
         'maxRepairAttempts': json['maxRepairAttempts'] === undefined ? undefined : json['maxRepairAttempts'] === null ? null : json['maxRepairAttempts'],
         'memoryReadKeys': json['memoryReadKeys'] == null ? undefined : json['memoryReadKeys'],
@@ -300,6 +317,7 @@ export function AgentSessionCreateRequestToJSONTyped(value?: AgentSessionCreateR
         'harness': value['harness'],
         'idempotencyKey': value['idempotencyKey'],
         'input': value['input'],
+        'interactionProtocol': value['interactionProtocol'],
         'invalidOutputPolicy': value['invalidOutputPolicy'],
         'maxRepairAttempts': value['maxRepairAttempts'],
         'memoryReadKeys': value['memoryReadKeys'],

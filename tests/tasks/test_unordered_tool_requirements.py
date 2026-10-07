@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from dataclasses import replace
 from typing import Any
 from uuid import uuid4
 
@@ -112,11 +113,13 @@ class CompletionModel(ScriptedModel):
 class ResultMcp:
     def __init__(self, *, reject: dict[str, Any] | None = None) -> None:
         self.calls: list[Any] = []
+        self.grants: list[Any] = []
         self.results: dict[str, TaskCompletion] = {}
         self.reject = reject or {"structuredContent": {"accepted": False, "errors": ["fix report"]}}
 
     async def __call__(self, task, context):
         self.calls.append(task)
+        self.grants.append(context.trigger.get("ameshToolGrants"))
         document = task.model_extra
         key = document["invocationKey"]
         if key not in self.results:
@@ -161,7 +164,16 @@ def test_unordered_real_harness_corrects_results_preserves_optional_arguments_an
             steps.append(("finish", {}))
         steps.append(("final", {}))
         model = CompletionModel(protocol, steps)
-        sessions, mcp, context = CrashSessions(), ResultMcp(), _context()
+        sessions, mcp = CrashSessions(), ResultMcp()
+        # The trigger a canonical POST /api/v1/agent-sessions launch carries (#96).
+        context = replace(
+            _context(),
+            trigger={
+                "ameshAgentSessionId": str(uuid4()),
+                "ameshActorId": str(uuid4()),
+                "ameshToolGrants": {"gateway": "grant-a"},
+            },
+        )
         handler = agent_session_handler(
             resources=MemoryResources(_requirements_pin()),
             sessions=sessions,
@@ -208,6 +220,7 @@ def test_unordered_real_harness_corrects_results_preserves_optional_arguments_an
         assert submits[-1]["report"] == "corrected"
         assert (await handler(task, context)).output == completed.output
         assert len(mcp.results) == 4
+        assert mcp.grants == [{"gateway": "grant-a"}] * len(mcp.calls)
         assert (
             ToolPlanLedger.model_validate_json(
                 detail.session.checkpoint.tool_plan.model_dump_json()

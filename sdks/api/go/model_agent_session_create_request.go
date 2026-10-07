@@ -31,6 +31,7 @@ type AgentSessionCreateRequest struct {
 	Harness              NullableString            `json:"harness,omitempty"`
 	IdempotencyKey       NullableString            `json:"idempotencyKey,omitempty"`
 	Input                map[string]interface{}    `json:"input,omitempty"`
+	InteractionProtocol  *string                   `json:"interactionProtocol,omitempty"`
 	InvalidOutputPolicy  *string                   `json:"invalidOutputPolicy,omitempty"`
 	MaxRepairAttempts    NullableInt32             `json:"maxRepairAttempts,omitempty"`
 	MemoryReadKeys       []*string                 `json:"memoryReadKeys,omitempty"`
@@ -57,6 +58,8 @@ func NewAgentSessionCreateRequest() *AgentSessionCreateRequest {
 	this := AgentSessionCreateRequest{}
 	var dataHandling ModelDataEgress = MODELDATAEGRESS_DENY_SECRETS
 	this.DataHandling = &dataHandling
+	var interactionProtocol string = "STRUCTURED_V1"
+	this.InteractionProtocol = &interactionProtocol
 	var invalidOutputPolicy string = "FAIL"
 	this.InvalidOutputPolicy = &invalidOutputPolicy
 	var runner RunnerMode = RUNNERMODE_LOCAL
@@ -73,6 +76,8 @@ func NewAgentSessionCreateRequestWithDefaults() *AgentSessionCreateRequest {
 	this := AgentSessionCreateRequest{}
 	var dataHandling ModelDataEgress = MODELDATAEGRESS_DENY_SECRETS
 	this.DataHandling = &dataHandling
+	var interactionProtocol string = "STRUCTURED_V1"
+	this.InteractionProtocol = &interactionProtocol
 	var invalidOutputPolicy string = "FAIL"
 	this.InvalidOutputPolicy = &invalidOutputPolicy
 	var runner RunnerMode = RUNNERMODE_LOCAL
@@ -542,6 +547,38 @@ func (o *AgentSessionCreateRequest) HasInput() bool {
 // SetInput gets a reference to the given map[string]interface{} and assigns it to the Input field.
 func (o *AgentSessionCreateRequest) SetInput(v map[string]interface{}) {
 	o.Input = v
+}
+
+// GetInteractionProtocol returns the InteractionProtocol field value if set, zero value otherwise.
+func (o *AgentSessionCreateRequest) GetInteractionProtocol() string {
+	if o == nil || IsNil(o.InteractionProtocol) {
+		var ret string
+		return ret
+	}
+	return *o.InteractionProtocol
+}
+
+// GetInteractionProtocolOk returns a tuple with the InteractionProtocol field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentSessionCreateRequest) GetInteractionProtocolOk() (*string, bool) {
+	if o == nil || IsNil(o.InteractionProtocol) {
+		return nil, false
+	}
+	return o.InteractionProtocol, true
+}
+
+// HasInteractionProtocol returns a boolean if a field has been set.
+func (o *AgentSessionCreateRequest) HasInteractionProtocol() bool {
+	if o != nil && !IsNil(o.InteractionProtocol) {
+		return true
+	}
+
+	return false
+}
+
+// SetInteractionProtocol gets a reference to the given string and assigns it to the InteractionProtocol field.
+func (o *AgentSessionCreateRequest) SetInteractionProtocol(v string) {
+	o.InteractionProtocol = &v
 }
 
 // GetInvalidOutputPolicy returns the InvalidOutputPolicy field value if set, zero value otherwise.
@@ -1083,6 +1120,9 @@ func (o AgentSessionCreateRequest) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Input) {
 		toSerialize["input"] = o.Input
 	}
+	if !IsNil(o.InteractionProtocol) {
+		toSerialize["interactionProtocol"] = o.InteractionProtocol
+	}
 	if !IsNil(o.InvalidOutputPolicy) {
 		toSerialize["invalidOutputPolicy"] = o.InvalidOutputPolicy
 	}
@@ -1156,6 +1196,7 @@ func (o *AgentSessionCreateRequest) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "harness")
 		delete(additionalProperties, "idempotencyKey")
 		delete(additionalProperties, "input")
+		delete(additionalProperties, "interactionProtocol")
 		delete(additionalProperties, "invalidOutputPolicy")
 		delete(additionalProperties, "maxRepairAttempts")
 		delete(additionalProperties, "memoryReadKeys")

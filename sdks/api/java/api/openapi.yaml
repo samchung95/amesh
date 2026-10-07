@@ -24637,6 +24637,7 @@ components:
         idempotencyKey: idempotencyKey
         input:
           key: ""
+        interactionProtocol: STRUCTURED_V1
         invalidOutputPolicy: FAIL
         maxRepairAttempts: 7
         memoryReadKeys:
@@ -24718,6 +24719,14 @@ components:
           additionalProperties: true
           title: Input
           type: object
+        interactionProtocol:
+          default: STRUCTURED_V1
+          enum:
+          - STRUCTURED_V1
+          - NATIVE_V2
+          - NATIVE_V3
+          title: Interactionprotocol
+          type: string
         invalidOutputPolicy:
           default: FAIL
           enum:

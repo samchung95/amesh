@@ -1,5 +1,31 @@
 # Test Log
 
+## Canonical session interaction protocol — #96 (2026-10-07)
+
+Spec: GitHub #96. `POST /api/v1/agent-sessions` now accepts `interactionProtocol` and forwards it
+into the synthesized `agent.session` task. `STRUCTURED_V1` stays the default and is left out of the
+task, so existing callers keep their synthesized flow revision.
+
+- Red first: `test_create_pins_the_interaction_protocol_across_follow_up_and_keyed_replay` got
+  422 for the field. It now asserts that the task carries `NATIVE_V3`, that a same-key replay
+  returns 200 and a different-protocol replay 409, that an unknown protocol gets 422, that
+  `_agent_session_follow_up_flow` keeps the protocol, and that a follow-up message body cannot
+  carry one. The existing task-level check (`interaction protocol cannot change across
+  checkpoints`) still guards recovery and resume.
+- Qualification: `test_unordered_real_harness_corrects_results_preserves_optional_arguments_and_recovers`
+  now runs with the trigger a canonical launch carries (`ameshAgentSessionId`, `ameshActorId`,
+  `ameshToolGrants`). Across `STRUCTURED_V1`, `NATIVE_V2` and `NATIVE_V3`, with and without a worker
+  crash, the real Pi harness sends a rejected `submit`, corrects it against the unordered
+  `successSchema`, finalizes, and replays without a new MCP result. Every MCP call saw the tool
+  grant: 14 passed.
+- Against a disposable PostgreSQL 17: `tests/api`, the agent-session, unordered-plan and MCP
+  grant task suites, documentation and frontend contract tests gave 298 passed, 1 skipped. The
+  public approval integration (`test_agent_session_approval_integration.py`) still passes through
+  the new keyed-replay lookup.
+- OpenAPI, frontend types and SDKs were regenerated. The console's create call sends the
+  `STRUCTURED_V1` default explicitly, like its other defaulted fields. Vitest `src/api` (45), ESLint,
+  `tsc -b`, Ruff, the format check and strict mypy (396 files) passed.
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.

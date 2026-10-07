@@ -514,6 +514,9 @@ class AgentSessionCreateRequest(BaseModel):
         default_factory=dict, alias="toolGrants", max_length=64, repr=False
     )
     task_brief: AgentTaskBrief | None = Field(default=None, alias="taskBrief", repr=False)
+    interaction_protocol: Literal["STRUCTURED_V1", "NATIVE_V2", "NATIVE_V3"] = Field(
+        default="STRUCTURED_V1", alias="interactionProtocol"
+    )
     invalid_output_policy: Literal["FAIL", "REPAIR"] = Field(
         default="FAIL", alias="invalidOutputPolicy"
     )

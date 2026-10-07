@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `POST /api/v1/agent-sessions` accepts the existing opt-in `interactionProtocol` (`STRUCTURED_V1`
+  by default, `NATIVE_V2` or `NATIVE_V3`), so canonical sessions can combine `toolGrants` with
+  native tool schemas and finalization. The protocol is pinned for the conversation: follow-ups
+  and recovery keep it, and a repeated create with the same idempotency key but a different
+  protocol returns 409. Omitting it changes nothing (#96).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its

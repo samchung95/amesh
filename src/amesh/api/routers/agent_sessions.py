@@ -204,6 +204,16 @@ async def _launch_agent_session(
         service_session_id,
         effective_idempotency_key,
     )
+    if effective_idempotency_key is not None:
+        pinned_protocol = await _pinned_interaction_protocol(
+            service_session_id, repository=repository, sessions=sessions, tenant_id=tenant_id
+        )
+        if pinned_protocol not in (None, request.interaction_protocol):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"this idempotency key's session is pinned to interactionProtocol "
+                f"{pinned_protocol}",
+            )
     try:
         preview = await resources.preview_agent(
             tenant_id,
@@ -256,6 +266,12 @@ async def _launch_agent_session(
             "agent": request.agent,
             "agentRevision": request.agent_revision,
             "input": request.input,
+            # The default stays implicit so existing callers keep their synthesized flow revision.
+            "interactionProtocol": (
+                None
+                if request.interaction_protocol == "STRUCTURED_V1"
+                else request.interaction_protocol
+            ),
             "invalidOutputPolicy": request.invalid_output_policy,
             "maxRepairAttempts": request.max_repair_attempts,
             "requiredToolPlan": (
@@ -1602,6 +1618,29 @@ async def _agent_session_execution_flow(
             status_code=status.HTTP_409_CONFLICT,
             detail="the agent-session execution flow revision is unavailable",
         ) from exc
+
+
+async def _pinned_interaction_protocol(
+    service_session_id: UUID,
+    *,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    tenant_id: str,
+) -> str | None:
+    """Return the protocol an existing keyed session was created with, or None for a new one."""
+
+    try:
+        execution_id = await sessions.get_execution_by_service_session_id(
+            tenant_id, service_session_id
+        )
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError:
+        return None
+    flow = await _agent_session_execution_flow(repository, execution, tenant_id=tenant_id)
+    task = next((task for task in flow.tasks if task.id == "agent"), None)
+    if task is None:
+        return None
+    return str(task.configuration.get("interactionProtocol", "STRUCTURED_V1"))
 
 
 def _agent_session_follow_up_flow(

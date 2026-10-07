@@ -84,6 +84,7 @@ export function createSessionsResource(transport: ApiTransport) {
           businessAssertions: input.businessAssertions ?? [],
           dataHandling: input.dataHandling ?? 'DENY_SECRETS',
           input: input.input ?? {},
+          interactionProtocol: input.interactionProtocol ?? 'STRUCTURED_V1',
           invalidOutputPolicy: input.invalidOutputPolicy ?? 'FAIL',
           maxRepairAttempts: input.maxRepairAttempts ?? 0,
           memoryReadKeys: input.memoryReadKeys ?? [],
