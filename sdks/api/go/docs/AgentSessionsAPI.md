@@ -798,7 +798,7 @@ import (
 )
 
 func main() {
-	openAIChatCompletionRequest := *openapiclient.NewOpenAIChatCompletionRequest([]*map[string]interface{}{nil}, "Model_example") // OpenAIChatCompletionRequest |
+	openAIChatCompletionRequest := *openapiclient.NewOpenAIChatCompletionRequest([]map[string]interface{}{map[string]interface{}{"key": interface{}(123)}}, "Model_example") // OpenAIChatCompletionRequest |
 	idempotencyKey := "idempotencyKey_example" // string |  (optional)
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)

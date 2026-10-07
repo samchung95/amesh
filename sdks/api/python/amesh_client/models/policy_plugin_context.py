@@ -27,8 +27,8 @@ class PolicyPluginContext(BaseModel):
     """
     PolicyPluginContext
     """ # noqa: E501
-    packages: Optional[List[Optional[Dict[str, Any]]]] = None
-    task_types: Optional[List[Optional[StrictStr]]] = Field(default=None, alias="taskTypes")
+    packages: Optional[List[Dict[str, Any]]] = None
+    task_types: Optional[List[StrictStr]] = Field(default=None, alias="taskTypes")
     __properties: ClassVar[List[str]] = ["packages", "taskTypes"]
 
     model_config = ConfigDict(

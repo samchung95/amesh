@@ -349,7 +349,7 @@ No authorization required
 
 ## createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost
 
-> AgentResourceRevisionOutput createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentResourceRevision createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Agent Resource Revision
 
@@ -375,7 +375,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            AgentResourceRevisionOutput result = apiInstance.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant);
+            AgentResourceRevision result = apiInstance.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling AgentsApi#createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost");
@@ -401,7 +401,7 @@ public class Example {
 
 ### Return type
 
-**AgentResourceRevisionOutput**
+**AgentResourceRevision**
 
 
 ### Authorization
@@ -421,7 +421,7 @@ No authorization required
 
 ## createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo
 
-> ApiResponse<AgentResourceRevisionOutput> createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<AgentResourceRevision> createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Agent Resource Revision
 
@@ -448,7 +448,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<AgentResourceRevisionOutput> response = apiInstance.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<AgentResourceRevision> response = apiInstance.createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostWithHttpInfo(namespace, spec, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -476,7 +476,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<**AgentResourceRevisionOutput**>
+ApiResponse<**AgentResourceRevision**>
 
 
 ### Authorization
@@ -1261,7 +1261,7 @@ No authorization required
 
 ## getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet
 
-> AgentResourceRevisionOutput getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentResourceRevision getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant)
 
 Get Agent Resource
 
@@ -1289,7 +1289,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            AgentResourceRevisionOutput result = apiInstance.getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant);
+            AgentResourceRevision result = apiInstance.getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling AgentsApi#getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet");
@@ -1317,7 +1317,7 @@ public class Example {
 
 ### Return type
 
-**AgentResourceRevisionOutput**
+**AgentResourceRevision**
 
 
 ### Authorization
@@ -1337,7 +1337,7 @@ No authorization required
 
 ## getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo
 
-> ApiResponse<AgentResourceRevisionOutput> getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<AgentResourceRevision> getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant)
 
 Get Agent Resource
 
@@ -1366,7 +1366,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<AgentResourceRevisionOutput> response = apiInstance.getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<AgentResourceRevision> response = apiInstance.getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetWithHttpInfo(namespace, kind, key, revision, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1396,7 +1396,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<**AgentResourceRevisionOutput**>
+ApiResponse<**AgentResourceRevision**>
 
 
 ### Authorization
@@ -1865,7 +1865,7 @@ No authorization required
 
 ## listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet
 
-> List<AgentResourceRevisionOutput> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
+> List<AgentResourceRevision> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
 
 List Agent Resources
 
@@ -1891,7 +1891,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            List<AgentResourceRevisionOutput> result = apiInstance.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant);
+            List<AgentResourceRevision> result = apiInstance.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling AgentsApi#listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet");
@@ -1917,7 +1917,7 @@ public class Example {
 
 ### Return type
 
-**List&lt;AgentResourceRevisionOutput&gt;**
+**List&lt;AgentResourceRevision&gt;**
 
 
 ### Authorization
@@ -1937,7 +1937,7 @@ No authorization required
 
 ## listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo
 
-> ApiResponse<List<AgentResourceRevisionOutput>> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<List<AgentResourceRevision>> listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant)
 
 List Agent Resources
 
@@ -1964,7 +1964,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<List<AgentResourceRevisionOutput>> response = apiInstance.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<List<AgentResourceRevision>> response = apiInstance.listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetWithHttpInfo(namespace, kind, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -1992,7 +1992,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<**List&lt;AgentResourceRevisionOutput&gt;**>
+ApiResponse<**List&lt;AgentResourceRevision&gt;**>
 
 
 ### Authorization
@@ -2469,7 +2469,7 @@ No authorization required
 
 ## resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost
 
-> AgentCapabilityPinOutput resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant)
+> AgentCapabilityPin resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant)
 
 Resolve Agent Definition
 
@@ -2496,7 +2496,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            AgentCapabilityPinOutput result = apiInstance.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant);
+            AgentCapabilityPin result = apiInstance.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling AgentsApi#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost");
@@ -2523,7 +2523,7 @@ public class Example {
 
 ### Return type
 
-**AgentCapabilityPinOutput**
+**AgentCapabilityPin**
 
 
 ### Authorization
@@ -2543,7 +2543,7 @@ No authorization required
 
 ## resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo
 
-> ApiResponse<AgentCapabilityPinOutput> resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<AgentCapabilityPin> resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant)
 
 Resolve Agent Definition
 
@@ -2571,7 +2571,7 @@ public class Example {
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<AgentCapabilityPinOutput> response = apiInstance.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<AgentCapabilityPin> response = apiInstance.resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo(namespace, key, agentResolutionRequest, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -2600,7 +2600,7 @@ public class Example {
 
 ### Return type
 
-ApiResponse<**AgentCapabilityPinOutput**>
+ApiResponse<**AgentCapabilityPin**>
 
 
 ### Authorization

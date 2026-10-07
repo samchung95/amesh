@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface PluginPolicyImpactPreview {
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof PluginPolicyImpactPreview
      */
-    affectedFlows: Array<{ [key: string]: any; } | null>;
+    affectedFlows: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {string}
@@ -33,10 +33,10 @@ export interface PluginPolicyImpactPreview {
     _package: string;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof PluginPolicyImpactPreview
      */
-    runningExecutions: Array<{ [key: string]: any; } | null>;
+    runningExecutions: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {string}

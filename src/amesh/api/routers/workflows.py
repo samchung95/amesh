@@ -59,7 +59,6 @@ from amesh.api.models import (
     FlowMetadataResponse,
     FlowRevisionLifecycleRequest,
     FlowRevisionRestoreRequest,
-    KestraExecutionRequest,
     PlaygroundSafety,
     PlaygroundSimulationRequest,
     PlaygroundSimulationResponse,
@@ -68,14 +67,6 @@ from amesh.api.models import (
 from amesh.api.route_support import (
     _build_flow_graph,
     _execute_flow,
-)
-from amesh.api.routers.executions import (
-    create_execution,
-)
-from amesh.compatibility.kestra import (
-    KestraFlowImport,
-    compatibility_manifest,
-    import_kestra_flow,
 )
 from amesh.domain import (
     ActorContext,
@@ -136,7 +127,6 @@ from amesh.workflow.metadata import (
 router_1 = APIRouter()
 router_2 = APIRouter()
 router_3 = APIRouter()
-router_4 = APIRouter()
 
 
 _EDITOR_CONTEXT_KEYS = frozenset(
@@ -406,35 +396,6 @@ async def validate_flow(
     try:
         return validate_flow_document(body, registry=plugin_catalog.resource_registry())
     except FlowDocumentError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(exc),
-        ) from exc
-
-
-@router_1.get(
-    "/api/v1/compatibility/kestra/manifest",
-    tags=["compatibility"],
-)
-async def get_kestra_compatibility_manifest() -> dict[str, object]:
-    return compatibility_manifest()
-
-
-@router_1.post(
-    "/api/v1/main/flows/validate",
-    response_model=KestraFlowImport,
-    tags=["compatibility"],
-)
-async def validate_kestra_flow(request: Request) -> KestraFlowImport:
-    body = await request.body()
-    if len(body) > 2 * 1024 * 1024:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="flow document exceeds the 2 MiB compatibility limit",
-        )
-    try:
-        return import_kestra_flow(body)
-    except (FlowDocumentError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
@@ -1334,56 +1295,3 @@ async def get_flow_data_contract(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
-
-
-@router_4.post(
-    "/api/v1/executions/{namespace}/{flow_id}",
-    response_model=ExecutionDetail,
-    responses={
-        status.HTTP_202_ACCEPTED: {
-            "model": ExecutionDetail,
-            "description": "Execution persisted and accepted for asynchronous processing",
-        }
-    },
-    tags=["compatibility"],
-)
-async def create_kestra_execution(
-    namespace: str,
-    flow_id: str,
-    request: KestraExecutionRequest,
-    background_tasks: BackgroundTasks,
-    response: Response,
-    repository: RepositoryDependency,
-    task_cache: TaskCacheRepositoryDependency,
-    shared_resources: SharedResourceRepositoryDependency,
-    operational_controls: OperationalControlRepositoryDependency,
-    settings: SettingsDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-    prefer: Annotated[str | None, Header(alias="Prefer")] = None,
-    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
-    correlation_id: Annotated[str | None, Header(alias="X-Correlation-ID")] = None,
-) -> ExecutionDetail:
-    return await create_execution(
-        CreateExecutionRequest(
-            namespace=namespace,
-            flowId=flow_id,
-            inputs=request.inputs,
-            runner=request.runner,
-            idempotencyKey=request.idempotency_key,
-        ),
-        background_tasks,
-        response,
-        repository,
-        task_cache,
-        shared_resources,
-        operational_controls,
-        settings,
-        actor,
-        authorization_service,
-        tenant_id,
-        prefer,
-        idempotency_key,
-        correlation_id,
-    )

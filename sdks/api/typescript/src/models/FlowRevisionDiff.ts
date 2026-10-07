@@ -33,10 +33,10 @@ export interface FlowRevisionDiff {
     human: string;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof FlowRevisionDiff
      */
-    operations: Array<{ [key: string]: any; } | null>;
+    operations: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {number}

@@ -152,14 +152,14 @@ public class FlowTestExpectation {
    */
   @javax.annotation.Nullable
   @JsonProperty(value = JSON_PROPERTY_TASK_OUTPUTS, required = false)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public Map<String, Map<String, Object>> getTaskOutputs() {
     return taskOutputs;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_TASK_OUTPUTS, required = false)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setTaskOutputs(@javax.annotation.Nullable Map<String, Map<String, Object>> taskOutputs) {
     this.taskOutputs = taskOutputs;
   }

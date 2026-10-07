@@ -30,14 +30,13 @@ class OpenAIChatCompletionRequest(BaseModel):
     """ # noqa: E501
     max_completion_tokens: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = None
     max_tokens: Optional[Annotated[int, Field(le=1000000, strict=True, ge=1)]] = None
-    messages: Annotated[List[Optional[Dict[str, Any]]], Field(min_length=1, max_length=100)]
+    messages: Annotated[List[Dict[str, Any]], Field(min_length=1, max_length=100)]
     model: Annotated[str, Field(min_length=1, strict=True, max_length=512)]
     response_format: Optional[Dict[str, Any]] = None
     stream: Optional[StrictBool] = False
     temperature: Optional[Union[Annotated[float, Field(le=2.0, strict=True, ge=0.0)], Annotated[int, Field(le=2, strict=True, ge=0)]]] = None
     top_p: Optional[Union[Annotated[float, Field(le=1.0, strict=True, ge=0.0)], Annotated[int, Field(le=1, strict=True, ge=0)]]] = None
     user: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["max_completion_tokens", "max_tokens", "messages", "model", "response_format", "stream", "temperature", "top_p", "user"]
 
     model_config = ConfigDict(
@@ -70,10 +69,8 @@ class OpenAIChatCompletionRequest(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -81,11 +78,6 @@ class OpenAIChatCompletionRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if max_completion_tokens (nullable) is None
         # and model_fields_set contains the field
         if self.max_completion_tokens is None and "max_completion_tokens" in self.model_fields_set:
@@ -138,9 +130,4 @@ class OpenAIChatCompletionRequest(BaseModel):
             "top_p": obj.get("top_p"),
             "user": obj.get("user")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

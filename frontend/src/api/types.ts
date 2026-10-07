@@ -22,8 +22,6 @@ export type Capability =
   | 'agentSessions.list'
   | 'agentSessionPolicies.view'
   | 'agentSessionPolicies.manage'
-  | 'agentSessionMigration.view'
-  | 'agentSessionMigration.manage'
   | 'agentSessionAdministration.view'
   | 'agentSessionAdministration.instanceView'
   | 'agentSessions.manage'
@@ -392,9 +390,9 @@ export type AgentDefinitionSpec = components["schemas"]["AgentDefinitionSpec-Inp
 
 export type AgentResourceSpec = PromptSpec | SkillSpec | ModelPolicySpec | AgentEvaluationSpec | AgentDefinitionSpec
 
-export type AgentResourceRevision = components["schemas"]["AgentResourceRevision-Output"];
+export type AgentResourceRevision = components["schemas"]["AgentResourceRevision"];
 
-export type AgentCapabilityPin = components["schemas"]["AgentCapabilityPin-Output"];
+export type AgentCapabilityPin = components["schemas"]["AgentCapabilityPin"];
 
 export type AgentEnvelopePreview = components["schemas"]["AgentEnvelopePreview"];
 export type AgentSessionHarnessPin = components["schemas"]["AgentHarnessPin"];
@@ -492,18 +490,6 @@ export type AgentSessionAdminAction = 'cancel' | 'pause' | 'retry' | 'resume'
 export type AgentSessionAdminActionRequest = components["schemas"]["AgentSessionBulkActionRequest"];
 
 export type AgentSessionAdminActionResult = components["schemas"]["AgentSessionBulkActionResponse"];
-
-export type AgentSessionTransferMode = components["schemas"]["SessionTransferMode"];
-export type AgentSessionProfileTransferBundle = components["schemas"]["ProfileBundle-Input"];
-export type AgentSessionTransferBundle = components["schemas"]["SessionTransferBundle-Input"];
-
-export type AgentSessionProfileCompatibilityReport = components["schemas"]["ProfileCompatibilityReport"];
-
-export type AgentSessionCompatibilityReport = components["schemas"]["SessionTransferCompatibilityReport"];
-
-export type AgentSessionProfileImportResult = components["schemas"]["ProfileImportResult"];
-
-export type AgentSessionImportResult = components["schemas"]["SessionTransferImportResult"];
 
 export type AgentSessionControlRequest = components["schemas"]["AgentSessionControlRequest"];
 export type AgentSessionResult = components["schemas"]["AgentSessionResultResponse"];
@@ -605,10 +591,6 @@ export type GeneratedCompatibilityContracts = [
   AssertExact<IsExact<AgentSessionFleetPage, components["schemas"]["AgentSessionFleetPage"]>>,
   AssertExact<IsExact<AgentSessionPolicy, components["schemas"]["AgentSessionPolicy"]>>,
   AssertExact<IsExact<AgentSessionPolicyRevision, components["schemas"]["AgentSessionPolicyRevision"]>>,
-  AssertExact<IsExact<AgentSessionTransferMode, components["schemas"]["SessionTransferMode"]>>,
-  AssertExact<IsExact<AgentSessionProfileTransferBundle, components["schemas"]["ProfileBundle-Input"]>>,
-  AssertExact<IsExact<AgentSessionTransferBundle, components["schemas"]["SessionTransferBundle-Input"]>>,
-  AssertExact<IsExact<AgentSessionImportResult, components["schemas"]["SessionTransferImportResult"]>>,
   AssertExact<IsExact<FlowEditorSchema, components["schemas"]["FlowEditorSchemaResponse"]>>,
   AssertExact<IsExact<FlowMetadata, components["schemas"]["FlowMetadataResponse"]>>,
   AssertExact<IsExact<PermissionDefinition, components["schemas"]["Permission"]>>,
@@ -634,17 +616,14 @@ export type GeneratedCompatibilityContracts = [
   AssertExact<IsExact<AgentCapabilityCatalog, components["schemas"]["CapabilityCatalog"]>>,
   AssertExact<IsExact<AgentEvaluationSpec, components["schemas"]["AgentEvaluationSpec-Input"]>>,
   AssertExact<IsExact<AgentDefinitionSpec, components["schemas"]["AgentDefinitionSpec-Input"]>>,
-  AssertExact<IsExact<AgentResourceRevision, components["schemas"]["AgentResourceRevision-Output"]>>,
-  AssertExact<IsExact<AgentCapabilityPin, components["schemas"]["AgentCapabilityPin-Output"]>>,
+  AssertExact<IsExact<AgentResourceRevision, components["schemas"]["AgentResourceRevision"]>>,
+  AssertExact<IsExact<AgentCapabilityPin, components["schemas"]["AgentCapabilityPin"]>>,
   AssertExact<IsExact<AgentSessionHarnessPin, components["schemas"]["AgentHarnessPin"]>>,
   AssertExact<IsExact<AgentSessionDetailPage, components["schemas"]["AgentSessionDetailResponse"]>>,
   AssertExact<IsExact<AgentSessionServiceDetailPage, components["schemas"]["AgentSessionServiceDetailResponse"]>>,
   AssertExact<IsExact<AgentSessionControlEvent, components["schemas"]["AgentSessionEvent"]>>,
   AssertExact<IsExact<AgentSessionAdminActionRequest, components["schemas"]["AgentSessionBulkActionRequest"]>>,
   AssertExact<IsExact<AgentSessionAdminActionResult, components["schemas"]["AgentSessionBulkActionResponse"]>>,
-  AssertExact<IsExact<AgentSessionProfileCompatibilityReport, components["schemas"]["ProfileCompatibilityReport"]>>,
-  AssertExact<IsExact<AgentSessionCompatibilityReport, components["schemas"]["SessionTransferCompatibilityReport"]>>,
-  AssertExact<IsExact<AgentSessionProfileImportResult, components["schemas"]["ProfileImportResult"]>>,
   AssertExact<IsExact<AgentSessionResult, components["schemas"]["AgentSessionResultResponse"]>>,
   AssertExact<IsExact<AgentMcpConnectionRevision, components["schemas"]["McpConnectionRevision"]>>,
   AssertExact<IsExact<AgentMcpToolPin, components["schemas"]["McpToolPin"]>>,

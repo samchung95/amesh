@@ -30,17 +30,16 @@ class RunObservation(BaseModel):
     Portable evidence emitted by an adapter; model output may be declared nondeterministic.
     """ # noqa: E501
     cost: Optional[Annotated[str, Field(strict=True)]] = '0'
-    deterministic_assertions: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="deterministicAssertions")
+    deterministic_assertions: Optional[List[Dict[str, Any]]] = Field(default=None, alias="deterministicAssertions")
     effects: Optional[List[ShadowEffect]] = None
-    evidence: Optional[List[Optional[Dict[str, Any]]]] = None
+    evidence: Optional[List[Dict[str, Any]]] = None
     latency: Optional[Annotated[str, Field(strict=True)]] = '0'
-    nondeterministic_paths: Optional[List[Optional[StrictStr]]] = Field(default=None, alias="nondeterministicPaths")
+    nondeterministic_paths: Optional[List[StrictStr]] = Field(default=None, alias="nondeterministicPaths")
     output: Optional[Any] = None
     var_schema: Optional[Any] = Field(default=None, alias="schema")
-    task_chronology: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="taskChronology")
-    tool_chronology: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="toolChronology")
+    task_chronology: Optional[List[Dict[str, Any]]] = Field(default=None, alias="taskChronology")
+    tool_chronology: Optional[List[Dict[str, Any]]] = Field(default=None, alias="toolChronology")
     usage: Optional[Dict[str, Annotated[str, Field(strict=True)]]] = None
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["cost", "deterministicAssertions", "effects", "evidence", "latency", "nondeterministicPaths", "output", "schema", "taskChronology", "toolChronology", "usage"]
 
     @field_validator('cost', mode="before")
@@ -93,10 +92,8 @@ class RunObservation(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -111,11 +108,6 @@ class RunObservation(BaseModel):
                 if _item_effects:
                     _items.append(_item_effects.to_dict())
             _dict['effects'] = _items
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if output (nullable) is None
         # and model_fields_set contains the field
         if self.output is None and "output" in self.model_fields_set:
@@ -150,9 +142,4 @@ class RunObservation(BaseModel):
             "toolChronology": obj.get("toolChronology"),
             "usage": obj.get("usage")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

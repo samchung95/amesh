@@ -41,10 +41,10 @@ export interface FlowTestExpectation {
     state?: FlowTestTaskState;
     /**
      *
-     * @type {{ [key: string]: { [key: string]: any; } | null; }}
+     * @type {{ [key: string]: { [key: string]: any; }; }}
      * @memberof FlowTestExpectation
      */
-    taskOutputs?: { [key: string]: { [key: string]: any; } | null; };
+    taskOutputs?: { [key: string]: { [key: string]: any; }; };
     /**
      *
      * @type {{ [key: string]: FlowTestTaskState; }}

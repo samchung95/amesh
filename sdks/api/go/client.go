@@ -52,8 +52,6 @@ type APIClient struct {
 
 	AgentSessionAdministrationAPI *AgentSessionAdministrationAPIService
 
-	AgentSessionTransfersAPI *AgentSessionTransfersAPIService
-
 	AgentSessionsAPI *AgentSessionsAPIService
 
 	AgentsAPI *AgentsAPIService
@@ -73,8 +71,6 @@ type APIClient struct {
 	BlueprintsAPI *BlueprintsAPIService
 
 	ChecksAPI *ChecksAPIService
-
-	CompatibilityAPI *CompatibilityAPIService
 
 	ConfigurationAPI *ConfigurationAPIService
 
@@ -111,8 +107,6 @@ type APIClient struct {
 	RealtimeAPI *RealtimeAPIService
 
 	ReleasesAPI *ReleasesAPIService
-
-	ScimAPI *ScimAPIService
 
 	SearchAPI *SearchAPIService
 
@@ -151,7 +145,6 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	// API Services
 	c.AdministrationAPI = (*AdministrationAPIService)(&c.common)
 	c.AgentSessionAdministrationAPI = (*AgentSessionAdministrationAPIService)(&c.common)
-	c.AgentSessionTransfersAPI = (*AgentSessionTransfersAPIService)(&c.common)
 	c.AgentSessionsAPI = (*AgentSessionsAPIService)(&c.common)
 	c.AgentsAPI = (*AgentsAPIService)(&c.common)
 	c.AppsAPI = (*AppsAPIService)(&c.common)
@@ -162,7 +155,6 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.BackfillsAPI = (*BackfillsAPIService)(&c.common)
 	c.BlueprintsAPI = (*BlueprintsAPIService)(&c.common)
 	c.ChecksAPI = (*ChecksAPIService)(&c.common)
-	c.CompatibilityAPI = (*CompatibilityAPIService)(&c.common)
 	c.ConfigurationAPI = (*ConfigurationAPIService)(&c.common)
 	c.CredentialsAPI = (*CredentialsAPIService)(&c.common)
 	c.DashboardsAPI = (*DashboardsAPIService)(&c.common)
@@ -181,7 +173,6 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.QualityAPI = (*QualityAPIService)(&c.common)
 	c.RealtimeAPI = (*RealtimeAPIService)(&c.common)
 	c.ReleasesAPI = (*ReleasesAPIService)(&c.common)
-	c.ScimAPI = (*ScimAPIService)(&c.common)
 	c.SearchAPI = (*SearchAPIService)(&c.common)
 	c.SimulationsAPI = (*SimulationsAPIService)(&c.common)
 	c.SystemAPI = (*SystemAPIService)(&c.common)

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import asyncio
 import secrets
-import ssl
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -11,21 +9,18 @@ from urllib.parse import urlparse
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client  # type: ignore[import-untyped]
-from pydantic import SecretStr
 
 from amesh.authentication import AuthenticationService
 from amesh.config import IdentityProviderConfig
 from amesh.domain import (
     AuthenticationProviderDescriptor,
     AuthenticationProviderKind,
-    AuthenticationRequest,
     FederatedClaims,
     FederationProtocol,
     FederationState,
     IssuedBrowserSession,
     ProviderIdentity,
 )
-from amesh.ports.authentication_repository import AuthenticationProvider
 from amesh.ports.federation_repository import FederationRepository
 
 _SAFE_RETURN_PREFIXES = ("/",)
@@ -272,100 +267,6 @@ class IdentityFederationService:
         except httpx.HTTPError as exc:
             raise FederationProviderUnavailable("OIDC signing keys are unavailable") from exc
 
-    async def begin_saml(
-        self,
-        provider_id: str,
-        request_data: dict[str, Any],
-        *,
-        tenant: str | None,
-        return_to: str,
-    ) -> str:
-        provider = self.provider(provider_id, kind="saml")
-        _require_tenant_route(provider, tenant)
-        state_token = secrets.token_urlsafe(32)
-        auth = _saml_auth(provider, request_data)
-        url = auth.login(return_to=state_token)
-        request_id = auth.get_last_request_id()
-        if not request_id:
-            raise FederationRejected("SAML request id was not generated")
-        await self._repository.create_state(
-            state_token,
-            FederationState(
-                provider_id=provider.id,
-                protocol=FederationProtocol.SAML,
-                request_id=request_id,
-                tenant_slug=tenant,
-                return_to=_safe_return_to(return_to),
-                expires_at=datetime.now(UTC) + timedelta(seconds=self._state_ttl_seconds),
-            ),
-        )
-        return str(url)
-
-    async def complete_saml(
-        self,
-        provider_id: str,
-        request_data: dict[str, Any],
-        *,
-        state_token: str,
-    ) -> tuple[IssuedBrowserSession, str]:
-        provider = self.provider(provider_id, kind="saml")
-        state = await self._repository.consume_state(
-            state_token,
-            provider_id=provider.id,
-            now=datetime.now(UTC),
-        )
-        auth = _saml_auth(provider, request_data)
-        try:
-            auth.process_response(request_id=state.request_id)
-            if auth.get_errors() or not auth.is_authenticated():
-                raise FederationRejected(auth.get_last_error_reason() or "SAML response rejected")
-            assertion_id = auth.get_last_assertion_id() or auth.get_last_message_id()
-            if not assertion_id:
-                raise FederationRejected("SAML response omitted replay identifier")
-            not_on_or_after = auth.get_last_assertion_not_on_or_after()
-            replay_expiry = (
-                datetime.fromtimestamp(not_on_or_after, UTC)
-                if isinstance(not_on_or_after, int | float)
-                else datetime.now(UTC) + timedelta(minutes=5)
-            )
-            await self._repository.record_assertion(
-                provider.id,
-                assertion_id,
-                expires_at=replay_expiry,
-            )
-            attributes = auth.get_attributes()
-            raw_claims: dict[str, Any] = {key: value for key, value in attributes.items()}
-            raw_claims["NameID"] = auth.get_nameid()
-            identity = await self._resolve(provider, raw_claims, tenant=state.tenant_slug)
-        except FederationRejected:
-            await self._repository.record_event(
-                provider.id,
-                action="saml.callback",
-                outcome="REJECTED",
-                reason="invalid-response",
-            )
-            raise
-        except Exception as exc:
-            await self._repository.record_event(
-                provider.id,
-                action="saml.callback",
-                outcome="REJECTED",
-                reason="invalid-response",
-            )
-            raise FederationRejected("SAML response is invalid") from exc
-        return await self._authentication.issue_federated_session(identity), state.return_to
-
-    def saml_metadata(self, provider_id: str) -> str:
-        provider = self.provider(provider_id, kind="saml")
-        from onelogin.saml2.settings import OneLogin_Saml2_Settings  # type: ignore[import-untyped]
-
-        settings = OneLogin_Saml2_Settings(_saml_settings(provider), sp_validation_only=True)
-        metadata = settings.get_sp_metadata()
-        errors = settings.validate_metadata(metadata)
-        if errors:
-            raise FederationRejected(f"invalid SAML service-provider metadata: {errors[0]}")
-        return str(metadata)
-
     async def _resolve(
         self,
         provider: IdentityProviderConfig,
@@ -392,142 +293,13 @@ class IdentityFederationService:
         )
 
 
-class LdapAuthenticationProvider(AuthenticationProvider):
-    def __init__(
-        self,
-        config: IdentityProviderConfig,
-        repository: FederationRepository,
-    ) -> None:
-        if config.kind != "ldap":
-            raise ValueError("LDAP authentication provider requires LDAP configuration")
-        self.id = config.id
-        self.descriptor = _descriptor(config)
-        self._config = config
-        self._repository = repository
-
-    async def authenticate(
-        self,
-        request: AuthenticationRequest,
-        *,
-        now: datetime,
-    ) -> ProviderIdentity | None:
-        del now
-        try:
-            raw_claims = await asyncio.to_thread(
-                _ldap_bind_and_claims,
-                self._config,
-                request.identifier,
-                request.secret,
-            )
-            if raw_claims is None:
-                return None
-            group_values = raw_claims["groups"]
-            if not isinstance(group_values, list | tuple):
-                return None
-            claims = FederatedClaims(
-                provider_id=self.id,
-                subject=str(raw_claims["subject"]),
-                email=str(raw_claims["email"]),
-                display=str(raw_claims["display"]),
-                groups=tuple(str(value) for value in group_values),
-            )
-            domain = claims.email.rsplit("@", 1)[-1]
-            if self._config.domains and domain not in self._config.domains:
-                return None
-            return await self._repository.resolve_identity(
-                claims,
-                group_mappings=self._config.group_mappings,
-                default_tenant=self._config.default_tenant,
-                default_role=self._config.default_role,
-            )
-        except PermissionError:
-            return None
-        except Exception as exc:
-            raise FederationProviderUnavailable("LDAP provider is unavailable") from exc
-
-
-def _ldap_bind_and_claims(
-    provider: IdentityProviderConfig,
-    identifier: str,
-    secret: SecretStr,
-) -> dict[str, object] | None:
-    import ldap3  # type: ignore[import-untyped]
-    from ldap3.core.exceptions import LDAPInvalidCredentialsResult  # type: ignore[import-untyped]
-    from ldap3.utils.conv import escape_filter_chars  # type: ignore[import-untyped]
-    from ldap3.utils.dn import escape_rdn  # type: ignore[import-untyped]
-
-    assert provider.ldap_host is not None
-    assert provider.ldap_ca_file is not None
-    assert provider.ldap_user_dn_template is not None
-    tls = ldap3.Tls(
-        validate=ssl.CERT_REQUIRED,
-        ca_certs_file=provider.ldap_ca_file,
-        version=ssl.PROTOCOL_TLS_CLIENT,
-    )
-    server = ldap3.Server(
-        provider.ldap_host,
-        port=provider.ldap_port,
-        use_ssl=not provider.ldap_start_tls,
-        tls=tls,
-        connect_timeout=10,
-    )
-    user_dn = provider.ldap_user_dn_template.format(identifier=escape_rdn(identifier.strip()))
-    connection = ldap3.Connection(
-        server,
-        user=user_dn,
-        password=secret.get_secret_value(),
-        raise_exceptions=True,
-        receive_timeout=10,
-    )
-    try:
-        connection.open()
-        if provider.ldap_start_tls:
-            connection.start_tls()
-        try:
-            bound = connection.bind()
-        except LDAPInvalidCredentialsResult:
-            return None
-        if not bound:
-            return None
-        connection.search(
-            user_dn,
-            "(objectClass=*)",
-            search_scope=ldap3.BASE,
-            attributes=["mail", "displayName"],
-        )
-        if not connection.entries:
-            return None
-        entry = connection.entries[0]
-        email = str(entry["mail"].value or "")
-        display = str(entry["displayName"].value or identifier)
-        groups: list[str] = []
-        if provider.ldap_group_search_base:
-            group_filter = provider.ldap_group_filter.format(
-                user_dn=escape_filter_chars(user_dn),
-                identifier=escape_filter_chars(identifier),
-            )
-            connection.search(
-                provider.ldap_group_search_base,
-                group_filter,
-                attributes=[provider.ldap_group_name_attribute],
-            )
-            groups = [
-                str(item[provider.ldap_group_name_attribute].value)
-                for item in connection.entries
-                if item[provider.ldap_group_name_attribute].value is not None
-            ]
-        return {"subject": user_dn, "email": email, "display": display, "groups": groups}
-    finally:
-        connection.unbind()
-
-
 def _descriptor(provider: IdentityProviderConfig) -> AuthenticationProviderDescriptor:
     return AuthenticationProviderDescriptor(
         id=provider.id,
         kind=AuthenticationProviderKind(provider.kind),
         display_name=provider.display_name,
         interactive=True,
-        login_mode="password" if provider.kind == "ldap" else "redirect",
+        login_mode="redirect",
         domains=provider.domains,
         tenants=provider.tenants,
     )
@@ -587,67 +359,6 @@ def _read_secret(path: str | None) -> str:
     if not value:
         raise FederationRejected("identity provider secret file is empty")
     return value
-
-
-def _read_pem(path: str | None) -> str:
-    return _read_secret(path).replace("\r\n", "\n")
-
-
-def _saml_settings(provider: IdentityProviderConfig) -> dict[str, Any]:
-    assert provider.sp_entity_id is not None
-    assert provider.acs_url is not None
-    assert provider.idp_entity_id is not None
-    assert provider.sso_url is not None
-    signing_certs = [_read_pem(path) for path in provider.idp_signing_cert_files]
-    sp: dict[str, Any] = {
-        "entityId": provider.sp_entity_id,
-        "assertionConsumerService": {
-            "url": provider.acs_url,
-            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-        },
-        "singleLogoutService": {
-            "url": provider.slo_url or provider.acs_url,
-            "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-        },
-        "x509cert": _read_pem(provider.sp_cert_file),
-        "privateKey": _read_pem(provider.sp_private_key_file),
-    }
-    if provider.next_sp_cert_file:
-        sp["x509certNew"] = _read_pem(provider.next_sp_cert_file)
-    return {
-        "strict": True,
-        "debug": False,
-        "sp": sp,
-        "idp": {
-            "entityId": provider.idp_entity_id,
-            "singleSignOnService": {
-                "url": provider.sso_url,
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-            },
-            "singleLogoutService": {
-                "url": provider.slo_url or provider.sso_url,
-                "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-            },
-            "x509certMulti": {"signing": signing_certs},
-        },
-        "security": {
-            "authnRequestsSigned": True,
-            "logoutRequestSigned": True,
-            "logoutResponseSigned": True,
-            "wantMessagesSigned": False,
-            "wantAssertionsSigned": True,
-            "wantNameId": True,
-            "rejectDeprecatedAlgorithm": True,
-            "signatureAlgorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-            "digestAlgorithm": "http://www.w3.org/2001/04/xmlenc#sha256",
-        },
-    }
-
-
-def _saml_auth(provider: IdentityProviderConfig, request_data: dict[str, Any]) -> Any:
-    from onelogin.saml2.auth import OneLogin_Saml2_Auth  # type: ignore[import-untyped]
-
-    return OneLogin_Saml2_Auth(request_data, _saml_settings(provider))
 
 
 def _safe_return_to(value: str) -> str:

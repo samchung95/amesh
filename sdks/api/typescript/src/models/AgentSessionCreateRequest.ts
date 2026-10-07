@@ -107,10 +107,10 @@ export interface AgentSessionCreateRequest {
     budgets?: { [key: string]: any; } | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof AgentSessionCreateRequest
      */
-    businessAssertions?: Array<{ [key: string]: any; } | null>;
+    businessAssertions?: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {AgentContextPolicy}

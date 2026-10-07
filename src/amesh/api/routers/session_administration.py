@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from http import HTTPStatus
-from typing import Annotated, Literal, NoReturn
+from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import (
@@ -21,13 +21,10 @@ from amesh.api.dependencies import (
     AgentSessionPolicyRepositoryDependency,
     AgentSessionRepositoryDependency,
     AuthorizationServiceDependency,
-    ProfileTransferServiceDependency,
     RepositoryDependency,
     TenantDependency,
-    TransferRepositoryDependency,
     authorize_agent_session_request,
     authorize_request,
-    require_namespace_permission,
 )
 from amesh.api.models import (
     AgentSessionBulkActionItemResult,
@@ -36,11 +33,6 @@ from amesh.api.models import (
     AgentSessionControlRequest,
     AgentSessionLaunchResponse,
     AgentSessionPolicyUpsertRequest,
-    AgentSessionTransferProfileImportRequest,
-    AgentSessionTransferProfilePlanRequest,
-    AgentSessionTransferSessionExportRequest,
-    AgentSessionTransferSessionImportRequest,
-    AgentSessionTransferSessionPlanRequest,
     ExecutionInterventionRequest,
     ProblemDetail,
 )
@@ -51,7 +43,6 @@ from amesh.api.route_support import (
     get_service_agent_session_detail,
 )
 from amesh.domain import (
-    ActorContext,
     AgentSessionFleetPage,
     AgentSessionFleetQuery,
     AgentSessionInstanceAggregate,
@@ -62,18 +53,6 @@ from amesh.ports import (
     AgentSessionFleetCursorError,
     AgentSessionPolicyVersionConflict,
     ExecutionInterventionAction,
-)
-from amesh.profile_transfer import (
-    ProfileBundle,
-    ProfileCompatibilityError,
-    ProfileCompatibilityReport,
-    ProfileImportResult,
-)
-from amesh.session_transfer import (
-    SessionTransferBundle,
-    SessionTransferCompatibilityReport,
-    SessionTransferImportResult,
-    SessionTransferService,
 )
 
 router_1 = APIRouter()
@@ -280,214 +259,6 @@ async def get_agent_session_instance_aggregate(
         action=PermissionAction.LIST,
     )
     return await sessions.instance_aggregate()
-
-
-def _raise_transfer_http_error(exc: Exception, *, conflict: bool = False) -> NoReturn:
-    if isinstance(exc, LookupError):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"TRANSFER_NOT_FOUND: {exc}",
-        ) from exc
-    raise HTTPException(
-        status_code=status.HTTP_409_CONFLICT if conflict else status.HTTP_422_UNPROCESSABLE_ENTITY,
-        detail=(f"TRANSFER_CONFLICT: {exc}" if conflict else f"TRANSFER_INVALID: {exc}"),
-    ) from exc
-
-
-@router_2.get(
-    "/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export",
-    response_model=ProfileBundle,
-    tags=["agent-session-transfers"],
-)
-@router_2.post(
-    "/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export",
-    response_model=ProfileBundle,
-    tags=["agent-session-transfers"],
-)
-async def export_agent_profile_transfer(
-    namespace: str,
-    agent_key: str,
-    profiles: ProfileTransferServiceDependency,
-    actor: Annotated[
-        ActorContext,
-        Depends(require_namespace_permission("agent_session_migration", PermissionAction.VIEW)),
-    ],
-    tenant_id: TenantDependency,
-) -> ProfileBundle:
-    try:
-        return await profiles.export(
-            tenant_id,
-            namespace,
-            agent_key,
-            actor_id=str(actor.principal_id),
-        )
-    except LookupError as exc:
-        _raise_transfer_http_error(exc)
-    except ValueError as exc:
-        _raise_transfer_http_error(exc)
-
-
-@router_2.post(
-    "/api/v1/admin/agent-session-transfers/profiles/plan",
-    response_model=ProfileCompatibilityReport,
-    tags=["agent-session-transfers"],
-)
-async def plan_agent_profile_transfer(
-    request: AgentSessionTransferProfilePlanRequest,
-    profiles: ProfileTransferServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> ProfileCompatibilityReport:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_session_migration",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-        namespace=request.bundle.namespace,
-    )
-    try:
-        return await profiles.compatibility(
-            request.bundle,
-            target_tenant_id=tenant_id,
-            target_namespace=request.target_namespace,
-        )
-    except ValueError as exc:
-        _raise_transfer_http_error(exc)
-
-
-@router_2.post(
-    "/api/v1/admin/agent-session-transfers/profiles/import",
-    response_model=ProfileImportResult,
-    tags=["agent-session-transfers"],
-)
-async def import_agent_profile_transfer(
-    request: AgentSessionTransferProfileImportRequest,
-    profiles: ProfileTransferServiceDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> ProfileImportResult:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_session_migration",
-        action=PermissionAction.MANAGE,
-        tenant_id=tenant_id,
-        namespace=request.bundle.namespace,
-    )
-    try:
-        return await profiles.import_bundle(
-            request.bundle,
-            target_tenant_id=tenant_id,
-            target_namespace=request.target_namespace,
-            actor_id=str(actor.principal_id),
-        )
-    except ProfileCompatibilityError as exc:
-        _raise_transfer_http_error(exc, conflict=True)
-    except LookupError as exc:
-        _raise_transfer_http_error(exc, conflict=True)
-    except ValueError as exc:
-        _raise_transfer_http_error(exc, conflict=True)
-
-
-@router_2.post(
-    "/api/v1/admin/agent-session-transfers/sessions/{session_id}/export",
-    response_model=SessionTransferBundle,
-    tags=["agent-session-transfers"],
-)
-async def export_agent_session_transfer(
-    session_id: UUID,
-    request: AgentSessionTransferSessionExportRequest,
-    transfers: TransferRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> SessionTransferBundle:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_session_migration",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
-    try:
-        return await transfers.export_session_bundle(
-            tenant_id,
-            session_id,
-            mode=request.mode,
-            artifact_destination_refs=request.artifact_destination_refs,
-        )
-    except LookupError as exc:
-        _raise_transfer_http_error(exc)
-    except ValueError as exc:
-        _raise_transfer_http_error(exc, conflict=True)
-
-
-@router_2.post(
-    "/api/v1/admin/agent-session-transfers/sessions/plan",
-    response_model=SessionTransferCompatibilityReport,
-    tags=["agent-session-transfers"],
-)
-async def plan_agent_session_transfer(
-    request: AgentSessionTransferSessionPlanRequest,
-    transfers: TransferRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> SessionTransferCompatibilityReport:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_session_migration",
-        action=PermissionAction.VIEW,
-        tenant_id=tenant_id,
-    )
-    service = SessionTransferService(transfers)
-    try:
-        return await service.plan_import(
-            request.bundle,
-            target_tenant_id=tenant_id,
-            credential_rebindings=request.credential_rebindings,
-        )
-    except LookupError as exc:
-        _raise_transfer_http_error(exc)
-    except ValueError as exc:
-        _raise_transfer_http_error(exc)
-
-
-@router_2.post(
-    "/api/v1/admin/agent-session-transfers/sessions/import",
-    response_model=SessionTransferImportResult,
-    tags=["agent-session-transfers"],
-)
-async def import_agent_session_transfer(
-    request: AgentSessionTransferSessionImportRequest,
-    transfers: TransferRepositoryDependency,
-    actor: ActorDependency,
-    authorization_service: AuthorizationServiceDependency,
-    tenant_id: TenantDependency,
-) -> SessionTransferImportResult:
-    await authorize_request(
-        authorization_service,
-        actor,
-        resource_type="agent_session_migration",
-        action=PermissionAction.MANAGE,
-        tenant_id=tenant_id,
-    )
-    service = SessionTransferService(transfers)
-    try:
-        return await service.import_bundle(
-            request.bundle,
-            target_tenant_id=tenant_id,
-            actor_id=str(actor.principal_id),
-            credential_rebindings=request.credential_rebindings,
-        )
-    except LookupError as exc:
-        _raise_transfer_http_error(exc, conflict=True)
-    except ValueError as exc:
-        _raise_transfer_http_error(exc, conflict=True)
 
 
 @router_3.post(

@@ -60,13 +60,12 @@ record rejection count/delay only; final successful billing remains canonical.
 - `domain` contains immutable execution and task state plus pure transition functions. It has no web or database framework imports; Pydantic validates its immutable wire contracts. Runtime launch and loop callers pass their current trace context through execution repository ports. Persistence stores that supplied context; dynamic tasks retain their worker span instead of copying the earlier submission span. `executor.trace_context.attach_current_trace_context` remains available for domain command callers.
 - `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
 - `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.
-- `domain.authentication` owns local credential and browser-session contracts without making authorization decisions. A provider-neutral authentication port resolves an external identity to an existing user principal; the local adapter verifies Argon2id password hashes, while later OIDC, SAML and LDAP adapters remain replaceable edges.
+- `domain.authentication` owns local credential and browser-session contracts without making authorization decisions. A provider-neutral authentication port resolves an external identity to an existing user principal; the local adapter verifies Argon2id password hashes, while the OIDC adapter remains a replaceable edge.
 - `dsl` parses and validates the MVP YAML model and native expression references.
 - `ports` defines repository, transaction-support, transport, runner, plugin and provider-error contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.
 - `api` and `entrypoints` translate user requests into application commands and run the CLI, service roles, server, compact supervisor, preflight and migration processes.
 - `identity`, `lifecycle` and `platform` are the canonical application-service boundaries for credentials and tenants, backfills, and operator dashboards and flow tests. They depend inward on domain and port contracts; API, adapter and entry-point layers do not flow back into them.
-- `compatibility.kestra` is the explicit Kestra import, migration, shadow and conformance feature surface.
 - PostgreSQL owns accepted commands, executions, events, task attempts, schedules, inbox/outbox messages and durable work claims.
 
 ## Source and operational package layout
@@ -93,9 +92,7 @@ Executable implementations live under `amesh.entrypoints`; console-script metada
 and Helm invoke those canonical modules. The former flat modules (`amesh.cli`, `amesh.worker`,
 `amesh.role`, `amesh.server`, `amesh.compact`, `amesh.migrations`, `amesh.preflight` and
 `amesh.deployment_profile`) remain module-identity aliases so existing imports, monkeypatches and
-`python -m` commands continue to work during migration. Kestra compatibility follows the same rule:
-new code imports `amesh.compatibility.kestra`, while `amesh.kestra_compatibility` remains an identity
-alias.
+`python -m` commands continue to work during migration.
 
 Feature services use the singular canonical modules `identity.credential`, `identity.tenant`,
 `lifecycle.backfill`, `platform.dashboard` and `platform.flow_test`. The former flat plural modules

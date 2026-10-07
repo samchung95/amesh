@@ -3,7 +3,6 @@
 # import apis into api package
 from amesh_client.api.administration_api import AdministrationApi
 from amesh_client.api.agent_session_administration_api import AgentSessionAdministrationApi
-from amesh_client.api.agent_session_transfers_api import AgentSessionTransfersApi
 from amesh_client.api.agent_sessions_api import AgentSessionsApi
 from amesh_client.api.agents_api import AgentsApi
 from amesh_client.api.apps_api import AppsApi
@@ -14,7 +13,6 @@ from amesh_client.api.authorization_api import AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi
 from amesh_client.api.blueprints_api import BlueprintsApi
 from amesh_client.api.checks_api import ChecksApi
-from amesh_client.api.compatibility_api import CompatibilityApi
 from amesh_client.api.configuration_api import ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi
@@ -33,7 +31,6 @@ from amesh_client.api.policies_api import PoliciesApi
 from amesh_client.api.quality_api import QualityApi
 from amesh_client.api.realtime_api import RealtimeApi
 from amesh_client.api.releases_api import ReleasesApi
-from amesh_client.api.scim_api import ScimApi
 from amesh_client.api.search_api import SearchApi
 from amesh_client.api.simulations_api import SimulationsApi
 from amesh_client.api.system_api import SystemApi

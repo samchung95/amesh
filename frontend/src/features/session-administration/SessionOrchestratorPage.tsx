@@ -10,7 +10,6 @@ import { useAppSettings } from '../../app/settings'
 import { AgentProgressTimeline, progressImagesFromSessionEvents } from '../agent-sessions'
 import { EmptyState, ErrorState, LoadingState } from '../../shared/ui'
 import { buildFleetQuery, compactId, dependencyLabel, dependencyTone, fleetStatusLabel, fleetStatusTone, formatFleetCost, lifecycleActions, MAX_BULK_SELECTION, selectVisibleFleetRows, toggleFleetSelection } from './sessionOrchestratorModel'
-import { SessionPortabilityPanel } from './SessionPortabilityPanel'
 
 type Filters = AgentSessionFleetQuery
 
@@ -44,8 +43,6 @@ export function SessionOrchestratorPage({ session }: { session: UiSession }) {
   const canInstanceView = session.capabilities['agentSessionAdministration.instanceView']
   const canViewPolicies = session.capabilities['agentSessionPolicies.view']
   const canManagePolicies = session.capabilities['agentSessionPolicies.manage']
-  const canViewMigration = session.capabilities['agentSessionMigration.view']
-  const canManageMigration = session.capabilities['agentSessionMigration.manage']
   const query = useMemo(() => buildFleetQuery(filters), [filters])
 
   const fleet = useQuery({
@@ -188,7 +185,6 @@ export function SessionOrchestratorPage({ session }: { session: UiSession }) {
       {fleet.data.nextCursor ? <button className="button button-secondary session-load-more" type="button" onClick={loadMore}><ChevronRight size={16} aria-hidden="true" />Load more sessions</button> : null}
       {selected ? <SessionTrace api={api} item={selected} detail={detail.data} events={events.data?.events || []} loading={detail.isPending || events.isPending} error={detail.error?.message || events.error?.message || null} locale={settings.locale} timezone={settings.timezone} /> : <section className="data-section session-trace-empty"><HistoryIcon /><div><h2>Select a session to inspect trace</h2><p>Rows open the server-redacted session detail and event APIs. Inputs, credentials, and hidden reasoning remain outside this workbench.</p></div></section>}
       {canViewPolicies ? <SessionPolicyPanel api={api} policies={policies.data || []} loading={policies.isPending} error={policies.error?.message || null} canManage={canManagePolicies} namespaceOptions={policyNamespaces} evaluationNamespace={evaluationNamespace} evaluationApplication={evaluationApplication} onEvaluationNamespace={setEvaluationNamespace} onEvaluationApplication={setEvaluationApplication} effectivePolicies={effectivePolicies.data || []} effectiveLoading={effectivePolicies.isPending} effectiveError={effectivePolicies.error?.message || null} onSaved={() => { void queryClient.invalidateQueries({ queryKey: ['admin-agent-session-policies'] }); void queryClient.invalidateQueries({ queryKey: ['admin-agent-session-policies-effective'] }); setNotice('Session policy revision saved.') }} /> : null}
-      {canViewMigration || canManageMigration ? <SessionPortabilityPanel api={api} selected={selected} namespaceOptions={policyNamespaces} canView={canViewMigration} canManage={canManageMigration} /> : null}
     </div>
   )
 }

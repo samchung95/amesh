@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Breaking: removed three surfaces that no consumer used (ADR-085). The Kestra 1.3.30
+  compatibility façade is gone: flow import, the compatibility REST routes, the `kestra` CLI group
+  and the `amesh.compatibility.kestra` and `amesh.kestra_compatibility` modules. Tenant, profile
+  and agent-session export and import are gone: the `/api/v1/admin/agent-session-transfers/*`
+  routes, the session portability panel and the `tenant-transfer` CLI. SAML and LDAP sign-in, the
+  `/scim/v2/*` API, `SCIM_PROVIDERS`, Helm `identity.scimConfigKey` and the Terraform `amesh_user`
+  and `amesh_group` resources and data sources are gone. OIDC and local sign-in are unchanged.
+  Move a whole deployment by PostgreSQL backup and restore. The OpenAPI contract, generated SDKs
+  and CLI reference drop the removed operations, and the `python3-saml` and `ldap3` dependencies
+  are removed.
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its

@@ -89,8 +89,6 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "administration.manage": False,
             "agentSessionAdministration.view": False,
             "agentSessionAdministration.instanceView": False,
-            "agentSessionMigration.manage": False,
-            "agentSessionMigration.view": False,
             "agentSessionPolicies.manage": False,
             "agentSessionPolicies.view": False,
             "agentSessions.create": False,

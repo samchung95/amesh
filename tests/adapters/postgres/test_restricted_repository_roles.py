@@ -1021,7 +1021,12 @@ def test_restricted_login_uses_tenant_and_admin_repository_boundaries(
             assert binding_a.id not in {item.id for item in await authorization.list_bindings()}
             assert await authentication.load_local_identity(principal.handle) is None
             assert await credentials.list_credentials(principal.id) == []
-            assert await federation.list_scim(f"missing-{suffix}", "User") == ()
+            await federation.record_event(
+                f"missing-{suffix}",
+                action="restricted.probe",
+                outcome="SUCCESS",
+                reason="restricted-role",
+            )
 
             checkpoint = await operations.record_backup_checkpoint(
                 f"s3://restricted-tests/{suffix}/manifest.json",

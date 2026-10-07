@@ -31,11 +31,10 @@ class PluginDocumentation(BaseModel):
     category: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
     description: Annotated[str, Field(min_length=1, strict=True, max_length=4096)]
     documentation_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, alias="documentationUrl")
-    examples: Optional[List[Optional[Dict[str, Any]]]] = None
+    examples: Optional[List[Dict[str, Any]]] = None
     icon: Optional[Annotated[str, Field(strict=True, max_length=512)]] = None
-    property_order: Optional[List[Optional[StrictStr]]] = Field(default=None, alias="propertyOrder")
+    property_order: Optional[List[StrictStr]] = Field(default=None, alias="propertyOrder")
     title: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
-    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["category", "description", "documentationUrl", "examples", "icon", "propertyOrder", "title"]
 
     model_config = ConfigDict(
@@ -68,10 +67,8 @@ class PluginDocumentation(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * Fields in `self.additional_properties` are added to the output dict.
         """
         excluded_fields: Set[str] = set([
-            "additional_properties",
         ])
 
         _dict = self.model_dump(
@@ -79,11 +76,6 @@ class PluginDocumentation(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # puts key-value pairs in additional_properties in the top level
-        if self.additional_properties is not None:
-            for _key, _value in self.additional_properties.items():
-                _dict[_key] = _value
-
         # set to None if documentation_url (nullable) is None
         # and model_fields_set contains the field
         if self.documentation_url is None and "documentation_url" in self.model_fields_set:
@@ -114,9 +106,4 @@ class PluginDocumentation(BaseModel):
             "propertyOrder": obj.get("propertyOrder"),
             "title": obj.get("title")
         })
-        # store additional fields in additional_properties
-        for _key in obj.keys():
-            if _key not in cls.__properties:
-                _obj.additional_properties[_key] = obj.get(_key)
-
         return _obj

@@ -133,20 +133,6 @@ Class | Method | HTTP request | Description
 *AgentSessionAdministrationApi* | [**listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGetWithHttpInfo**](docs/AgentSessionAdministrationApi.md#listAgentSessionPoliciesApiV1AdminAgentSessionPoliciesGetWithHttpInfo) | **GET** /api/v1/admin/agent-session-policies | List Agent Session Policies
 *AgentSessionAdministrationApi* | [**putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPut**](docs/AgentSessionAdministrationApi.md#putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPut) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
 *AgentSessionAdministrationApi* | [**putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPutWithHttpInfo**](docs/AgentSessionAdministrationApi.md#putAgentSessionPolicyApiV1AdminAgentSessionPoliciesPutWithHttpInfo) | **PUT** /api/v1/admin/agent-session-policies | Put Agent Session Policy
-*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGet**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGet) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
-*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGetWithHttpInfo**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportGetWithHttpInfo) | **GET** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
-*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPost**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPost) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
-*AgentSessionTransfersApi* | [**exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#exportAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesNamespaceAgentKeyExportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export | Export Agent Profile Transfer
-*AgentSessionTransfersApi* | [**exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPost**](docs/AgentSessionTransfersApi.md#exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPost) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
-*AgentSessionTransfersApi* | [**exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#exportAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsSessionIdExportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/sessions/{session_id}/export | Export Agent Session Transfer
-*AgentSessionTransfersApi* | [**importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPost**](docs/AgentSessionTransfersApi.md#importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPost) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
-*AgentSessionTransfersApi* | [**importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#importAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesImportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/profiles/import | Import Agent Profile Transfer
-*AgentSessionTransfersApi* | [**importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPost**](docs/AgentSessionTransfersApi.md#importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPost) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
-*AgentSessionTransfersApi* | [**importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#importAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsImportPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/sessions/import | Import Agent Session Transfer
-*AgentSessionTransfersApi* | [**planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPost**](docs/AgentSessionTransfersApi.md#planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPost) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
-*AgentSessionTransfersApi* | [**planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#planAgentProfileTransferApiV1AdminAgentSessionTransfersProfilesPlanPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/profiles/plan | Plan Agent Profile Transfer
-*AgentSessionTransfersApi* | [**planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPost**](docs/AgentSessionTransfersApi.md#planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPost) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
-*AgentSessionTransfersApi* | [**planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPostWithHttpInfo**](docs/AgentSessionTransfersApi.md#planAgentSessionTransferApiV1AdminAgentSessionTransfersSessionsPlanPostWithHttpInfo) | **POST** /api/v1/admin/agent-session-transfers/sessions/plan | Plan Agent Session Transfer
 *AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost**](docs/AgentSessionsApi.md#controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPost) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPostWithHttpInfo**](docs/AgentSessionsApi.md#controlAgentSessionApiV1AgentSessionsServiceSessionIdActionPostWithHttpInfo) | **POST** /api/v1/agent-sessions/{service_session_id}/{action} | Control Agent Session
 *AgentSessionsApi* | [**createAgentSessionApiV1AgentSessionsPost**](docs/AgentSessionsApi.md#createAgentSessionApiV1AgentSessionsPost) | **POST** /api/v1/agent-sessions | Create Agent Session
@@ -267,8 +253,6 @@ Class | Method | HTTP request | Description
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPostWithHttpInfo**](docs/AuthenticationApi.md#changeLocalPasswordApiV1AuthPasswordPostWithHttpInfo) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet**](docs/AuthenticationApi.md#completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
 *AuthenticationApi* | [**completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetWithHttpInfo**](docs/AuthenticationApi.md#completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetWithHttpInfo) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
-*AuthenticationApi* | [**completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost**](docs/AuthenticationApi.md#completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login
-*AuthenticationApi* | [**completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostWithHttpInfo**](docs/AuthenticationApi.md#completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostWithHttpInfo) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login
 *AuthenticationApi* | [**listAuthenticationProvidersApiV1AuthProvidersGet**](docs/AuthenticationApi.md#listAuthenticationProvidersApiV1AuthProvidersGet) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo**](docs/AuthenticationApi.md#listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**loginApiV1AuthLoginPost**](docs/AuthenticationApi.md#loginApiV1AuthLoginPost) | **POST** /api/v1/auth/login | Login
@@ -279,8 +263,6 @@ Class | Method | HTTP request | Description
 *AuthenticationApi* | [**logoutApiV1AuthLogoutPostWithHttpInfo**](docs/AuthenticationApi.md#logoutApiV1AuthLogoutPostWithHttpInfo) | **POST** /api/v1/auth/logout | Logout
 *AuthenticationApi* | [**revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete**](docs/AuthenticationApi.md#revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions
 *AuthenticationApi* | [**revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteWithHttpInfo**](docs/AuthenticationApi.md#revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteWithHttpInfo) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions
-*AuthenticationApi* | [**samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet**](docs/AuthenticationApi.md#samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata
-*AuthenticationApi* | [**samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetWithHttpInfo**](docs/AuthenticationApi.md#samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetWithHttpInfo) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata
 *AuthenticationApi* | [**setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut**](docs/AuthenticationApi.md#setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password
 *AuthenticationApi* | [**setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutWithHttpInfo**](docs/AuthenticationApi.md#setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutWithHttpInfo) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password
 *AuthorizationApi* | [**addGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut**](docs/AuthorizationApi.md#addGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut) | **PUT** /api/v1/admin/groups/{group_id}/members/{member_id} | Add Group Member
@@ -335,12 +317,6 @@ Class | Method | HTTP request | Description
 *ChecksApi* | [**listCheckPoliciesApiV1CheckPoliciesGetWithHttpInfo**](docs/ChecksApi.md#listCheckPoliciesApiV1CheckPoliciesGetWithHttpInfo) | **GET** /api/v1/check-policies | List Check Policies
 *ChecksApi* | [**upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut**](docs/ChecksApi.md#upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut) | **PUT** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
 *ChecksApi* | [**upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutWithHttpInfo**](docs/ChecksApi.md#upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutWithHttpInfo) | **PUT** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
-*CompatibilityApi* | [**createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost**](docs/CompatibilityApi.md#createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost) | **POST** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
-*CompatibilityApi* | [**createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo**](docs/CompatibilityApi.md#createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo) | **POST** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
-*CompatibilityApi* | [**getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet**](docs/CompatibilityApi.md#getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet) | **GET** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
-*CompatibilityApi* | [**getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetWithHttpInfo**](docs/CompatibilityApi.md#getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetWithHttpInfo) | **GET** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
-*CompatibilityApi* | [**validateKestraFlowApiV1MainFlowsValidatePost**](docs/CompatibilityApi.md#validateKestraFlowApiV1MainFlowsValidatePost) | **POST** /api/v1/main/flows/validate | Validate Kestra Flow
-*CompatibilityApi* | [**validateKestraFlowApiV1MainFlowsValidatePostWithHttpInfo**](docs/CompatibilityApi.md#validateKestraFlowApiV1MainFlowsValidatePostWithHttpInfo) | **POST** /api/v1/main/flows/validate | Validate Kestra Flow
 *ConfigurationApi* | [**evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet**](docs/ConfigurationApi.md#evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet) | **GET** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationApi* | [**evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetWithHttpInfo**](docs/ConfigurationApi.md#evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetWithHttpInfo) | **GET** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationApi* | [**getConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet**](docs/ConfigurationApi.md#getConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet) | **GET** /api/v1/configuration/diagnostics | Get Configuration Diagnostics
@@ -679,28 +655,6 @@ Class | Method | HTTP request | Description
 *ReleasesApi* | [**targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGetWithHttpInfo**](docs/ReleasesApi.md#targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGetWithHttpInfo) | **GET** /api/v1/releases/{target_kind}/{target_key}/history | Target History
 *ReleasesApi* | [**targetStateApiV1ReleasesTargetKindTargetKeyGet**](docs/ReleasesApi.md#targetStateApiV1ReleasesTargetKindTargetKeyGet) | **GET** /api/v1/releases/{target_kind}/{target_key} | Target State
 *ReleasesApi* | [**targetStateApiV1ReleasesTargetKindTargetKeyGetWithHttpInfo**](docs/ReleasesApi.md#targetStateApiV1ReleasesTargetKindTargetKeyGetWithHttpInfo) | **GET** /api/v1/releases/{target_kind}/{target_key} | Target State
-*ScimApi* | [**createScimGroupScimV2GroupsPost**](docs/ScimApi.md#createScimGroupScimV2GroupsPost) | **POST** /scim/v2/Groups | Create Scim Group
-*ScimApi* | [**createScimGroupScimV2GroupsPostWithHttpInfo**](docs/ScimApi.md#createScimGroupScimV2GroupsPostWithHttpInfo) | **POST** /scim/v2/Groups | Create Scim Group
-*ScimApi* | [**createScimUserScimV2UsersPost**](docs/ScimApi.md#createScimUserScimV2UsersPost) | **POST** /scim/v2/Users | Create Scim User
-*ScimApi* | [**createScimUserScimV2UsersPostWithHttpInfo**](docs/ScimApi.md#createScimUserScimV2UsersPostWithHttpInfo) | **POST** /scim/v2/Users | Create Scim User
-*ScimApi* | [**deleteScimGroupScimV2GroupsGroupIdDelete**](docs/ScimApi.md#deleteScimGroupScimV2GroupsGroupIdDelete) | **DELETE** /scim/v2/Groups/{group_id} | Delete Scim Group
-*ScimApi* | [**deleteScimGroupScimV2GroupsGroupIdDeleteWithHttpInfo**](docs/ScimApi.md#deleteScimGroupScimV2GroupsGroupIdDeleteWithHttpInfo) | **DELETE** /scim/v2/Groups/{group_id} | Delete Scim Group
-*ScimApi* | [**deleteScimUserScimV2UsersUserIdDelete**](docs/ScimApi.md#deleteScimUserScimV2UsersUserIdDelete) | **DELETE** /scim/v2/Users/{user_id} | Delete Scim User
-*ScimApi* | [**deleteScimUserScimV2UsersUserIdDeleteWithHttpInfo**](docs/ScimApi.md#deleteScimUserScimV2UsersUserIdDeleteWithHttpInfo) | **DELETE** /scim/v2/Users/{user_id} | Delete Scim User
-*ScimApi* | [**getScimGroupScimV2GroupsGroupIdGet**](docs/ScimApi.md#getScimGroupScimV2GroupsGroupIdGet) | **GET** /scim/v2/Groups/{group_id} | Get Scim Group
-*ScimApi* | [**getScimGroupScimV2GroupsGroupIdGetWithHttpInfo**](docs/ScimApi.md#getScimGroupScimV2GroupsGroupIdGetWithHttpInfo) | **GET** /scim/v2/Groups/{group_id} | Get Scim Group
-*ScimApi* | [**getScimUserScimV2UsersUserIdGet**](docs/ScimApi.md#getScimUserScimV2UsersUserIdGet) | **GET** /scim/v2/Users/{user_id} | Get Scim User
-*ScimApi* | [**getScimUserScimV2UsersUserIdGetWithHttpInfo**](docs/ScimApi.md#getScimUserScimV2UsersUserIdGetWithHttpInfo) | **GET** /scim/v2/Users/{user_id} | Get Scim User
-*ScimApi* | [**listScimGroupsScimV2GroupsGet**](docs/ScimApi.md#listScimGroupsScimV2GroupsGet) | **GET** /scim/v2/Groups | List Scim Groups
-*ScimApi* | [**listScimGroupsScimV2GroupsGetWithHttpInfo**](docs/ScimApi.md#listScimGroupsScimV2GroupsGetWithHttpInfo) | **GET** /scim/v2/Groups | List Scim Groups
-*ScimApi* | [**listScimUsersScimV2UsersGet**](docs/ScimApi.md#listScimUsersScimV2UsersGet) | **GET** /scim/v2/Users | List Scim Users
-*ScimApi* | [**listScimUsersScimV2UsersGetWithHttpInfo**](docs/ScimApi.md#listScimUsersScimV2UsersGetWithHttpInfo) | **GET** /scim/v2/Users | List Scim Users
-*ScimApi* | [**patchScimGroupScimV2GroupsGroupIdPatch**](docs/ScimApi.md#patchScimGroupScimV2GroupsGroupIdPatch) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
-*ScimApi* | [**patchScimGroupScimV2GroupsGroupIdPatchWithHttpInfo**](docs/ScimApi.md#patchScimGroupScimV2GroupsGroupIdPatchWithHttpInfo) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
-*ScimApi* | [**patchScimUserScimV2UsersUserIdPatch**](docs/ScimApi.md#patchScimUserScimV2UsersUserIdPatch) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
-*ScimApi* | [**patchScimUserScimV2UsersUserIdPatchWithHttpInfo**](docs/ScimApi.md#patchScimUserScimV2UsersUserIdPatchWithHttpInfo) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
-*ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGet**](docs/ScimApi.md#scimServiceProviderConfigScimV2ServiceProviderConfigGet) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
-*ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGetWithHttpInfo**](docs/ScimApi.md#scimServiceProviderConfigScimV2ServiceProviderConfigGetWithHttpInfo) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
 *SearchApi* | [**controlSearchProjectionApiV1SearchControlPost**](docs/SearchApi.md#controlSearchProjectionApiV1SearchControlPost) | **POST** /api/v1/search/control | Control Search Projection
 *SearchApi* | [**controlSearchProjectionApiV1SearchControlPostWithHttpInfo**](docs/SearchApi.md#controlSearchProjectionApiV1SearchControlPostWithHttpInfo) | **POST** /api/v1/search/control | Control Search Projection
 *SearchApi* | [**getSearchStatusApiV1SearchStatusGet**](docs/SearchApi.md#getSearchStatusApiV1SearchStatusGet) | **GET** /api/v1/search/status | Get Search Status
@@ -792,8 +746,7 @@ Class | Method | HTTP request | Description
  - AdmissionScope
  - AgentBillingCertainty
  - AgentCacheBreakpoint
- - AgentCapabilityPinInput
- - AgentCapabilityPinOutput
+ - AgentCapabilityPin
  - AgentCeilingMode
  - AgentContextPolicy
  - AgentContextReceipt
@@ -810,20 +763,11 @@ Class | Method | HTTP request | Description
  - AgentHardLimitsInput
  - AgentHardLimitsOutput
  - AgentHarnessPin
- - AgentInvocationAccountingInput
- - AgentInvocationAccountingOutput
- - AgentInvocationCostState
- - AgentInvocationKind
- - AgentInvocationRecordInput
- - AgentInvocationRecordOutput
- - AgentInvocationState
  - AgentJudgePolicyInput
  - AgentJudgePolicyOutput
  - AgentMemoryMetadata
  - AgentMemoryPolicy
  - AgentMemoryScope
- - AgentModelContinuationBinding
- - AgentModelContinuationRef
  - AgentPermissions
  - AgentProgressActivity
  - AgentProgressEvent
@@ -835,8 +779,7 @@ Class | Method | HTTP request | Description
  - AgentResolutionRequest
  - AgentResourceKind
  - AgentResourceRef
- - AgentResourceRevisionInput
- - AgentResourceRevisionOutput
+ - AgentResourceRevision
  - AgentRevisionComparison
  - AgentRouteAssessment
  - AgentRouteAvailabilitySignal
@@ -851,11 +794,9 @@ Class | Method | HTTP request | Description
  - AgentSessionBulkActionItemResult
  - AgentSessionBulkActionRequest
  - AgentSessionBulkActionResponse
- - AgentSessionCheckpoint
  - AgentSessionControlRequest
  - AgentSessionControlSummary
- - AgentSessionCountersInput
- - AgentSessionCountersOutput
+ - AgentSessionCounters
  - AgentSessionCreateRequest
  - AgentSessionDetailResponse
  - AgentSessionEvent
@@ -871,22 +812,14 @@ Class | Method | HTTP request | Description
  - AgentSessionPolicy
  - AgentSessionPolicyRevision
  - AgentSessionPolicyUpsertRequest
- - AgentSessionRecordInput
- - AgentSessionRecordOutput
  - AgentSessionResultResponse
  - AgentSessionServiceDetailResponse
  - AgentSessionServiceItem
  - AgentSessionSnapshotResponse
  - AgentSessionState
  - AgentSessionSummary
- - AgentSessionTransferProfileImportRequest
- - AgentSessionTransferProfilePlanRequest
- - AgentSessionTransferSessionExportRequest
- - AgentSessionTransferSessionImportRequest
- - AgentSessionTransferSessionPlanRequest
  - AgentStatusDetail
  - AgentTaskBrief
- - AgentTaskBriefRevision
  - AgentToolRef
  - Announcement
  - AnnouncementAudience
@@ -972,7 +905,6 @@ Class | Method | HTTP request | Description
  - ComparisonDifference
  - ComparisonPolicy
  - ComparisonReport
- - CompatibilityMapping
  - ComplianceEvidenceCategory
  - ComplianceEvidenceCreate
  - ComplianceEvidenceRecord
@@ -989,8 +921,6 @@ Class | Method | HTTP request | Description
  - Content
  - ContentAnyOfInner
  - Correlationid
- - Costamountusd
- - Costusd
  - CreateExecutionRequest
  - CreateTenantRequest
  - CredentialKind
@@ -1017,8 +947,7 @@ Class | Method | HTTP request | Description
  - DifferentialSpec
  - DnsDiagnostic
  - DynamicExecutionBound
- - EffectiveCapabilityEnvelopeInput
- - EffectiveCapabilityEnvelopeOutput
+ - EffectiveCapabilityEnvelope
  - EffectivePluginPolicy
  - EvidenceArtifact
  - EvidenceBundlePageResponse
@@ -1103,8 +1032,6 @@ Class | Method | HTTP request | Description
  - IsolatedPluginState
  - IssueCredentialRequest
  - IssuedCredentialResponse
- - KestraExecutionRequest
- - KestraFlowImport
  - KeyValueChange
  - KeyValueEntry
  - KeyValueExport
@@ -1130,7 +1057,6 @@ Class | Method | HTTP request | Description
  - LoginRequest
  - LoginResponse
  - Lte
- - MappingDisposition
  - Maxcostusd
  - Maximum
  - Maximum1
@@ -1147,7 +1073,6 @@ Class | Method | HTTP request | Description
  - McpToolImpact
  - McpToolPin
  - MetricKind
- - MigrationPatch
  - Minimum
  - Minimumrubricscore
  - Minimumscore
@@ -1291,10 +1216,6 @@ Class | Method | HTTP request | Description
  - PrincipalDefinition
  - PrincipalType
  - ProblemDetail
- - ProfileBundleInput
- - ProfileBundleOutput
- - ProfileCompatibilityReport
- - ProfileImportResult
  - Projectedcostusd
  - PromotionApplyRequest
  - PromotionEvidenceKind
@@ -1326,13 +1247,11 @@ Class | Method | HTTP request | Description
  - Relative
  - RequiredToolPlan
  - RequiredToolStep
- - ResolvedAgentEvaluationInput
- - ResolvedAgentEvaluationOutput
+ - ResolvedAgentEvaluation
  - ResolvedResourcePin
  - ResolvedToolPin
  - ResourceLifecycle
  - ResourceMetadata
- - ResourcesInner
  - ResumeTaskRequest
  - RetryPolicy
  - Revision
@@ -1349,15 +1268,6 @@ Class | Method | HTTP request | Description
  - RunnerNetworkAccess
  - RunningWorkPolicy
  - SchedulePreview
- - ScimGroupRequest
- - ScimGroupResource
- - ScimListResponse
- - ScimMember
- - ScimPatchOperation
- - ScimPatchRequest
- - ScimResourceMeta
- - ScimUserRequest
- - ScimUserResource
  - Score
  - SearchDocument
  - SearchDocumentType
@@ -1384,12 +1294,6 @@ Class | Method | HTTP request | Description
  - ServiceRoleStatus
  - ServiceState
  - ServiceTopology
- - SessionTaskRunEvent
- - SessionTransferBundleInput
- - SessionTransferBundleOutput
- - SessionTransferCompatibilityReport
- - SessionTransferImportResult
- - SessionTransferMode
  - SetLocalPasswordRequest
  - ShadowEffect
  - ShadowFixture
@@ -1427,8 +1331,6 @@ Class | Method | HTTP request | Description
  - TaskLog
  - TaskLogRecord
  - TaskMetricRecord
- - TaskRunEvent
- - TaskRunEventType
  - TaskRunLifecyclePhase
  - TaskRunState
  - TaskTimeoutMode
@@ -1438,10 +1340,6 @@ Class | Method | HTTP request | Description
  - TenantStatus
  - TimeRangeSelection
  - Tolerance
- - ToolPlanLedger
- - ToolPlanLedgerEntry
- - ToolPlanOccurrence
- - ToolPlanOccurrenceState
  - ToolProviderKind
  - TriggerActionRequest
  - TriggerOccurrence

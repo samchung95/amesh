@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -21,32 +22,31 @@ var _ MappedNullable = &AgentSessionControlSummary{}
 
 // AgentSessionControlSummary Provider-neutral control-room projection for standalone sessions.
 type AgentSessionControlSummary struct {
-	AgentRef             NullableString                     `json:"agentRef,omitempty"`
-	ApplicationId        NullableString                     `json:"applicationId,omitempty"`
-	Attempt              NullableInt32                      `json:"attempt,omitempty"`
-	Budgets              map[string]interface{}             `json:"budgets,omitempty"`
-	CapabilityPinId      NullableString                     `json:"capabilityPinId,omitempty"`
-	CompletedAt          NullableTime                       `json:"completedAt,omitempty"`
-	Counters             NullableAgentSessionCountersOutput `json:"counters,omitempty"`
-	CreatedAt            time.Time                          `json:"createdAt"`
-	EnvelopeDigest       NullableString                     `json:"envelopeDigest,omitempty"`
-	Error                NullableString                     `json:"error,omitempty"`
-	ExecutionEpoch       NullableInt32                      `json:"executionEpoch,omitempty"`
-	ExecutionId          NullableString                     `json:"executionId,omitempty"`
-	FinalResult          map[string]interface{}             `json:"finalResult,omitempty"`
-	Harness              NullableAgentHarnessPin            `json:"harness,omitempty"`
-	ModelProfile         NullableString                     `json:"modelProfile,omitempty"`
-	Namespace            NullableString                     `json:"namespace,omitempty"`
-	Phase                NullableString                     `json:"phase,omitempty"`
-	PolicyProvenance     map[string]interface{}             `json:"policyProvenance,omitempty"`
-	Result               map[string]interface{}             `json:"result,omitempty"`
-	SessionId            string                             `json:"sessionId"`
-	State                string                             `json:"state"`
-	TaskRunId            NullableString                     `json:"taskRunId,omitempty"`
-	TenantId             NullableString                     `json:"tenantId,omitempty"`
-	UpdatedAt            time.Time                          `json:"updatedAt"`
-	Version              NullableInt32                      `json:"version,omitempty"`
-	AdditionalProperties map[string]interface{}
+	AgentRef         NullableString               `json:"agentRef,omitempty"`
+	ApplicationId    NullableString               `json:"applicationId,omitempty"`
+	Attempt          NullableInt32                `json:"attempt,omitempty"`
+	Budgets          map[string]interface{}       `json:"budgets,omitempty"`
+	CapabilityPinId  NullableString               `json:"capabilityPinId,omitempty"`
+	CompletedAt      NullableTime                 `json:"completedAt,omitempty"`
+	Counters         NullableAgentSessionCounters `json:"counters,omitempty"`
+	CreatedAt        time.Time                    `json:"createdAt"`
+	EnvelopeDigest   NullableString               `json:"envelopeDigest,omitempty"`
+	Error            NullableString               `json:"error,omitempty"`
+	ExecutionEpoch   NullableInt32                `json:"executionEpoch,omitempty"`
+	ExecutionId      NullableString               `json:"executionId,omitempty"`
+	FinalResult      map[string]interface{}       `json:"finalResult,omitempty"`
+	Harness          NullableAgentHarnessPin      `json:"harness,omitempty"`
+	ModelProfile     NullableString               `json:"modelProfile,omitempty"`
+	Namespace        NullableString               `json:"namespace,omitempty"`
+	Phase            NullableString               `json:"phase,omitempty"`
+	PolicyProvenance map[string]interface{}       `json:"policyProvenance,omitempty"`
+	Result           map[string]interface{}       `json:"result,omitempty"`
+	SessionId        string                       `json:"sessionId"`
+	State            string                       `json:"state"`
+	TaskRunId        NullableString               `json:"taskRunId,omitempty"`
+	TenantId         NullableString               `json:"tenantId,omitempty"`
+	UpdatedAt        time.Time                    `json:"updatedAt"`
+	Version          NullableInt32                `json:"version,omitempty"`
 }
 
 type _AgentSessionControlSummary AgentSessionControlSummary
@@ -321,9 +321,9 @@ func (o *AgentSessionControlSummary) UnsetCompletedAt() {
 }
 
 // GetCounters returns the Counters field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *AgentSessionControlSummary) GetCounters() AgentSessionCountersOutput {
+func (o *AgentSessionControlSummary) GetCounters() AgentSessionCounters {
 	if o == nil || IsNil(o.Counters.Get()) {
-		var ret AgentSessionCountersOutput
+		var ret AgentSessionCounters
 		return ret
 	}
 	return *o.Counters.Get()
@@ -332,7 +332,7 @@ func (o *AgentSessionControlSummary) GetCounters() AgentSessionCountersOutput {
 // GetCountersOk returns a tuple with the Counters field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *AgentSessionControlSummary) GetCountersOk() (*AgentSessionCountersOutput, bool) {
+func (o *AgentSessionControlSummary) GetCountersOk() (*AgentSessionCounters, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -348,8 +348,8 @@ func (o *AgentSessionControlSummary) HasCounters() bool {
 	return false
 }
 
-// SetCounters gets a reference to the given NullableAgentSessionCountersOutput and assigns it to the Counters field.
-func (o *AgentSessionControlSummary) SetCounters(v AgentSessionCountersOutput) {
+// SetCounters gets a reference to the given NullableAgentSessionCounters and assigns it to the Counters field.
+func (o *AgentSessionControlSummary) SetCounters(v AgentSessionCounters) {
 	o.Counters.Set(&v)
 }
 
@@ -1108,11 +1108,6 @@ func (o AgentSessionControlSummary) ToMap() (map[string]interface{}, error) {
 	if o.Version.IsSet() {
 		toSerialize["version"] = o.Version.Get()
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -1143,44 +1138,15 @@ func (o *AgentSessionControlSummary) UnmarshalJSON(data []byte) (err error) {
 
 	varAgentSessionControlSummary := _AgentSessionControlSummary{}
 
-	err = json.Unmarshal(data, &varAgentSessionControlSummary)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varAgentSessionControlSummary)
 
 	if err != nil {
 		return err
 	}
 
 	*o = AgentSessionControlSummary(varAgentSessionControlSummary)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "agentRef")
-		delete(additionalProperties, "applicationId")
-		delete(additionalProperties, "attempt")
-		delete(additionalProperties, "budgets")
-		delete(additionalProperties, "capabilityPinId")
-		delete(additionalProperties, "completedAt")
-		delete(additionalProperties, "counters")
-		delete(additionalProperties, "createdAt")
-		delete(additionalProperties, "envelopeDigest")
-		delete(additionalProperties, "error")
-		delete(additionalProperties, "executionEpoch")
-		delete(additionalProperties, "executionId")
-		delete(additionalProperties, "finalResult")
-		delete(additionalProperties, "harness")
-		delete(additionalProperties, "modelProfile")
-		delete(additionalProperties, "namespace")
-		delete(additionalProperties, "phase")
-		delete(additionalProperties, "policyProvenance")
-		delete(additionalProperties, "result")
-		delete(additionalProperties, "sessionId")
-		delete(additionalProperties, "state")
-		delete(additionalProperties, "taskRunId")
-		delete(additionalProperties, "tenantId")
-		delete(additionalProperties, "updatedAt")
-		delete(additionalProperties, "version")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

@@ -19,9 +19,7 @@
  */
 export const AuthenticationProviderKind = {
     Local: 'local',
-    Oidc: 'oidc',
-    Saml: 'saml',
-    Ldap: 'ldap'
+    Oidc: 'oidc'
 } as const;
 export type AuthenticationProviderKind = typeof AuthenticationProviderKind[keyof typeof AuthenticationProviderKind];
 

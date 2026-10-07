@@ -19,31 +19,31 @@ var _ MappedNullable = &AgentSessionCreateRequest{}
 
 // AgentSessionCreateRequest Harness-neutral request for one bounded agent session.
 type AgentSessionCreateRequest struct {
-	Agent                NullableString            `json:"agent,omitempty"`
-	AgentRef             NullableString            `json:"agentRef,omitempty"`
-	AgentRevision        NullableInt32             `json:"agentRevision,omitempty"`
-	ApplicationId        NullableString            `json:"applicationId,omitempty"`
-	ApprovalTask         NullableString            `json:"approvalTask,omitempty"`
-	Budgets              map[string]interface{}    `json:"budgets,omitempty"`
-	BusinessAssertions   []*map[string]interface{} `json:"businessAssertions,omitempty"`
-	ContextPolicy        *AgentContextPolicy       `json:"contextPolicy,omitempty"`
-	DataHandling         *ModelDataEgress          `json:"dataHandling,omitempty"`
-	Harness              NullableString            `json:"harness,omitempty"`
-	IdempotencyKey       NullableString            `json:"idempotencyKey,omitempty"`
-	Input                map[string]interface{}    `json:"input,omitempty"`
-	InvalidOutputPolicy  *string                   `json:"invalidOutputPolicy,omitempty"`
-	MaxRepairAttempts    NullableInt32             `json:"maxRepairAttempts,omitempty"`
-	MemoryReadKeys       []*string                 `json:"memoryReadKeys,omitempty"`
-	MemoryWriteKey       NullableString            `json:"memoryWriteKey,omitempty"`
-	ModelProfile         NullableString            `json:"modelProfile,omitempty"`
-	Namespace            NullableString            `json:"namespace,omitempty"`
-	RequiredToolPlan     NullableRequiredToolPlan  `json:"requiredToolPlan,omitempty"`
-	Retry                *RetryPolicy              `json:"retry,omitempty"`
-	Runner               *RunnerMode               `json:"runner,omitempty"`
-	TaskBrief            NullableAgentTaskBrief    `json:"taskBrief,omitempty"`
-	TimeoutMode          *TaskTimeoutMode          `json:"timeoutMode,omitempty"`
-	TimeoutSeconds       NullableFloat32           `json:"timeoutSeconds,omitempty"`
-	ToolGrants           map[string]interface{}    `json:"toolGrants,omitempty"`
+	Agent                NullableString           `json:"agent,omitempty"`
+	AgentRef             NullableString           `json:"agentRef,omitempty"`
+	AgentRevision        NullableInt32            `json:"agentRevision,omitempty"`
+	ApplicationId        NullableString           `json:"applicationId,omitempty"`
+	ApprovalTask         NullableString           `json:"approvalTask,omitempty"`
+	Budgets              map[string]interface{}   `json:"budgets,omitempty"`
+	BusinessAssertions   []map[string]interface{} `json:"businessAssertions,omitempty"`
+	ContextPolicy        *AgentContextPolicy      `json:"contextPolicy,omitempty"`
+	DataHandling         *ModelDataEgress         `json:"dataHandling,omitempty"`
+	Harness              NullableString           `json:"harness,omitempty"`
+	IdempotencyKey       NullableString           `json:"idempotencyKey,omitempty"`
+	Input                map[string]interface{}   `json:"input,omitempty"`
+	InvalidOutputPolicy  *string                  `json:"invalidOutputPolicy,omitempty"`
+	MaxRepairAttempts    NullableInt32            `json:"maxRepairAttempts,omitempty"`
+	MemoryReadKeys       []*string                `json:"memoryReadKeys,omitempty"`
+	MemoryWriteKey       NullableString           `json:"memoryWriteKey,omitempty"`
+	ModelProfile         NullableString           `json:"modelProfile,omitempty"`
+	Namespace            NullableString           `json:"namespace,omitempty"`
+	RequiredToolPlan     NullableRequiredToolPlan `json:"requiredToolPlan,omitempty"`
+	Retry                *RetryPolicy             `json:"retry,omitempty"`
+	Runner               *RunnerMode              `json:"runner,omitempty"`
+	TaskBrief            NullableAgentTaskBrief   `json:"taskBrief,omitempty"`
+	TimeoutMode          *TaskTimeoutMode         `json:"timeoutMode,omitempty"`
+	TimeoutSeconds       NullableFloat32          `json:"timeoutSeconds,omitempty"`
+	ToolGrants           map[string]interface{}   `json:"toolGrants,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -331,9 +331,9 @@ func (o *AgentSessionCreateRequest) SetBudgets(v map[string]interface{}) {
 }
 
 // GetBusinessAssertions returns the BusinessAssertions field value if set, zero value otherwise.
-func (o *AgentSessionCreateRequest) GetBusinessAssertions() []*map[string]interface{} {
+func (o *AgentSessionCreateRequest) GetBusinessAssertions() []map[string]interface{} {
 	if o == nil || IsNil(o.BusinessAssertions) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.BusinessAssertions
@@ -341,7 +341,7 @@ func (o *AgentSessionCreateRequest) GetBusinessAssertions() []*map[string]interf
 
 // GetBusinessAssertionsOk returns a tuple with the BusinessAssertions field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *AgentSessionCreateRequest) GetBusinessAssertionsOk() ([]*map[string]interface{}, bool) {
+func (o *AgentSessionCreateRequest) GetBusinessAssertionsOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.BusinessAssertions) {
 		return nil, false
 	}
@@ -357,8 +357,8 @@ func (o *AgentSessionCreateRequest) HasBusinessAssertions() bool {
 	return false
 }
 
-// SetBusinessAssertions gets a reference to the given []*map[string]interface{} and assigns it to the BusinessAssertions field.
-func (o *AgentSessionCreateRequest) SetBusinessAssertions(v []*map[string]interface{}) {
+// SetBusinessAssertions gets a reference to the given []map[string]interface{} and assigns it to the BusinessAssertions field.
+func (o *AgentSessionCreateRequest) SetBusinessAssertions(v []map[string]interface{}) {
 	o.BusinessAssertions = v
 }
 

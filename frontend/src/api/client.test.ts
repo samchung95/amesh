@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError, createApiClient } from './client'
-import type { AgentSessionTransferBundle, AssetDraft } from './types'
+import type { AssetDraft } from './types'
 
 describe('API client', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -384,84 +384,6 @@ describe('API client', () => {
       '/api/v1/admin/agent-session-policies',
     ])
     expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ admissionEnabled: true, ceilingMode: 'BOUNDED', maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'], namespace: 'team+data', applicationId: 'research', expectedRevision: 4 })
-  })
-
-  it('builds profile and session portability export, plan, and import requests', async () => {
-    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
-    vi.stubGlobal('fetch', fetchMock)
-    const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
-    const profile = { schemaVersion: 'amesh.profile/v1', sourceTenantId: 'source', namespace: 'team+data', agentKey: 'researcher', agentRevision: 2, resources: [], mcpConnections: [], checksumSha256: 'sha256:profile' }
-    const session = {
-      activeAdmissionClaimCount: 0,
-      activeLeaseCount: 0,
-      artifacts: [],
-      checksumSha256: 'sha256:session',
-      events: [],
-      evidenceEvents: [],
-      execution: {
-        created_at: '2026-09-04T00:00:00Z',
-        created_by: 'user:test',
-        epoch: 1,
-        execution_id: '00000000-0000-4000-8000-000000000001',
-        flow_id: 'research',
-        flow_revision: 1,
-        namespace: 'team+data',
-        state: 'RUNNING',
-        tenant_id: 'source',
-        updated_at: '2026-09-04T00:00:00Z',
-        version: 1,
-      },
-      executionEvents: [],
-      invocations: [],
-      mode: 'CLEAN_CHECKPOINT',
-      schemaVersion: 'amesh.session-transfer/v1',
-      session: {
-        attempt: 1,
-        capabilityPinId: '00000000-0000-4000-8000-000000000002',
-        envelopeDigest: 'sha256:envelope',
-        executionId: '00000000-0000-4000-8000-000000000001',
-        namespace: 'team+data',
-        phase: 'READY',
-        sessionId: '00000000-0000-4000-8000-000000000003',
-        state: 'RUNNING',
-        taskRunId: '00000000-0000-4000-8000-000000000004',
-        tenantId: 'source',
-        version: 1,
-      },
-      sourceTenantId: 'source',
-      taskRunEventRecords: [],
-      taskRunEvents: [],
-      taskRuns: [],
-      unresolvedApprovalCount: 0,
-    } satisfies AgentSessionTransferBundle
-
-    await api.exportAgentSessionProfile('team+data', 'researcher')
-    await api.planAgentSessionProfileTransfer(profile, 'target/data')
-    await api.importAgentSessionProfile(profile, 'target/data')
-    await api.exportAgentSessionTransfer('session+1', 'TERMINAL_HISTORY', { 'artifact-1': 'target-artifact' })
-    await api.planAgentSessionTransfer(session, { 'provider-main': 'provider-target' })
-    await api.importAgentSessionTransfer(session, { 'provider-main': 'provider-target' })
-    await api.exportAgentSessionTransfer('session+1', 'TERMINAL_HISTORY')
-    await api.planAgentSessionTransfer(session)
-    await api.importAgentSessionTransfer(session)
-
-    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
-      '/api/v1/admin/agent-session-transfers/profiles/team%2Bdata/researcher/export',
-      '/api/v1/admin/agent-session-transfers/profiles/plan',
-      '/api/v1/admin/agent-session-transfers/profiles/import',
-      '/api/v1/admin/agent-session-transfers/sessions/session%2B1/export',
-      '/api/v1/admin/agent-session-transfers/sessions/plan',
-      '/api/v1/admin/agent-session-transfers/sessions/import',
-      '/api/v1/admin/agent-session-transfers/sessions/session%2B1/export',
-      '/api/v1/admin/agent-session-transfers/sessions/plan',
-      '/api/v1/admin/agent-session-transfers/sessions/import',
-    ])
-    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ bundle: profile, targetNamespace: 'target/data' })
-    expect(JSON.parse((fetchMock.mock.calls[3]?.[1] as RequestInit).body as string)).toEqual({ mode: 'TERMINAL_HISTORY', artifactDestinationRefs: { 'artifact-1': 'target-artifact' } })
-    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: { 'provider-main': 'provider-target' } })
-    expect(JSON.parse((fetchMock.mock.calls[5]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: { 'provider-main': 'provider-target' } })
-    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: {} })
-    expect(JSON.parse((fetchMock.mock.calls[8]?.[1] as RequestInit).body as string)).toEqual({ bundle: session, credentialRebindings: {} })
   })
 
   it('builds capability catalog and governed MCP connection requests', async () => {

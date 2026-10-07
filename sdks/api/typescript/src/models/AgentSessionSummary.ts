@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { AgentSessionCountersOutput } from './AgentSessionCountersOutput';
-import {
-    AgentSessionCountersOutputFromJSON,
-    AgentSessionCountersOutputFromJSONTyped,
-    AgentSessionCountersOutputToJSON,
-    AgentSessionCountersOutputToJSONTyped,
-} from './AgentSessionCountersOutput';
 import type { AgentSessionPhase } from './AgentSessionPhase';
 import {
     AgentSessionPhaseFromJSON,
@@ -27,6 +20,13 @@ import {
     AgentSessionPhaseToJSON,
     AgentSessionPhaseToJSONTyped,
 } from './AgentSessionPhase';
+import type { AgentSessionCounters } from './AgentSessionCounters';
+import {
+    AgentSessionCountersFromJSON,
+    AgentSessionCountersFromJSONTyped,
+    AgentSessionCountersToJSON,
+    AgentSessionCountersToJSONTyped,
+} from './AgentSessionCounters';
 import type { AgentSessionState } from './AgentSessionState';
 import {
     AgentSessionStateFromJSON,
@@ -93,10 +93,10 @@ export interface AgentSessionSummary {
     contextReceipt?: AgentContextReceipt | null;
     /**
      *
-     * @type {AgentSessionCountersOutput}
+     * @type {AgentSessionCounters}
      * @memberof AgentSessionSummary
      */
-    counters: AgentSessionCountersOutput;
+    counters: AgentSessionCounters;
     /**
      *
      * @type {Date}
@@ -234,7 +234,7 @@ export function AgentSessionSummaryFromJSONTyped(json: any, ignoreDiscriminator:
         'capabilityPinId': json['capabilityPinId'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
         'contextReceipt': json['contextReceipt'] === undefined ? undefined : json['contextReceipt'] === null ? null : AgentContextReceiptFromJSON(json['contextReceipt']),
-        'counters': AgentSessionCountersOutputFromJSON(json['counters']),
+        'counters': AgentSessionCountersFromJSON(json['counters']),
         'createdAt': (new Date(json['createdAt'])),
         'envelopeDigest': json['envelopeDigest'],
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
@@ -271,7 +271,7 @@ export function AgentSessionSummaryToJSONTyped(value?: AgentSessionSummary | nul
         'capabilityPinId': value['capabilityPinId'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
         'contextReceipt': AgentContextReceiptToJSON(value['contextReceipt']),
-        'counters': AgentSessionCountersOutputToJSON(value['counters']),
+        'counters': AgentSessionCountersToJSON(value['counters']),
         'createdAt': value['createdAt'].toISOString(),
         'envelopeDigest': value['envelopeDigest'],
         'error': value['error'],

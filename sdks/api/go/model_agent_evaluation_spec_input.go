@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,17 +21,16 @@ var _ MappedNullable = &AgentEvaluationSpecInput{}
 
 // AgentEvaluationSpecInput struct for AgentEvaluationSpecInput
 type AgentEvaluationSpecInput struct {
-	Assertions           []map[string]interface{}      `json:"assertions,omitempty"`
-	Description          *string                       `json:"description,omitempty"`
-	Fixtures             []AgentEvaluationFixture      `json:"fixtures,omitempty"`
-	Judge                NullableAgentJudgePolicyInput `json:"judge,omitempty"`
-	Key                  string                        `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Kind                 *string                       `json:"kind,omitempty"`
-	MinimumRubricScore   *Minimumrubricscore           `json:"minimumRubricScore,omitempty"`
-	Namespace            string                        `json:"namespace"`
-	Rubric               []AgentRubricCriterionInput   `json:"rubric,omitempty"`
-	Title                string                        `json:"title"`
-	AdditionalProperties map[string]interface{}
+	Assertions         []map[string]interface{}      `json:"assertions,omitempty"`
+	Description        *string                       `json:"description,omitempty"`
+	Fixtures           []AgentEvaluationFixture      `json:"fixtures,omitempty"`
+	Judge              NullableAgentJudgePolicyInput `json:"judge,omitempty"`
+	Key                string                        `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Kind               *string                       `json:"kind,omitempty"`
+	MinimumRubricScore *Minimumrubricscore           `json:"minimumRubricScore,omitempty"`
+	Namespace          string                        `json:"namespace"`
+	Rubric             []AgentRubricCriterionInput   `json:"rubric,omitempty"`
+	Title              string                        `json:"title"`
 }
 
 type _AgentEvaluationSpecInput AgentEvaluationSpecInput
@@ -404,11 +404,6 @@ func (o AgentEvaluationSpecInput) ToMap() (map[string]interface{}, error) {
 		toSerialize["rubric"] = o.Rubric
 	}
 	toSerialize["title"] = o.Title
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -438,29 +433,15 @@ func (o *AgentEvaluationSpecInput) UnmarshalJSON(data []byte) (err error) {
 
 	varAgentEvaluationSpecInput := _AgentEvaluationSpecInput{}
 
-	err = json.Unmarshal(data, &varAgentEvaluationSpecInput)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varAgentEvaluationSpecInput)
 
 	if err != nil {
 		return err
 	}
 
 	*o = AgentEvaluationSpecInput(varAgentEvaluationSpecInput)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "assertions")
-		delete(additionalProperties, "description")
-		delete(additionalProperties, "fixtures")
-		delete(additionalProperties, "judge")
-		delete(additionalProperties, "key")
-		delete(additionalProperties, "kind")
-		delete(additionalProperties, "minimumRubricScore")
-		delete(additionalProperties, "namespace")
-		delete(additionalProperties, "rubric")
-		delete(additionalProperties, "title")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

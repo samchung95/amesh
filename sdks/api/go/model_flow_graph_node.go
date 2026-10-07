@@ -22,7 +22,7 @@ var _ MappedNullable = &FlowGraphNode{}
 // FlowGraphNode struct for FlowGraphNode
 type FlowGraphNode struct {
 	BranchId       NullableString         `json:"branchId,omitempty"`
-	Children       []*string              `json:"children,omitempty"`
+	Children       []string               `json:"children,omitempty"`
 	Dependencies   []string               `json:"dependencies,omitempty"`
 	Depth          int32                  `json:"depth"`
 	FailurePolicy  string                 `json:"failurePolicy"`
@@ -113,9 +113,9 @@ func (o *FlowGraphNode) UnsetBranchId() {
 }
 
 // GetChildren returns the Children field value if set, zero value otherwise.
-func (o *FlowGraphNode) GetChildren() []*string {
+func (o *FlowGraphNode) GetChildren() []string {
 	if o == nil || IsNil(o.Children) {
-		var ret []*string
+		var ret []string
 		return ret
 	}
 	return o.Children
@@ -123,7 +123,7 @@ func (o *FlowGraphNode) GetChildren() []*string {
 
 // GetChildrenOk returns a tuple with the Children field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *FlowGraphNode) GetChildrenOk() ([]*string, bool) {
+func (o *FlowGraphNode) GetChildrenOk() ([]string, bool) {
 	if o == nil || IsNil(o.Children) {
 		return nil, false
 	}
@@ -139,8 +139,8 @@ func (o *FlowGraphNode) HasChildren() bool {
 	return false
 }
 
-// SetChildren gets a reference to the given []*string and assigns it to the Children field.
-func (o *FlowGraphNode) SetChildren(v []*string) {
+// SetChildren gets a reference to the given []string and assigns it to the Children field.
+func (o *FlowGraphNode) SetChildren(v []string) {
 	o.Children = v
 }
 

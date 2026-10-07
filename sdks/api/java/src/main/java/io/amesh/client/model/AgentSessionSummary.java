@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AgentContextReceipt;
 import io.amesh.client.model.AgentHarnessPin;
-import io.amesh.client.model.AgentSessionCountersOutput;
+import io.amesh.client.model.AgentSessionCounters;
 import io.amesh.client.model.AgentSessionPhase;
 import io.amesh.client.model.AgentSessionState;
 import java.time.OffsetDateTime;
@@ -94,7 +94,7 @@ public class AgentSessionSummary {
 
   public static final String JSON_PROPERTY_COUNTERS = "counters";
   @javax.annotation.Nonnull
-  private AgentSessionCountersOutput counters;
+  private AgentSessionCounters counters;
 
   public static final String JSON_PROPERTY_CREATED_AT = "createdAt";
   @javax.annotation.Nonnull
@@ -335,7 +335,7 @@ public class AgentSessionSummary {
   }
 
 
-  public AgentSessionSummary counters(@javax.annotation.Nonnull AgentSessionCountersOutput counters) {
+  public AgentSessionSummary counters(@javax.annotation.Nonnull AgentSessionCounters counters) {
     this.counters = counters;
     return this;
   }
@@ -347,14 +347,14 @@ public class AgentSessionSummary {
   @javax.annotation.Nonnull
   @JsonProperty(value = JSON_PROPERTY_COUNTERS, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public AgentSessionCountersOutput getCounters() {
+  public AgentSessionCounters getCounters() {
     return counters;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_COUNTERS, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setCounters(@javax.annotation.Nonnull AgentSessionCountersOutput counters) {
+  public void setCounters(@javax.annotation.Nonnull AgentSessionCounters counters) {
     this.counters = counters;
   }
 

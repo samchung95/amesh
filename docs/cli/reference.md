@@ -8,7 +8,7 @@ Generated from `build_parser()`.
 usage: amesh [-h] [--version] [--api-url API_URL] [--token TOKEN]
              [--tenant TENANT] [--profile PROFILE] [--config-path CONFIG_PATH]
              [--output {human,json,quiet}] [--quiet]
-             {validate,apply,flows,executions,run,execution,logs,evidence,webhook,plugins,namespace,agent,session,auth,config,flow,admin,lifecycle,releases,differential,upgrade,kestra,completion,command-docs,storage,recovery,tenant-transfer} ...
+             {validate,apply,flows,executions,run,execution,logs,evidence,webhook,plugins,namespace,agent,session,auth,config,flow,admin,lifecycle,releases,differential,upgrade,completion,command-docs,storage,recovery} ...
 ```
 
 ## `amesh admin`
@@ -333,64 +333,6 @@ usage: amesh flow test [-h] --revision REVISION [--test-id TEST_ID]
 
 ```text
 usage: amesh flows [-h]
-```
-
-## `amesh kestra`
-
-```text
-usage: amesh kestra [-h] {flow,migration,compatibility} ...
-```
-
-## `amesh kestra compatibility`
-
-```text
-usage: amesh kestra compatibility [-h] {manifest} ...
-```
-
-## `amesh kestra compatibility manifest`
-
-```text
-usage: amesh kestra compatibility manifest [-h]
-```
-
-## `amesh kestra flow`
-
-```text
-usage: amesh kestra flow [-h] {validate,migrate} ...
-```
-
-## `amesh kestra flow migrate`
-
-```text
-usage: amesh kestra flow migrate [-h] --output-path OUTPUT_PATH path
-```
-
-## `amesh kestra flow validate`
-
-```text
-usage: amesh kestra flow validate [-h] path
-```
-
-## `amesh kestra migration`
-
-```text
-usage: amesh kestra migration [-h] {plan,import} ...
-```
-
-## `amesh kestra migration import`
-
-```text
-usage: amesh kestra migration import [-h] --target-dir TARGET_DIR
-                                     [--max-records MAX_RECORDS]
-                                     [--secret-binding SECRET_BINDING]
-                                     bundle
-```
-
-## `amesh kestra migration plan`
-
-```text
-usage: amesh kestra migration plan [-h] [--secret-binding SECRET_BINDING]
-                                   bundle
 ```
 
 ## `amesh lifecycle`
@@ -885,24 +827,6 @@ usage: amesh storage migrate [-h] --checkpoint CHECKPOINT destination_config
 
 ```text
 usage: amesh storage validate [-h] [--metadata-only]
-```
-
-## `amesh tenant-transfer`
-
-```text
-usage: amesh tenant-transfer [-h] {export,import} ...
-```
-
-## `amesh tenant-transfer export`
-
-```text
-usage: amesh tenant-transfer export [-h] [--actor ACTOR] tenant_slug path
-```
-
-## `amesh tenant-transfer import`
-
-```text
-usage: amesh tenant-transfer import [-h] [--actor ACTOR] path target_slug
 ```
 
 ## `amesh upgrade`

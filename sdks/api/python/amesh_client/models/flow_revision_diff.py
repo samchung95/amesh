@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,7 +30,7 @@ class FlowRevisionDiff(BaseModel):
     """ # noqa: E501
     from_revision: Annotated[int, Field(strict=True, ge=1)]
     human: StrictStr
-    operations: List[Optional[Dict[str, Any]]]
+    operations: List[Dict[str, Any]]
     to_revision: Annotated[int, Field(strict=True, ge=1)]
     __properties: ClassVar[List[str]] = ["from_revision", "human", "operations", "to_revision"]
 

@@ -49,13 +49,6 @@ from amesh.ports import (
     PersistedTaskRunSummary,
     TaskCacheMode,
 )
-from amesh.profile_transfer import (
-    ProfileBundle,
-)
-from amesh.session_transfer import (
-    SessionTransferBundle,
-    SessionTransferMode,
-)
 
 
 class HealthResponse(BaseModel):
@@ -305,86 +298,6 @@ class RevokedSessionsResponse(BaseModel):
     revoked_count: int = Field(alias="revokedCount", ge=0)
 
 
-class ScimMember(BaseModel):
-    value: UUID
-    display: str | None = None
-
-
-class ScimUserRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schemas: tuple[str, ...] = ("urn:ietf:params:scim:schemas:core:2.0:User",)
-    external_id: str | None = Field(default=None, alias="externalId", max_length=2048)
-    user_name: str = Field(alias="userName", min_length=1, max_length=128)
-    display_name: str | None = Field(default=None, alias="displayName", max_length=255)
-    active: bool = True
-
-
-class ScimGroupRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schemas: tuple[str, ...] = ("urn:ietf:params:scim:schemas:core:2.0:Group",)
-    external_id: str | None = Field(default=None, alias="externalId", max_length=2048)
-    display_name: str = Field(alias="displayName", min_length=1, max_length=255)
-    members: tuple[ScimMember, ...] = ()
-
-
-class ScimPatchOperation(BaseModel):
-    op: str = Field(min_length=3, max_length=16)
-    path: str | None = Field(default=None, max_length=255)
-    value: Any = None
-
-
-class ScimPatchRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schemas: tuple[str, ...] = ("urn:ietf:params:scim:api:messages:2.0:PatchOp",)
-    operations: tuple[ScimPatchOperation, ...] = Field(alias="Operations", min_length=1)
-
-
-class ScimResourceMeta(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    resource_type: str = Field(alias="resourceType")
-    created: datetime
-    last_modified: datetime = Field(alias="lastModified")
-    version: str
-    location: str
-
-
-class ScimUserResource(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schemas: tuple[str, ...] = ("urn:ietf:params:scim:schemas:core:2.0:User",)
-    id: UUID
-    external_id: str | None = Field(default=None, alias="externalId")
-    user_name: str = Field(alias="userName")
-    display_name: str = Field(alias="displayName")
-    active: bool
-    meta: ScimResourceMeta
-
-
-class ScimGroupResource(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schemas: tuple[str, ...] = ("urn:ietf:params:scim:schemas:core:2.0:Group",)
-    id: UUID
-    external_id: str | None = Field(default=None, alias="externalId")
-    display_name: str = Field(alias="displayName")
-    members: tuple[ScimMember, ...] = ()
-    meta: ScimResourceMeta
-
-
-class ScimListResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    schemas: tuple[str, ...] = ("urn:ietf:params:scim:api:messages:2.0:ListResponse",)
-    total_results: int = Field(alias="totalResults", ge=0)
-    start_index: int = Field(default=1, alias="startIndex", ge=1)
-    items_per_page: int = Field(alias="itemsPerPage", ge=0)
-    resources: tuple[ScimUserResource | ScimGroupResource, ...] = Field(alias="Resources")
-
-
 class ReduceExecutionRequest(BaseModel):
     snapshot: ExecutionSnapshot
     events: list[ExecutionEvent] = Field(min_length=1)
@@ -411,14 +324,6 @@ class CreateExecutionRequest(BaseModel):
     runner: RunnerMode = RunnerMode.LOCAL
     idempotency_key: str | None = Field(default=None, alias="idempotencyKey")
     cache_mode: TaskCacheMode = Field(default=TaskCacheMode.USE, alias="cacheMode")
-
-
-class KestraExecutionRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid")
-
-    inputs: dict[str, Any] = Field(default_factory=dict)
-    runner: RunnerMode = RunnerMode.LOCAL
-    idempotency_key: str | None = Field(default=None, alias="idempotencyKey")
 
 
 class TaskCachePurgeRequest(BaseModel):
@@ -688,39 +593,6 @@ class AgentSessionHarnessCatalogEntry(BaseModel):
     adapter: str
     adapter_version: str = Field(alias="adapterVersion")
     protocol: str
-
-
-class AgentSessionTransferProfilePlanRequest(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    bundle: ProfileBundle
-    target_namespace: str | None = Field(default=None, alias="targetNamespace")
-
-
-class AgentSessionTransferProfileImportRequest(AgentSessionTransferProfilePlanRequest):
-    pass
-
-
-class AgentSessionTransferSessionExportRequest(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    mode: SessionTransferMode
-    artifact_destination_refs: dict[str, str] = Field(
-        default_factory=dict, alias="artifactDestinationRefs"
-    )
-
-
-class AgentSessionTransferSessionPlanRequest(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    bundle: SessionTransferBundle
-    credential_rebindings: dict[str, str] = Field(
-        default_factory=dict, alias="credentialRebindings"
-    )
-
-
-class AgentSessionTransferSessionImportRequest(AgentSessionTransferSessionPlanRequest):
-    pass
 
 
 class AgentSessionServiceDetailResponse(BaseModel):

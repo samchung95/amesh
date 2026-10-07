@@ -1,4 +1,4 @@
-import { apiOperation, type ApiJsonRequestBody, type ApiQueryParameters } from '../openapi'
+import { apiOperation, type ApiQueryParameters } from '../openapi'
 import type {
   AgentSessionSummary,
   AgentSessionControlEventPage,
@@ -7,7 +7,6 @@ import type {
   AgentSessionAdminActionRequest,
   AgentSessionFleetQuery,
   AgentSessionPolicyDraft,
-  AgentSessionTransferMode,
   AgentSessionCreateDraft,
   AgentSessionLaunchResponse,
   AgentSessionLifecycleState,
@@ -166,45 +165,6 @@ export function createSessionsResource(transport: ApiTransport) {
           applicationId: input.applicationId,
           expectedRevision: input.expectedRevision,
       },
-      }),
-    exportAgentSessionProfile: async (namespace: string, agentKey: string) =>
-      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/profiles/{namespace}/{agent_key}/export', 'get', `/api/v1/admin/agent-session-transfers/profiles/${encodeURIComponent(namespace)}/${encodeURIComponent(agentKey)}/export`)),
-    planAgentSessionProfileTransfer: async (
-      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/profiles/plan', 'post'>['bundle'],
-      targetNamespace?: string,
-    ) =>
-      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/profiles/plan', 'post', '/api/v1/admin/agent-session-transfers/profiles/plan'), {
-        headers: { 'Content-Type': 'application/json' },
-        json: { bundle, targetNamespace },
-      }),
-    importAgentSessionProfile: async (
-      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/profiles/import', 'post'>['bundle'],
-      targetNamespace?: string,
-    ) =>
-      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/profiles/import', 'post', '/api/v1/admin/agent-session-transfers/profiles/import'), {
-        headers: { 'Content-Type': 'application/json' },
-        json: { bundle, targetNamespace },
-      }),
-    exportAgentSessionTransfer: async (sessionId: string, mode: AgentSessionTransferMode, artifactDestinationRefs: Record<string, string> = {}) =>
-      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/sessions/{session_id}/export', 'post', `/api/v1/admin/agent-session-transfers/sessions/${encodeURIComponent(sessionId)}/export`), {
-        headers: { 'Content-Type': 'application/json' },
-        json: { mode, artifactDestinationRefs },
-      }),
-    planAgentSessionTransfer: async (
-      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/sessions/plan', 'post'>['bundle'],
-      credentialRebindings: Record<string, string> = {},
-    ) =>
-      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/sessions/plan', 'post', '/api/v1/admin/agent-session-transfers/sessions/plan'), {
-        headers: { 'Content-Type': 'application/json' },
-        json: { bundle, credentialRebindings },
-      }),
-    importAgentSessionTransfer: async (
-      bundle: ApiJsonRequestBody<'/api/v1/admin/agent-session-transfers/sessions/import', 'post'>['bundle'],
-      credentialRebindings: Record<string, string> = {},
-    ) =>
-      transport.request(apiOperation('/api/v1/admin/agent-session-transfers/sessions/import', 'post', '/api/v1/admin/agent-session-transfers/sessions/import'), {
-        headers: { 'Content-Type': 'application/json' },
-        json: { bundle, credentialRebindings },
       }),
     agentSessionFleetActions: async (input: AgentSessionAdminActionRequest) =>
       transport.request(apiOperation('/api/v1/admin/agent-sessions/actions', 'post', '/api/v1/admin/agent-sessions/actions'), {

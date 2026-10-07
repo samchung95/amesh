@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,10 +21,9 @@ var _ MappedNullable = &OpenAIResponseOutputText{}
 
 // OpenAIResponseOutputText struct for OpenAIResponseOutputText
 type OpenAIResponseOutputText struct {
-	Annotations          []*map[string]interface{} `json:"annotations,omitempty"`
-	Text                 string                    `json:"text"`
-	Type                 *string                   `json:"type,omitempty"`
-	AdditionalProperties map[string]interface{}
+	Annotations []map[string]interface{} `json:"annotations,omitempty"`
+	Text        string                   `json:"text"`
+	Type        *string                  `json:"type,omitempty"`
 }
 
 type _OpenAIResponseOutputText OpenAIResponseOutputText
@@ -51,9 +51,9 @@ func NewOpenAIResponseOutputTextWithDefaults() *OpenAIResponseOutputText {
 }
 
 // GetAnnotations returns the Annotations field value if set, zero value otherwise.
-func (o *OpenAIResponseOutputText) GetAnnotations() []*map[string]interface{} {
+func (o *OpenAIResponseOutputText) GetAnnotations() []map[string]interface{} {
 	if o == nil || IsNil(o.Annotations) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.Annotations
@@ -61,7 +61,7 @@ func (o *OpenAIResponseOutputText) GetAnnotations() []*map[string]interface{} {
 
 // GetAnnotationsOk returns a tuple with the Annotations field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *OpenAIResponseOutputText) GetAnnotationsOk() ([]*map[string]interface{}, bool) {
+func (o *OpenAIResponseOutputText) GetAnnotationsOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Annotations) {
 		return nil, false
 	}
@@ -77,8 +77,8 @@ func (o *OpenAIResponseOutputText) HasAnnotations() bool {
 	return false
 }
 
-// SetAnnotations gets a reference to the given []*map[string]interface{} and assigns it to the Annotations field.
-func (o *OpenAIResponseOutputText) SetAnnotations(v []*map[string]interface{}) {
+// SetAnnotations gets a reference to the given []map[string]interface{} and assigns it to the Annotations field.
+func (o *OpenAIResponseOutputText) SetAnnotations(v []map[string]interface{}) {
 	o.Annotations = v
 }
 
@@ -155,11 +155,6 @@ func (o OpenAIResponseOutputText) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Type) {
 		toSerialize["type"] = o.Type
 	}
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -187,22 +182,15 @@ func (o *OpenAIResponseOutputText) UnmarshalJSON(data []byte) (err error) {
 
 	varOpenAIResponseOutputText := _OpenAIResponseOutputText{}
 
-	err = json.Unmarshal(data, &varOpenAIResponseOutputText)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varOpenAIResponseOutputText)
 
 	if err != nil {
 		return err
 	}
 
 	*o = OpenAIResponseOutputText(varOpenAIResponseOutputText)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "annotations")
-		delete(additionalProperties, "text")
-		delete(additionalProperties, "type")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

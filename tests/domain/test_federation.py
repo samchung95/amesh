@@ -4,23 +4,16 @@ import asyncio
 import base64
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Never
 from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
 import httpx
 import pytest
-from cryptography import x509
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.x509.oid import NameOID
 from joserfc import jwt
 from joserfc.jwk import RSAKey
-from pydantic import SecretStr
 
 from amesh.config import IdentityGroupMapping, IdentityProviderConfig
 from amesh.domain import (
-    AuthenticationRequest,
     FederatedClaims,
     FederationState,
     ProviderIdentity,
@@ -28,28 +21,18 @@ from amesh.domain import (
 from amesh.federation import (
     FederationProviderUnavailable,
     IdentityFederationService,
-    LdapAuthenticationProvider,
 )
 from amesh.ports.federation_repository import FederationStateRejected
 
 
 class MemoryFederationRepository:
-    async def _unsupported_scim(self, *args: object, **kwargs: object) -> Never:
-        raise AssertionError("SCIM provisioning is outside this identity fixture")
-
-    list_scim = get_scim = create_scim = update_scim = delete_scim = _unsupported_scim
-
     def __init__(self) -> None:
         self.states: dict[str, FederationState] = {}
         self.claims: list[FederatedClaims] = []
         self.events: list[tuple[str, str]] = []
-        self.assertions: set[tuple[str, str]] = set()
 
     async def create_state(self, token: str, state: FederationState) -> None:
         self.states[token] = state
-
-    async def attach_request_id(self, token: str, request_id: str) -> None:
-        self.states[token] = self.states[token].model_copy(update={"request_id": request_id})
 
     async def consume_state(
         self,
@@ -91,19 +74,6 @@ class MemoryFederationRepository:
     ) -> None:
         del action, evidence
         self.events.append((provider_id, f"{outcome}:{reason}"))
-
-    async def record_assertion(
-        self,
-        provider_id: str,
-        assertion_id: str,
-        *,
-        expires_at: datetime,
-    ) -> None:
-        del expires_at
-        identity = (provider_id, assertion_id)
-        if identity in self.assertions:
-            raise PermissionError("replay")
-        self.assertions.add(identity)
 
 
 class SessionIssuer:
@@ -251,130 +221,5 @@ def test_oidc_pkce_rotation_clock_skew_replay_routing_and_outage(tmp_path: Path)
         )
         with pytest.raises(FederationProviderUnavailable):
             await offline.begin_oidc(provider.id, tenant="default", return_to="/")
-
-    asyncio.run(scenario())
-
-
-def _write_certificate_pair(tmp_path: Path, name: str) -> tuple[Path, Path]:
-    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, name)])
-    certificate = (
-        x509.CertificateBuilder()
-        .subject_name(subject)
-        .issuer_name(subject)
-        .public_key(key.public_key())
-        .serial_number(x509.random_serial_number())
-        .not_valid_before(datetime.now(UTC) - timedelta(minutes=1))
-        .not_valid_after(datetime.now(UTC) + timedelta(days=30))
-        .sign(key, hashes.SHA256())
-    )
-    key_file = tmp_path / f"{name}.key"
-    cert_file = tmp_path / f"{name}.crt"
-    key_file.write_bytes(
-        key.private_bytes(
-            serialization.Encoding.PEM,
-            serialization.PrivateFormat.PKCS8,
-            serialization.NoEncryption(),
-        )
-    )
-    cert_file.write_bytes(certificate.public_bytes(serialization.Encoding.PEM))
-    return key_file, cert_file
-
-
-def test_saml_metadata_publishes_key_rotation_and_signed_request(tmp_path: Path) -> None:
-    async def scenario() -> None:
-        key_file, cert_file = _write_certificate_pair(tmp_path, "current")
-        _, next_cert_file = _write_certificate_pair(tmp_path, "next")
-        provider = IdentityProviderConfig.model_validate(
-            {
-                "id": "corporate-saml",
-                "kind": "saml",
-                "displayName": "Corporate SAML",
-                "subjectClaim": "NameID",
-                "emailClaim": "email",
-                "displayClaim": "displayName",
-                "idpEntityId": "https://idp.example.test/metadata",
-                "ssoUrl": "https://idp.example.test/sso",
-                "idpSigningCertFiles": [str(cert_file), str(next_cert_file)],
-                "spEntityId": "https://amesh.example.test/saml/metadata",
-                "acsUrl": "https://amesh.example.test/api/v1/auth/federated/corporate-saml/callback",
-                "spCertFile": str(cert_file),
-                "spPrivateKeyFile": str(key_file),
-                "nextSpCertFile": str(next_cert_file),
-            }
-        )
-        repository = MemoryFederationRepository()
-        service = IdentityFederationService(
-            repository,
-            SessionIssuer(),  # type: ignore[arg-type]
-            (provider,),
-        )
-        metadata = service.saml_metadata(provider.id)
-        assert metadata.count("X509Certificate") >= 4
-        location = await service.begin_saml(
-            provider.id,
-            {
-                "https": "on",
-                "http_host": "amesh.example.test",
-                "server_port": "443",
-                "script_name": "/login",
-                "get_data": {},
-                "post_data": {},
-            },
-            tenant=None,
-            return_to="/flows",
-        )
-        query = parse_qs(urlparse(location).query)
-        assert {"SAMLRequest", "RelayState", "SigAlg", "Signature"} <= query.keys()
-        stored = repository.states[query["RelayState"][0]]
-        assert stored.request_id
-        assert stored.return_to == "/flows"
-
-    asyncio.run(scenario())
-
-
-def test_ldap_provider_maps_tls_authenticated_claims(monkeypatch: pytest.MonkeyPatch) -> None:
-    async def scenario() -> None:
-        provider = IdentityProviderConfig.model_validate(
-            {
-                "id": "directory",
-                "kind": "ldap",
-                "displayName": "Corporate directory",
-                "domains": ["example.com"],
-                "ldapHost": "ldap.example.com",
-                "ldapCaFile": "/mounted/ca.pem",
-                "ldapUserDnTemplate": "uid={identifier},ou=people,dc=example,dc=com",
-                "groupMappings": [{"external": "Operators", "platformGroup": "operators"}],
-            }
-        )
-        repository = MemoryFederationRepository()
-
-        def accepted(
-            _provider: IdentityProviderConfig,
-            identifier: str,
-            secret: SecretStr,
-        ) -> dict[str, object]:
-            assert identifier == "ada"
-            assert secret.get_secret_value() == "password"
-            return {
-                "subject": "uid=ada,ou=people,dc=example,dc=com",
-                "email": "ada@example.com",
-                "display": "Ada Lovelace",
-                "groups": ["Operators"],
-            }
-
-        monkeypatch.setattr("amesh.federation._ldap_bind_and_claims", accepted)
-        ldap = LdapAuthenticationProvider(provider, repository)
-        identity = await ldap.authenticate(
-            AuthenticationRequest(
-                provider="directory",
-                identifier="ada",
-                secret=SecretStr("password"),
-            ),
-            now=datetime.now(UTC),
-        )
-        assert identity is not None
-        assert ldap.descriptor.login_mode == "password"
-        assert repository.claims[0].email == "ada@example.com"
 
     asyncio.run(scenario())

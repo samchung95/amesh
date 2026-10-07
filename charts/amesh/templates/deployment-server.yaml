@@ -46,11 +46,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.identity.providerConfigExistingSecret | quote }}
                   key: {{ .Values.identity.providerConfigKey | quote }}
-            - name: SCIM_PROVIDERS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.identity.providerConfigExistingSecret | quote }}
-                  key: {{ .Values.identity.scimConfigKey | quote }}
             {{- end }}
             - name: SERVICE_ROLE
               value: webserver

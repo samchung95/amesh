@@ -22,16 +22,16 @@ var _ MappedNullable = &ConfigurationDiagnosticBundle{}
 
 // ConfigurationDiagnosticBundle struct for ConfigurationDiagnosticBundle
 type ConfigurationDiagnosticBundle struct {
-	ComponentHealth map[string]string         `json:"componentHealth"`
-	Configuration   ConfigurationSnapshot     `json:"configuration"`
-	FeatureFlags    []FeatureFlag             `json:"featureFlags"`
-	GeneratedAt     time.Time                 `json:"generatedAt"`
-	Namespace       NullableString            `json:"namespace,omitempty"`
-	RecentErrors    []*map[string]interface{} `json:"recentErrors"`
-	SchemaVersion   *int32                    `json:"schemaVersion,omitempty"`
-	SelectedMetrics map[string]float32        `json:"selectedMetrics"`
-	TenantId        string                    `json:"tenantId"`
-	VersionMatrix   map[string]string         `json:"versionMatrix"`
+	ComponentHealth map[string]string        `json:"componentHealth"`
+	Configuration   ConfigurationSnapshot    `json:"configuration"`
+	FeatureFlags    []FeatureFlag            `json:"featureFlags"`
+	GeneratedAt     time.Time                `json:"generatedAt"`
+	Namespace       NullableString           `json:"namespace,omitempty"`
+	RecentErrors    []map[string]interface{} `json:"recentErrors"`
+	SchemaVersion   *int32                   `json:"schemaVersion,omitempty"`
+	SelectedMetrics map[string]float32       `json:"selectedMetrics"`
+	TenantId        string                   `json:"tenantId"`
+	VersionMatrix   map[string]string        `json:"versionMatrix"`
 }
 
 type _ConfigurationDiagnosticBundle ConfigurationDiagnosticBundle
@@ -40,7 +40,7 @@ type _ConfigurationDiagnosticBundle ConfigurationDiagnosticBundle
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewConfigurationDiagnosticBundle(componentHealth map[string]string, configuration ConfigurationSnapshot, featureFlags []FeatureFlag, generatedAt time.Time, recentErrors []*map[string]interface{}, selectedMetrics map[string]float32, tenantId string, versionMatrix map[string]string) *ConfigurationDiagnosticBundle {
+func NewConfigurationDiagnosticBundle(componentHealth map[string]string, configuration ConfigurationSnapshot, featureFlags []FeatureFlag, generatedAt time.Time, recentErrors []map[string]interface{}, selectedMetrics map[string]float32, tenantId string, versionMatrix map[string]string) *ConfigurationDiagnosticBundle {
 	this := ConfigurationDiagnosticBundle{}
 	this.ComponentHealth = componentHealth
 	this.Configuration = configuration
@@ -205,9 +205,9 @@ func (o *ConfigurationDiagnosticBundle) UnsetNamespace() {
 }
 
 // GetRecentErrors returns the RecentErrors field value
-func (o *ConfigurationDiagnosticBundle) GetRecentErrors() []*map[string]interface{} {
+func (o *ConfigurationDiagnosticBundle) GetRecentErrors() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 
@@ -216,7 +216,7 @@ func (o *ConfigurationDiagnosticBundle) GetRecentErrors() []*map[string]interfac
 
 // GetRecentErrorsOk returns a tuple with the RecentErrors field value
 // and a boolean to check if the value has been set.
-func (o *ConfigurationDiagnosticBundle) GetRecentErrorsOk() ([]*map[string]interface{}, bool) {
+func (o *ConfigurationDiagnosticBundle) GetRecentErrorsOk() ([]map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -224,7 +224,7 @@ func (o *ConfigurationDiagnosticBundle) GetRecentErrorsOk() ([]*map[string]inter
 }
 
 // SetRecentErrors sets field value
-func (o *ConfigurationDiagnosticBundle) SetRecentErrors(v []*map[string]interface{}) {
+func (o *ConfigurationDiagnosticBundle) SetRecentErrors(v []map[string]interface{}) {
 	o.RecentErrors = v
 }
 

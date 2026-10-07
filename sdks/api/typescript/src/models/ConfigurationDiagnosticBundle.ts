@@ -66,10 +66,10 @@ export interface ConfigurationDiagnosticBundle {
     namespace?: string | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof ConfigurationDiagnosticBundle
      */
-    recentErrors: Array<{ [key: string]: any; } | null>;
+    recentErrors: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {number}

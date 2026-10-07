@@ -19,13 +19,13 @@ from pydantic import Field, StrictStr
 from typing import Any, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
-from amesh_client.models.agent_capability_pin_output import AgentCapabilityPinOutput
+from amesh_client.models.agent_capability_pin import AgentCapabilityPin
 from amesh_client.models.agent_envelope_preview import AgentEnvelopePreview
 from amesh_client.models.agent_evaluation_preview import AgentEvaluationPreview
 from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata
 from amesh_client.models.agent_resolution_request import AgentResolutionRequest
 from amesh_client.models.agent_resource_kind import AgentResourceKind
-from amesh_client.models.agent_resource_revision_output import AgentResourceRevisionOutput
+from amesh_client.models.agent_resource_revision import AgentResourceRevision
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison
 from amesh_client.models.agent_route_decision import AgentRouteDecision
 from amesh_client.models.agent_route_request import AgentRouteRequest
@@ -766,7 +766,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AgentResourceRevisionOutput:
+    ) -> AgentResourceRevision:
         """Create Agent Resource Revision
 
 
@@ -815,7 +815,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AgentResourceRevisionOutput",
+            '201': "AgentResourceRevision",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -849,7 +849,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AgentResourceRevisionOutput]:
+    ) -> ApiResponse[AgentResourceRevision]:
         """Create Agent Resource Revision
 
 
@@ -898,7 +898,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AgentResourceRevisionOutput",
+            '201': "AgentResourceRevision",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -981,7 +981,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "AgentResourceRevisionOutput",
+            '201': "AgentResourceRevision",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -2820,7 +2820,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AgentResourceRevisionOutput:
+    ) -> AgentResourceRevision:
         """Get Agent Resource
 
 
@@ -2875,7 +2875,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AgentResourceRevisionOutput",
+            '200': "AgentResourceRevision",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -2911,7 +2911,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AgentResourceRevisionOutput]:
+    ) -> ApiResponse[AgentResourceRevision]:
         """Get Agent Resource
 
 
@@ -2966,7 +2966,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AgentResourceRevisionOutput",
+            '200': "AgentResourceRevision",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -3057,7 +3057,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AgentResourceRevisionOutput",
+            '200': "AgentResourceRevision",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -4151,7 +4151,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> List[AgentResourceRevisionOutput]:
+    ) -> List[AgentResourceRevision]:
         """List Agent Resources
 
 
@@ -4200,7 +4200,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "List[AgentResourceRevisionOutput]",
+            '200': "List[AgentResourceRevision]",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -4234,7 +4234,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[List[AgentResourceRevisionOutput]]:
+    ) -> ApiResponse[List[AgentResourceRevision]]:
         """List Agent Resources
 
 
@@ -4283,7 +4283,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "List[AgentResourceRevisionOutput]",
+            '200': "List[AgentResourceRevision]",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -4366,7 +4366,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "List[AgentResourceRevisionOutput]",
+            '200': "List[AgentResourceRevision]",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -5496,7 +5496,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> AgentCapabilityPinOutput:
+    ) -> AgentCapabilityPin:
         """Resolve Agent Definition
 
 
@@ -5548,7 +5548,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AgentCapabilityPinOutput",
+            '200': "AgentCapabilityPin",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -5583,7 +5583,7 @@ class AgentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[AgentCapabilityPinOutput]:
+    ) -> ApiResponse[AgentCapabilityPin]:
         """Resolve Agent Definition
 
 
@@ -5635,7 +5635,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AgentCapabilityPinOutput",
+            '200': "AgentCapabilityPin",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(
@@ -5722,7 +5722,7 @@ class AgentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "AgentCapabilityPinOutput",
+            '200': "AgentCapabilityPin",
             '422': "HTTPValidationError",
         }
         response_data = self.api_client.call_api(

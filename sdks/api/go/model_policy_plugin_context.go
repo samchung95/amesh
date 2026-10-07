@@ -19,8 +19,8 @@ var _ MappedNullable = &PolicyPluginContext{}
 
 // PolicyPluginContext struct for PolicyPluginContext
 type PolicyPluginContext struct {
-	Packages  []*map[string]interface{} `json:"packages,omitempty"`
-	TaskTypes []*string                 `json:"taskTypes,omitempty"`
+	Packages  []map[string]interface{} `json:"packages,omitempty"`
+	TaskTypes []string                 `json:"taskTypes,omitempty"`
 }
 
 // NewPolicyPluginContext instantiates a new PolicyPluginContext object
@@ -41,9 +41,9 @@ func NewPolicyPluginContextWithDefaults() *PolicyPluginContext {
 }
 
 // GetPackages returns the Packages field value if set, zero value otherwise.
-func (o *PolicyPluginContext) GetPackages() []*map[string]interface{} {
+func (o *PolicyPluginContext) GetPackages() []map[string]interface{} {
 	if o == nil || IsNil(o.Packages) {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.Packages
@@ -51,7 +51,7 @@ func (o *PolicyPluginContext) GetPackages() []*map[string]interface{} {
 
 // GetPackagesOk returns a tuple with the Packages field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *PolicyPluginContext) GetPackagesOk() ([]*map[string]interface{}, bool) {
+func (o *PolicyPluginContext) GetPackagesOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Packages) {
 		return nil, false
 	}
@@ -67,15 +67,15 @@ func (o *PolicyPluginContext) HasPackages() bool {
 	return false
 }
 
-// SetPackages gets a reference to the given []*map[string]interface{} and assigns it to the Packages field.
-func (o *PolicyPluginContext) SetPackages(v []*map[string]interface{}) {
+// SetPackages gets a reference to the given []map[string]interface{} and assigns it to the Packages field.
+func (o *PolicyPluginContext) SetPackages(v []map[string]interface{}) {
 	o.Packages = v
 }
 
 // GetTaskTypes returns the TaskTypes field value if set, zero value otherwise.
-func (o *PolicyPluginContext) GetTaskTypes() []*string {
+func (o *PolicyPluginContext) GetTaskTypes() []string {
 	if o == nil || IsNil(o.TaskTypes) {
-		var ret []*string
+		var ret []string
 		return ret
 	}
 	return o.TaskTypes
@@ -83,7 +83,7 @@ func (o *PolicyPluginContext) GetTaskTypes() []*string {
 
 // GetTaskTypesOk returns a tuple with the TaskTypes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *PolicyPluginContext) GetTaskTypesOk() ([]*string, bool) {
+func (o *PolicyPluginContext) GetTaskTypesOk() ([]string, bool) {
 	if o == nil || IsNil(o.TaskTypes) {
 		return nil, false
 	}
@@ -99,8 +99,8 @@ func (o *PolicyPluginContext) HasTaskTypes() bool {
 	return false
 }
 
-// SetTaskTypes gets a reference to the given []*string and assigns it to the TaskTypes field.
-func (o *PolicyPluginContext) SetTaskTypes(v []*string) {
+// SetTaskTypes gets a reference to the given []string and assigns it to the TaskTypes field.
+func (o *PolicyPluginContext) SetTaskTypes(v []string) {
 	o.TaskTypes = v
 }
 

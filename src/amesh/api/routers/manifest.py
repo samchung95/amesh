@@ -38,5 +38,4 @@ ROUTE_SEQUENCE: tuple[tuple[str, str, str], ...] = (
     ("feature", "governance", "router_1"),
     ("feature", "executions", "router_6"),
     ("feature", "governance", "router_2"),
-    ("feature", "workflows", "router_4"),
 )

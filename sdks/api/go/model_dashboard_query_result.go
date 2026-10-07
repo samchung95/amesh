@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -21,15 +22,14 @@ var _ MappedNullable = &DashboardQueryResult{}
 
 // DashboardQueryResult struct for DashboardQueryResult
 type DashboardQueryResult struct {
-	Columns              []string                  `json:"columns"`
-	FreshAt              time.Time                 `json:"freshAt"`
-	Limit                int32                     `json:"limit"`
-	Partial              bool                      `json:"partial"`
-	Redacted             *bool                     `json:"redacted,omitempty"`
-	Rows                 []*map[string]interface{} `json:"rows"`
-	Sampled              bool                      `json:"sampled"`
-	ScannedRows          int32                     `json:"scannedRows"`
-	AdditionalProperties map[string]interface{}
+	Columns     []string                 `json:"columns"`
+	FreshAt     time.Time                `json:"freshAt"`
+	Limit       int32                    `json:"limit"`
+	Partial     bool                     `json:"partial"`
+	Redacted    *bool                    `json:"redacted,omitempty"`
+	Rows        []map[string]interface{} `json:"rows"`
+	Sampled     bool                     `json:"sampled"`
+	ScannedRows int32                    `json:"scannedRows"`
 }
 
 type _DashboardQueryResult DashboardQueryResult
@@ -38,7 +38,7 @@ type _DashboardQueryResult DashboardQueryResult
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewDashboardQueryResult(columns []string, freshAt time.Time, limit int32, partial bool, rows []*map[string]interface{}, sampled bool, scannedRows int32) *DashboardQueryResult {
+func NewDashboardQueryResult(columns []string, freshAt time.Time, limit int32, partial bool, rows []map[string]interface{}, sampled bool, scannedRows int32) *DashboardQueryResult {
 	this := DashboardQueryResult{}
 	this.Columns = columns
 	this.FreshAt = freshAt
@@ -191,9 +191,9 @@ func (o *DashboardQueryResult) SetRedacted(v bool) {
 }
 
 // GetRows returns the Rows field value
-func (o *DashboardQueryResult) GetRows() []*map[string]interface{} {
+func (o *DashboardQueryResult) GetRows() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 
@@ -202,7 +202,7 @@ func (o *DashboardQueryResult) GetRows() []*map[string]interface{} {
 
 // GetRowsOk returns a tuple with the Rows field value
 // and a boolean to check if the value has been set.
-func (o *DashboardQueryResult) GetRowsOk() ([]*map[string]interface{}, bool) {
+func (o *DashboardQueryResult) GetRowsOk() ([]map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -210,7 +210,7 @@ func (o *DashboardQueryResult) GetRowsOk() ([]*map[string]interface{}, bool) {
 }
 
 // SetRows sets field value
-func (o *DashboardQueryResult) SetRows(v []*map[string]interface{}) {
+func (o *DashboardQueryResult) SetRows(v []map[string]interface{}) {
 	o.Rows = v
 }
 
@@ -282,11 +282,6 @@ func (o DashboardQueryResult) ToMap() (map[string]interface{}, error) {
 	toSerialize["rows"] = o.Rows
 	toSerialize["sampled"] = o.Sampled
 	toSerialize["scannedRows"] = o.ScannedRows
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -320,27 +315,15 @@ func (o *DashboardQueryResult) UnmarshalJSON(data []byte) (err error) {
 
 	varDashboardQueryResult := _DashboardQueryResult{}
 
-	err = json.Unmarshal(data, &varDashboardQueryResult)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varDashboardQueryResult)
 
 	if err != nil {
 		return err
 	}
 
 	*o = DashboardQueryResult(varDashboardQueryResult)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "columns")
-		delete(additionalProperties, "freshAt")
-		delete(additionalProperties, "limit")
-		delete(additionalProperties, "partial")
-		delete(additionalProperties, "redacted")
-		delete(additionalProperties, "rows")
-		delete(additionalProperties, "sampled")
-		delete(additionalProperties, "scannedRows")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

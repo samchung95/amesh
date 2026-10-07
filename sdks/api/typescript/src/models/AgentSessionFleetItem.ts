@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { AgentSessionCountersOutput } from './AgentSessionCountersOutput';
+import type { AgentSessionCounters } from './AgentSessionCounters';
 import {
-    AgentSessionCountersOutputFromJSON,
-    AgentSessionCountersOutputFromJSONTyped,
-    AgentSessionCountersOutputToJSON,
-    AgentSessionCountersOutputToJSONTyped,
-} from './AgentSessionCountersOutput';
+    AgentSessionCountersFromJSON,
+    AgentSessionCountersFromJSONTyped,
+    AgentSessionCountersToJSON,
+    AgentSessionCountersToJSONTyped,
+} from './AgentSessionCounters';
 import type { AgentHarnessPin } from './AgentHarnessPin';
 import {
     AgentHarnessPinFromJSON,
@@ -72,10 +72,10 @@ export interface AgentSessionFleetItem {
     completedAt?: Date | null;
     /**
      *
-     * @type {AgentSessionCountersOutput}
+     * @type {AgentSessionCounters}
      * @memberof AgentSessionFleetItem
      */
-    counters?: AgentSessionCountersOutput;
+    counters?: AgentSessionCounters;
     /**
      *
      * @type {Date}
@@ -236,7 +236,7 @@ export function AgentSessionFleetItemFromJSONTyped(json: any, ignoreDiscriminato
         'attemptSessionId': json['attemptSessionId'] === undefined ? undefined : json['attemptSessionId'] === null ? null : json['attemptSessionId'],
         'capabilityPinId': json['capabilityPinId'] === undefined ? undefined : json['capabilityPinId'] === null ? null : json['capabilityPinId'],
         'completedAt': json['completedAt'] === undefined ? undefined : json['completedAt'] === null ? null : (new Date(json['completedAt'])),
-        'counters': json['counters'] == null ? undefined : AgentSessionCountersOutputFromJSON(json['counters']),
+        'counters': json['counters'] == null ? undefined : AgentSessionCountersFromJSON(json['counters']),
         'createdAt': (new Date(json['createdAt'])),
         'dependencyHealth': json['dependencyHealth'] == null ? undefined : json['dependencyHealth'],
         'dependencyKeys': json['dependencyKeys'] == null ? undefined : json['dependencyKeys'],
@@ -278,7 +278,7 @@ export function AgentSessionFleetItemToJSONTyped(value?: AgentSessionFleetItem |
         'attemptSessionId': value['attemptSessionId'],
         'capabilityPinId': value['capabilityPinId'],
         'completedAt': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
-        'counters': AgentSessionCountersOutputToJSON(value['counters']),
+        'counters': AgentSessionCountersToJSON(value['counters']),
         'createdAt': value['createdAt'].toISOString(),
         'dependencyHealth': value['dependencyHealth'],
         'dependencyKeys': value['dependencyKeys'],

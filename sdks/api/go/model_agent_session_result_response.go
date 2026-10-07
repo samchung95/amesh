@@ -11,6 +11,7 @@ API version: 0.2.0
 package ameshclient
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -20,11 +21,10 @@ var _ MappedNullable = &AgentSessionResultResponse{}
 
 // AgentSessionResultResponse struct for AgentSessionResultResponse
 type AgentSessionResultResponse struct {
-	Error                NullableString         `json:"error,omitempty"`
-	Result               map[string]interface{} `json:"result,omitempty"`
-	SessionId            string                 `json:"sessionId"`
-	State                string                 `json:"state"`
-	AdditionalProperties map[string]interface{}
+	Error     NullableString         `json:"error,omitempty"`
+	Result    map[string]interface{} `json:"result,omitempty"`
+	SessionId string                 `json:"sessionId"`
+	State     string                 `json:"state"`
 }
 
 type _AgentSessionResultResponse AgentSessionResultResponse
@@ -190,11 +190,6 @@ func (o AgentSessionResultResponse) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["sessionId"] = o.SessionId
 	toSerialize["state"] = o.State
-
-	for key, value := range o.AdditionalProperties {
-		toSerialize[key] = value
-	}
-
 	return toSerialize, nil
 }
 
@@ -223,23 +218,15 @@ func (o *AgentSessionResultResponse) UnmarshalJSON(data []byte) (err error) {
 
 	varAgentSessionResultResponse := _AgentSessionResultResponse{}
 
-	err = json.Unmarshal(data, &varAgentSessionResultResponse)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varAgentSessionResultResponse)
 
 	if err != nil {
 		return err
 	}
 
 	*o = AgentSessionResultResponse(varAgentSessionResultResponse)
-
-	additionalProperties := make(map[string]interface{})
-
-	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "error")
-		delete(additionalProperties, "result")
-		delete(additionalProperties, "sessionId")
-		delete(additionalProperties, "state")
-		o.AdditionalProperties = additionalProperties
-	}
 
 	return err
 }

@@ -21,13 +21,13 @@ var _ MappedNullable = &ProblemDetail{}
 
 // ProblemDetail struct for ProblemDetail
 type ProblemDetail struct {
-	Code     string                    `json:"code"`
-	Detail   interface{}               `json:"detail"`
-	Errors   []*map[string]interface{} `json:"errors,omitempty"`
-	Instance string                    `json:"instance"`
-	Status   int32                     `json:"status"`
-	Title    string                    `json:"title"`
-	Type     string                    `json:"type"`
+	Code     string                   `json:"code"`
+	Detail   interface{}              `json:"detail"`
+	Errors   []map[string]interface{} `json:"errors,omitempty"`
+	Instance string                   `json:"instance"`
+	Status   int32                    `json:"status"`
+	Title    string                   `json:"title"`
+	Type     string                   `json:"type"`
 }
 
 type _ProblemDetail ProblemDetail
@@ -106,9 +106,9 @@ func (o *ProblemDetail) SetDetail(v interface{}) {
 }
 
 // GetErrors returns the Errors field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *ProblemDetail) GetErrors() []*map[string]interface{} {
+func (o *ProblemDetail) GetErrors() []map[string]interface{} {
 	if o == nil {
-		var ret []*map[string]interface{}
+		var ret []map[string]interface{}
 		return ret
 	}
 	return o.Errors
@@ -117,7 +117,7 @@ func (o *ProblemDetail) GetErrors() []*map[string]interface{} {
 // GetErrorsOk returns a tuple with the Errors field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *ProblemDetail) GetErrorsOk() ([]*map[string]interface{}, bool) {
+func (o *ProblemDetail) GetErrorsOk() ([]map[string]interface{}, bool) {
 	if o == nil || IsNil(o.Errors) {
 		return nil, false
 	}
@@ -133,8 +133,8 @@ func (o *ProblemDetail) HasErrors() bool {
 	return false
 }
 
-// SetErrors gets a reference to the given []*map[string]interface{} and assigns it to the Errors field.
-func (o *ProblemDetail) SetErrors(v []*map[string]interface{}) {
+// SetErrors gets a reference to the given []map[string]interface{} and assigns it to the Errors field.
+func (o *ProblemDetail) SetErrors(v []map[string]interface{}) {
 	o.Errors = v
 }
 

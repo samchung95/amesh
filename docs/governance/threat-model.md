@@ -34,7 +34,7 @@ audit evidence, plugin packages, signing keys, service credentials and user infr
 10. Archive/path traversal through namespace or task files.
 11. Search index returning unauthorized or deleted documents.
 12. Compromised release or plugin registry artifact.
-13. SSO account-linking or SCIM deprovisioning failure.
+13. SSO account-linking failure.
 14. Audit deletion or tampering.
 15. AI assistant taking high-impact actions without approval.
 

@@ -29,7 +29,7 @@ class ProblemDetail(BaseModel):
     """ # noqa: E501
     code: StrictStr
     detail: Optional[Any]
-    errors: Optional[List[Optional[Dict[str, Any]]]] = None
+    errors: Optional[List[Dict[str, Any]]] = None
     instance: StrictStr
     status: StrictInt
     title: StrictStr

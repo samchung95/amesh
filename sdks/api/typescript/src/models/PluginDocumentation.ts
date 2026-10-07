@@ -39,10 +39,10 @@ export interface PluginDocumentation {
     documentationUrl?: string | null;
     /**
      *
-     * @type {Array<{ [key: string]: any; } | null>}
+     * @type {Array<{ [key: string]: any; }>}
      * @memberof PluginDocumentation
      */
-    examples?: Array<{ [key: string]: any; } | null>;
+    examples?: Array<{ [key: string]: any; }>;
     /**
      *
      * @type {string}
@@ -51,10 +51,10 @@ export interface PluginDocumentation {
     icon?: string | null;
     /**
      *
-     * @type {Array<string | null>}
+     * @type {Array<string>}
      * @memberof PluginDocumentation
      */
-    propertyOrder?: Array<string | null>;
+    propertyOrder?: Array<string>;
     /**
      *
      * @type {string}

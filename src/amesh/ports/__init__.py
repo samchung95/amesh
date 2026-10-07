@@ -136,7 +136,6 @@ from .execution_repository import (
 from .feature_flags import FeatureFlagRepository, FeatureFlagVersionConflict
 from .federation_repository import (
     AmbiguousFederatedIdentity,
-    FederationReplayRejected,
     FederationRepository,
     FederationStateRejected,
 )
@@ -253,12 +252,6 @@ from .tenant_repository import (
     TenantUnavailableError,
 )
 from .tool_provider import ToolInvocationJournal, ToolProvider
-from .transfer_repository import (
-    ProfileImportReceipt,
-    ProfileTransferImportRepository,
-    SessionTransferImportRepository,
-    TransferRepository,
-)
 from .trigger_runtime import (
     PollingTriggerAdapter,
     RealtimeTriggerAdapter,
@@ -372,7 +365,6 @@ __all__ = [
     "ExecutionStateConflictError",
     "FeatureFlagRepository",
     "FeatureFlagVersionConflict",
-    "FederationReplayRejected",
     "FederationRepository",
     "FederationStateRejected",
     "FlowRegistryRepository",
@@ -434,8 +426,6 @@ __all__ = [
     "PolicyVersionChanged",
     "PollingTriggerAdapter",
     "PortError",
-    "ProfileImportReceipt",
-    "ProfileTransferImportRepository",
     "PromotionRepository",
     "ProviderDiagnosticError",
     "ProviderError",
@@ -480,7 +470,6 @@ __all__ = [
     "ServiceFenceError",
     "ServiceRegistryRepository",
     "ServiceVersionSkewError",
-    "SessionTransferImportRepository",
     "SharedResourceRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
@@ -508,7 +497,6 @@ __all__ = [
     "ToolInvocationJournal",
     "ToolProvider",
     "TransactionManager",
-    "TransferRepository",
     "TransportDiagnostics",
     "TransportRetentionResult",
     "TriggerAdapterOccurrence",

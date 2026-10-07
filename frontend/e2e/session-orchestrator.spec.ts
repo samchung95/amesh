@@ -22,10 +22,6 @@ const policy = {
   spec: { admissionEnabled: true, maxConcurrency: 3, maxTotalTokens: 50000, maxCostUsd: '4.50', maxDurationSeconds: 900, retentionSeconds: 86400, allowedProviderIds: ['provider/openai'], allowedHarnessIds: ['pi-agent-core'], allowedToolIds: ['search'] },
   digest: 'sha256:policy', createdBy: 'operator', createdAt: '2026-08-30T01:00:00Z',
 }
-const sessionBundle = {
-  schemaVersion: 'amesh.session-transfer/v1', mode: 'CLEAN_CHECKPOINT', sourceTenantId: 'source-tenant',
-  session: { sessionId: 'source-session', credentialRef: 'provider-main' }, checksumSha256: 'sha256:session',
-}
 const progressEvents = [
   { schemaVersion: 'amesh.agent-progress-event/v1', serviceSessionId: id, eventId: '00000000-0000-7000-8000-000000000841', eventIndex: 1, cursor: 'orchestrator-cursor-1', acceptedAt: page.readAt, frame: { schemaVersion: 'amesh.agent-progress/v1', attemptSessionId: id, attempt: 1, turn: 1, activity: 'THINKING', status: 'STARTED', activityId: 'thinking:1', segmentId: '00000000-0000-7000-8000-000000000851', sourceId: 'pi:test', sourceSequence: 1, occurredAt: page.readAt, detail: { kind: 'STATUS', code: 'thinking.started', label: 'Thinking started' } } },
   { schemaVersion: 'amesh.agent-progress-event/v1', serviceSessionId: id, eventId: '00000000-0000-7000-8000-000000000842', eventIndex: 2, cursor: 'orchestrator-cursor-2', acceptedAt: page.readAt, frame: { schemaVersion: 'amesh.agent-progress/v1', attemptSessionId: id, attempt: 1, turn: 1, activity: 'TOOL', status: 'COMPLETED', activityId: 'tool:1', segmentId: null, sourceId: 'pi:test', sourceSequence: 2, occurredAt: page.readAt, detail: { kind: 'STATUS', code: 'tool.completed', label: 'Tool work completed' } } },
@@ -43,9 +39,6 @@ test('opens the session orchestrator, traces a row, and guards bulk lifecycle ac
   await browserPage.route('**/api/v1/admin/agent-sessions/aggregate', (route) => route.fulfill({ json: { tenants: [{ tenantId: id, tenantSlug: 'default', matchedExecutions: 1, active: 1, terminal: 0, byState: { RUNNING: 1 } }], matchedExecutions: 1, active: 1, terminal: 0, readAt: page.readAt } }))
   await browserPage.route('**/api/v1/admin/agent-session-policies/effective*', (route) => route.fulfill({ json: [policy] }))
   await browserPage.route('**/api/v1/admin/agent-session-policies*', (route) => route.fulfill({ json: [policy] }))
-  await browserPage.route(`**/api/v1/admin/agent-session-transfers/sessions/${id}/export`, (route) => route.fulfill({ json: { ...sessionBundle, session: { ...sessionBundle.session, sessionId: id } } }))
-  await browserPage.route('**/api/v1/admin/agent-session-transfers/sessions/plan', (route) => route.fulfill({ json: { schemaVersion: 'amesh.session-transfer/v1', eligible: true, mode: 'CLEAN_CHECKPOINT', sourceTenantId: 'source-tenant', targetTenantId: 'default', bundleDigest: 'sha256:session', flowCompatible: true, capabilityPinCompatible: true, harnessCompatible: true, credentialRebindingDiagnostics: ['provider-main → provider-main'], artifactDiagnostics: ['No artifact remapping required'], issues: [] } }))
-  await browserPage.route('**/api/v1/admin/agent-session-transfers/sessions/import', (route) => route.fulfill({ json: { importId: 'import-1', bundleDigest: 'sha256:session', mode: 'CLEAN_CHECKPOINT', targetTenantId: 'default', sessionId: id, alreadyPresent: false, idMapping: {}, credentialRebindingDiagnostics: [] } }))
   await browserPage.route('**/api/v1/admin/agent-sessions/actions', (route) => { bulkRequestBody = route.request().postDataJSON() as Record<string, unknown>; return route.fulfill({ json: { action: 'cancel', total: 1, applied: 1, rejected: 0, results: [{ sessionId: id, status: 'applied' }] } }) })
   await browserPage.route('**/api/v1/admin/agent-sessions*', (route) => route.fulfill({ json: page }))
   await browserPage.route(`**/api/v1/agent-sessions/${id}/progress*`, (route) => route.fulfill({ json: { sessionId: id, events: progressEvents, nextCursor: 'orchestrator-cursor-4' } }))
@@ -81,13 +74,6 @@ test('opens the session orchestrator, traces a row, and guards bulk lifecycle ac
   await expect(browserPage.getByRole('alert')).toContainText('Apply cancel to 1 sessions?')
   await browserPage.getByRole('button', { name: 'Confirm action' }).click()
   await expect.poll(() => bulkRequestBody).toMatchObject({ action: 'cancel', confirmation: 'CANCEL 1 AGENT SESSIONS', items: [{ sessionId: id, expectedVersion: 7, expectedEpoch: 1 }] })
-  await expect(browserPage.getByRole('heading', { name: 'Profile and session transfer' })).toBeVisible()
-  await browserPage.getByLabel('Choose JSON bundle').setInputFiles({ name: 'session.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(sessionBundle)) })
-  await expect(browserPage.getByText('source-tenant')).toBeVisible()
-  await browserPage.getByRole('button', { name: 'Preview compatibility' }).click()
-  await expect(browserPage.getByText('Compatible')).toBeVisible()
-  await browserPage.getByRole('button', { name: 'Import verified bundle' }).click()
-  await expect(browserPage.getByText('Session imported')).toBeVisible()
   await browserPage.screenshot({ path: testInfo.outputPath('session-orchestrator-workbench.png'), fullPage: true })
   const durableDirectory = resolve(process.cwd(), '..', 'docs', 'product', 'ui-audit', 'screenshots', 'session-orchestrator')
   await mkdir(durableDirectory, { recursive: true })

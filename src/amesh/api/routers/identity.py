@@ -15,27 +15,17 @@ from fastapi import (
     Response,
     status,
 )
-from starlette.responses import PlainTextResponse, RedirectResponse
+from starlette.responses import RedirectResponse
 
 from amesh.api.dependencies import (
     ActorDependency,
     AuthenticationServiceDependency,
     AuthorizationServiceDependency,
-    FederationRepositoryDependency,
     FederationServiceDependency,
-    ScimProviderDependency,
     SettingsDependency,
     _clear_session_cookies,
-    _saml_request_data,
-    _scim_filter_value,
-    _scim_group_patch,
-    _scim_group_resource,
-    _scim_principal_handle,
-    _scim_user_patch,
-    _scim_user_resource,
     _set_authentication_cookies,
     _set_issued_session_cookies,
-    _urlencoded_form,
     authorize_request,
 )
 from amesh.api.models import (
@@ -43,12 +33,6 @@ from amesh.api.models import (
     LoginRequest,
     LoginResponse,
     RevokedSessionsResponse,
-    ScimGroupRequest,
-    ScimGroupResource,
-    ScimListResponse,
-    ScimPatchRequest,
-    ScimUserRequest,
-    ScimUserResource,
     SetLocalPasswordRequest,
 )
 from amesh.authentication import (
@@ -71,7 +55,6 @@ from amesh.federation import (
 )
 from amesh.ports.federation_repository import (
     AmbiguousFederatedIdentity,
-    FederationReplayRejected,
     FederationStateRejected,
 )
 
@@ -102,28 +85,16 @@ async def list_authentication_providers(
 )
 async def begin_federated_login(
     provider_id: str,
-    request: Request,
     federation_service: FederationServiceDependency,
     tenant: Annotated[str | None, Query(max_length=128)] = None,
     return_to: Annotated[str, Query(alias="returnTo", max_length=2048)] = "/",
 ) -> RedirectResponse:
     try:
-        provider = federation_service.provider(provider_id)
-        if provider.kind == "oidc":
-            location = await federation_service.begin_oidc(
-                provider_id,
-                tenant=tenant,
-                return_to=return_to,
-            )
-        elif provider.kind == "saml":
-            location = await federation_service.begin_saml(
-                provider_id,
-                _saml_request_data(request),
-                tenant=tenant,
-                return_to=return_to,
-            )
-        else:
-            raise FederationRejected("LDAP providers use password login")
+        location = await federation_service.begin_oidc(
+            provider_id,
+            tenant=tenant,
+            return_to=return_to,
+        )
     except FederationProviderUnavailable as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
@@ -171,7 +142,6 @@ async def complete_oidc_login(
     except (
         AmbiguousFederatedIdentity,
         FederationRejected,
-        FederationReplayRejected,
         FederationStateRejected,
         PermissionError,
     ) as exc:
@@ -183,330 +153,6 @@ async def complete_oidc_login(
     _set_issued_session_cookies(redirect, settings, issued)
     response.headers.update(redirect.headers)
     return redirect
-
-
-@router_1.post(
-    "/api/v1/auth/federated/{provider_id}/callback",
-    response_class=RedirectResponse,
-    tags=["authentication"],
-)
-async def complete_saml_login(
-    provider_id: str,
-    request: Request,
-    response: Response,
-    federation_service: FederationServiceDependency,
-    settings: SettingsDependency,
-) -> RedirectResponse:
-    post_data = _urlencoded_form(await request.body())
-    state_token = post_data.get("RelayState", "")
-    if not state_token or "SAMLResponse" not in post_data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid SAML callback")
-    try:
-        issued, return_to = await federation_service.complete_saml(
-            provider_id,
-            _saml_request_data(request, post_data=post_data),
-            state_token=state_token,
-        )
-    except FederationProviderUnavailable as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
-        ) from exc
-    except (
-        AmbiguousFederatedIdentity,
-        FederationRejected,
-        FederationReplayRejected,
-        FederationStateRejected,
-        PermissionError,
-    ) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="federated authentication failed",
-        ) from exc
-    redirect = RedirectResponse(return_to, status_code=status.HTTP_303_SEE_OTHER)
-    _set_issued_session_cookies(redirect, settings, issued)
-    response.headers.update(redirect.headers)
-    return redirect
-
-
-@router_1.get(
-    "/api/v1/auth/federated/{provider_id}/saml/metadata",
-    response_class=PlainTextResponse,
-    tags=["authentication"],
-)
-async def saml_service_provider_metadata(
-    provider_id: str,
-    federation_service: FederationServiceDependency,
-) -> PlainTextResponse:
-    try:
-        metadata = federation_service.saml_metadata(provider_id)
-    except (FederationProviderUnavailable, FederationRejected) as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    return PlainTextResponse(metadata, media_type="application/samlmetadata+xml")
-
-
-@router_1.get("/scim/v2/ServiceProviderConfig", tags=["scim"])
-async def scim_service_provider_config(
-    provider: ScimProviderDependency,
-) -> dict[str, object]:
-    del provider
-    return {
-        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
-        "patch": {"supported": True},
-        "bulk": {"supported": False, "maxOperations": 0, "maxPayloadSize": 0},
-        "filter": {"supported": True, "maxResults": 200},
-        "changePassword": {"supported": False},
-        "sort": {"supported": False},
-        "etag": {"supported": True},
-        "authenticationSchemes": [
-            {
-                "type": "oauthbearertoken",
-                "name": "Bearer token",
-                "description": "Tenant-bound token loaded from a rotatable file",
-                "specUri": "https://www.rfc-editor.org/rfc/rfc6750",
-                "primary": True,
-            }
-        ],
-    }
-
-
-@router_1.get(
-    "/scim/v2/Users",
-    response_model=ScimListResponse,
-    response_model_by_alias=True,
-    tags=["scim"],
-)
-async def list_scim_users(
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-    filter_value: Annotated[str | None, Query(alias="filter", max_length=1024)] = None,
-    start_index: Annotated[int, Query(alias="startIndex", ge=1)] = 1,
-    count: Annotated[int, Query(ge=0, le=200)] = 100,
-) -> ScimListResponse:
-    handle = _scim_filter_value(filter_value, "userName")
-    records = await repository.list_scim(provider.id, "User", handle=handle)
-    selected = records[start_index - 1 : start_index - 1 + count]
-    resources = tuple(_scim_user_resource(record) for record in selected)
-    return ScimListResponse(
-        totalResults=len(records),
-        startIndex=start_index,
-        itemsPerPage=len(resources),
-        Resources=resources,
-    )
-
-
-@router_1.post(
-    "/scim/v2/Users",
-    response_model=ScimUserResource,
-    response_model_by_alias=True,
-    status_code=status.HTTP_201_CREATED,
-    tags=["scim"],
-)
-async def create_scim_user(
-    payload: ScimUserRequest,
-    response: Response,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> ScimUserResource:
-    try:
-        record = await repository.create_scim(
-            provider.id,
-            "User",
-            handle=_scim_principal_handle(payload.user_name),
-            resource_name=payload.user_name,
-            display_name=payload.display_name or payload.user_name,
-            enabled=payload.active,
-            external_id=payload.external_id,
-            tenant=provider.tenant,
-            role=provider.role,
-        )
-    except (ValueError, LookupError) as exc:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
-    result = _scim_user_resource(record)
-    response.headers["Location"] = result.meta.location
-    response.headers["ETag"] = result.meta.version
-    return result
-
-
-@router_1.get(
-    "/scim/v2/Users/{user_id}",
-    response_model=ScimUserResource,
-    response_model_by_alias=True,
-    tags=["scim"],
-)
-async def get_scim_user(
-    user_id: UUID,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> ScimUserResource:
-    try:
-        return _scim_user_resource(await repository.get_scim(provider.id, "User", user_id))
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-
-@router_1.patch(
-    "/scim/v2/Users/{user_id}",
-    response_model=ScimUserResource,
-    response_model_by_alias=True,
-    tags=["scim"],
-)
-async def patch_scim_user(
-    user_id: UUID,
-    payload: ScimPatchRequest,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> ScimUserResource:
-    try:
-        display_name, active = _scim_user_patch(payload)
-        record = await repository.update_scim(
-            provider.id,
-            "User",
-            user_id,
-            display_name=display_name,
-            enabled=active,
-        )
-        return _scim_user_resource(record)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@router_1.delete(
-    "/scim/v2/Users/{user_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=["scim"],
-)
-async def delete_scim_user(
-    user_id: UUID,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> None:
-    try:
-        await repository.delete_scim(provider.id, "User", user_id)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-
-@router_1.get(
-    "/scim/v2/Groups",
-    response_model=ScimListResponse,
-    response_model_by_alias=True,
-    tags=["scim"],
-)
-async def list_scim_groups(
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-    filter_value: Annotated[str | None, Query(alias="filter", max_length=1024)] = None,
-    start_index: Annotated[int, Query(alias="startIndex", ge=1)] = 1,
-    count: Annotated[int, Query(ge=0, le=200)] = 100,
-) -> ScimListResponse:
-    handle = _scim_filter_value(filter_value, "displayName")
-    records = await repository.list_scim(provider.id, "Group", handle=handle)
-    selected = records[start_index - 1 : start_index - 1 + count]
-    resources = tuple(_scim_group_resource(record) for record in selected)
-    return ScimListResponse(
-        totalResults=len(records),
-        startIndex=start_index,
-        itemsPerPage=len(resources),
-        Resources=resources,
-    )
-
-
-@router_1.post(
-    "/scim/v2/Groups",
-    response_model=ScimGroupResource,
-    response_model_by_alias=True,
-    status_code=status.HTTP_201_CREATED,
-    tags=["scim"],
-)
-async def create_scim_group(
-    payload: ScimGroupRequest,
-    response: Response,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> ScimGroupResource:
-    try:
-        record = await repository.create_scim(
-            provider.id,
-            "Group",
-            handle=_scim_principal_handle(payload.display_name),
-            resource_name=payload.display_name,
-            display_name=payload.display_name,
-            enabled=True,
-            external_id=payload.external_id,
-            tenant=provider.tenant,
-            role=provider.role,
-            member_ids=tuple(item.value for item in payload.members),
-        )
-    except (ValueError, LookupError) as exc:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
-    result = _scim_group_resource(record)
-    response.headers["Location"] = result.meta.location
-    response.headers["ETag"] = result.meta.version
-    return result
-
-
-@router_1.get(
-    "/scim/v2/Groups/{group_id}",
-    response_model=ScimGroupResource,
-    response_model_by_alias=True,
-    tags=["scim"],
-)
-async def get_scim_group(
-    group_id: UUID,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> ScimGroupResource:
-    try:
-        return _scim_group_resource(await repository.get_scim(provider.id, "Group", group_id))
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-
-
-@router_1.patch(
-    "/scim/v2/Groups/{group_id}",
-    response_model=ScimGroupResource,
-    response_model_by_alias=True,
-    tags=["scim"],
-)
-async def patch_scim_group(
-    group_id: UUID,
-    payload: ScimPatchRequest,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> ScimGroupResource:
-    try:
-        current = await repository.get_scim(provider.id, "Group", group_id)
-        display_name, member_ids = _scim_group_patch(payload, current.member_ids)
-        record = await repository.update_scim(
-            provider.id,
-            "Group",
-            group_id,
-            display_name=display_name,
-            member_ids=member_ids,
-        )
-        return _scim_group_resource(record)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-
-
-@router_1.delete(
-    "/scim/v2/Groups/{group_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=["scim"],
-)
-async def delete_scim_group(
-    group_id: UUID,
-    provider: ScimProviderDependency,
-    repository: FederationRepositoryDependency,
-) -> None:
-    try:
-        await repository.delete_scim(provider.id, "Group", group_id)
-    except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 def _authentication_source(request: Request) -> str:
@@ -550,11 +196,6 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="local authentication is disabled by policy",
-        ) from exc
-    except FederationProviderUnavailable as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="identity provider is unavailable",
         ) from exc
     except InvalidAuthentication as exc:
         raise HTTPException(

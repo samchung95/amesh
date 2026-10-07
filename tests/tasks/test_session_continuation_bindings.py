@@ -8,7 +8,6 @@ from uuid import UUID, uuid4
 
 import httpx
 from cryptography.fernet import Fernet
-from tests.application.test_session_transfer import _bundle
 from tests.model_providers.test_handler_integration import MemoryInvocationRepository
 from tests.tasks.test_agent_sessions import (
     MemoryResources,
@@ -31,7 +30,6 @@ from amesh.domain import (
 from amesh.executor import TaskCompletion
 from amesh.model_continuations import ModelContinuationProtector
 from amesh.ports import AgentHarnessContextSelection, AgentSessionModelCall
-from amesh.session_transfer import SessionTransferMode, SessionTransferService, seal_bundle
 from amesh.tasks import agent_llm_handler
 from amesh.tasks.session import (
     _continuation_bindings_for_route,
@@ -157,36 +155,6 @@ def test_gateway_remaps_only_retained_continuation_sources() -> None:
         assert str(first_id) not in str(captured[0]["continuationSources"])
 
     asyncio.run(scenario())
-
-
-def test_clean_checkpoint_transfer_rejects_continuation_binding_history() -> None:
-    bundle = _bundle(SessionTransferMode.CLEAN_CHECKPOINT)
-    checkpoint = bundle.session.checkpoint.model_copy(
-        update={
-            "model_continuations": (
-                AgentModelContinuationBinding(
-                    sourceMessageIndex=1,
-                    continuation=_ref(uuid4()),
-                ),
-            )
-        }
-    )
-    blocked = seal_bundle(
-        bundle.model_copy(
-            update={
-                "session": bundle.session.model_copy(update={"checkpoint": checkpoint}),
-                "checksum_sha256": "0" * 64,
-            }
-        )
-    )
-    result = SessionTransferService(_NoopImportRepository()).eligibility(blocked)
-    assert not result.eligible
-    assert "checkpoint has provider continuation bindings" in result.reasons
-
-
-class _NoopImportRepository:
-    async def get_import(self, *args: Any, **kwargs: Any) -> None:
-        raise NotImplementedError
 
 
 def test_three_accepted_continuations_remain_bound_to_retained_turns() -> None:

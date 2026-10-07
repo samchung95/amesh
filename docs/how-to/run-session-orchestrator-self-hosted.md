@@ -42,7 +42,7 @@ The API is available at `http://127.0.0.1:8000` by default; set
 expects PostgreSQL and S3-compatible object storage to be reachable through the
 references above. This Docker-local profile starts in credential-auth mode with the file-backed
 admin token; create additional principals, roles and credentials through the administration API.
-External identity-provider and SCIM configuration is available through the Helm profile below.
+External OIDC identity-provider configuration is available through the Helm profile below.
 Broker and model-provider credentials are not part of this profile.
 
 ## Helm profile
@@ -63,7 +63,7 @@ Provision these existing Secrets in the target namespace before installing:
 - `amesh-session-orchestrator-encryption` (`model-continuation-key`)
 - `amesh-session-orchestrator-auth` (`admin-token`, `token-pepper`, `webhook-signing-key`,
   `registry-signing-key`)
-- `amesh-session-orchestrator-identity` (`identity-providers`, `scim-providers`)
+- `amesh-session-orchestrator-identity` (`identity-providers`)
 
 The overlay enables only `webserver`, `executor`, and `scheduler`; worker,
 indexer, and maintenance roles are disabled. The chart templates use

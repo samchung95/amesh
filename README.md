@@ -4,7 +4,7 @@
 
 AMESH is a strict clean-room, fully open-source **governed agent-session runtime** built on a durable workflow engine. It runs budgeted, auditable agent sessions with pinned capabilities, governed tool calls, checkpoints, evidence and restart recovery. The same PostgreSQL-authoritative engine also runs ordinary durable workflows. See [ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md).
 
-Kestra **1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b` remains the pinned compatibility reference for measuring the existing workflow surfaces. Broader Kestra parity, plugin packs and the enterprise distribution are a deferred horizon, not the current product target. All production capabilities are intended to ship in one **AGPL-3.0** distribution.
+The Kestra compatibility façade, import and transfer tooling, and SAML/LDAP/SCIM federation were removed because no consumer used them ([ADR-085](docs/adr/085-remove-unused-compatibility-transfer-and-federation-surfaces.md)). Kestra parity, plugin packs and the enterprise distribution are not the current product target. All production capabilities are intended to ship in one **AGPL-3.0** distribution.
 
 ## Locked direction
 
@@ -13,7 +13,7 @@ Kestra **1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b` remains t
 | Product | **AMESH**, meaning **Agent Mesh** |
 | Implementation | Strict clean room; public specifications, observable behavior and independently authored conformance tests only |
 | Scope | Governed agent-session runtime on a durable workflow backbone ([ADR-081](docs/adr/081-focus-on-governed-agent-session-runtime.md)); Kestra OSS parity and ecosystem packs are a deferred horizon |
-| Compatibility | Pinned Kestra reference for YAML, REST API, CLI and execution semantics; expressions are AMESH-native; no new parity work until a consumer needs it |
+| Compatibility | No compatibility façade ([ADR-085](docs/adr/085-remove-unused-compatibility-transfer-and-federation-surfaces.md)); the YAML DSL, REST API, CLI and expressions are AMESH-native |
 | Durable state and internal transport | PostgreSQL only; `LISTEN/NOTIFY` is a wake-up optimization, not delivery truth |
 | Object storage | S3-compatible, Azure Blob and GCS adapters; MinIO in the development stack |
 | Production core | Python 3.12 asyncio, confirmed by [ADR-016](docs/adr/016-python-production-core.md); robustness comes from the PostgreSQL/fencing/pure-reducer design, and performance claims are earned by measurement |
@@ -24,7 +24,7 @@ Kestra **1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b` remains t
 | Production | On-premises Kubernetes/Helm reference; Docker Compose development; single-host secondary |
 | Scale | Profile M: 100,000 executions/day, 1,000 active task runs, 50 starts/s, 10 million retained |
 | Availability and recovery | 99.9% monthly control-plane target; v1 RPO <= 48h and RTO <= 8h |
-| Migration | Full side-by-side resources, identity/governance, history, logs, artifacts and audit evidence |
+| Migration | No import or transfer tooling; whole deployments move by backup and restore |
 | Compliance | SOC 2 and ISO/IEC 27001 readiness; certification is not claimed |
 | Engineering model | Independent agent quorum for normal merges; human approval for high-risk changes and stable releases |
 | Licence | AGPL-3.0-only, confirmed as the strongest selected copyleft while retaining open-source status |
@@ -90,7 +90,7 @@ Core correctness rules:
 9. Tenant and authorization context is mandatory at API, persistence, queue, storage and plugin boundaries.
 10. Compatibility claims require version-pinned differential evidence.
 
-Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [configuration and feature flags](docs/operations/configuration.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md), [object-storage operations](docs/operations/object-storage.md), [full migration architecture](docs/architecture/migration.md), [Kestra migration runbook](docs/operations/kestra-migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
+Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [configuration and feature flags](docs/operations/configuration.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md) and [object-storage operations](docs/operations/object-storage.md).
 
 CLI profiles, secure token storage, output modes, declarative workflows, completion and generated
 client usage are documented in the [CLI and generated clients guide](docs/cli/README.md).
@@ -214,7 +214,7 @@ each row opens a simple trace with expert evidence one disclosure away. See the
 [frontend guide](frontend/README.md) for the Vite workflow, supported browsers and accessibility
 qualification boundary.
 
-The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, durable task-result caching, durable trigger occurrences, execution checks, a tamper-evident audit ledger and signed compliance evidence packages, PostgreSQL-backed users/groups/roles/scoped bindings, local browser sessions, OIDC/SAML/LDAP federation, tenant-bound SCIM provisioning, authorization explanations, bounded provider-neutral model tasks, governed MCP tool calls, durable bounded agent sessions with isolated memory/evaluation/release gates and an authenticated read-only AMESH MCP server, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. See the [agent primitive reference](docs/api/agent-primitives.md), [bounded agent session guide](docs/how-to/run-bounded-agent-session.md), [memory/evaluation/release guide](docs/how-to/configure-agent-memory-evaluations.md), [trigger lifecycle](docs/operations/triggers.md), [execution checks](docs/operations/execution-checks.md), [audit evidence](docs/operations/audit-evidence.md), [task cache](docs/operations/task-cache.md), [authentication](docs/operations/authentication.md), [identity federation](docs/operations/identity-federation.md), [authorization](docs/operations/authorization.md) and [supported upgrade](docs/operations/upgrades.md) runbooks.
+The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, durable task-result caching, durable trigger occurrences, execution checks, a tamper-evident audit ledger and signed compliance evidence packages, PostgreSQL-backed users/groups/roles/scoped bindings, local browser sessions, OIDC federation, authorization explanations, bounded provider-neutral model tasks, governed MCP tool calls, durable bounded agent sessions with isolated memory/evaluation/release gates and an authenticated read-only AMESH MCP server, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. See the [agent primitive reference](docs/api/agent-primitives.md), [bounded agent session guide](docs/how-to/run-bounded-agent-session.md), [memory/evaluation/release guide](docs/how-to/configure-agent-memory-evaluations.md), [trigger lifecycle](docs/operations/triggers.md), [execution checks](docs/operations/execution-checks.md), [audit evidence](docs/operations/audit-evidence.md), [task cache](docs/operations/task-cache.md), [authentication](docs/operations/authentication.md), [identity federation](docs/operations/identity-federation.md), [authorization](docs/operations/authorization.md) and [supported upgrade](docs/operations/upgrades.md) runbooks.
 
 For application-style agent sessions, open **Agent sessions** or use the
 [provider-neutral session API and OpenAI-compatible boundary](docs/api/agent-session-service.md).

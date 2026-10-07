@@ -58,7 +58,6 @@ def test_session_orchestrator_compose_declares_external_runtime_references() -> 
     assert environment["WEBHOOK_SIGNING_KEY"] == "secret://webhook-signing-key"
     assert environment["PLUGIN_REGISTRY_SIGNING_KEY"] == "secret://registry-signing-key"
     assert environment["IDENTITY_PROVIDERS"] == "[]"
-    assert environment["SCIM_PROVIDERS"] == "[]"
     rendered = yaml.safe_dump(_yaml(COMPOSE))
     assert not any(
         forbidden in rendered

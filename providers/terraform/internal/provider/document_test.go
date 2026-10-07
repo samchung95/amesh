@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -46,26 +45,6 @@ func TestRequestDocumentExpandsSecretWithoutReturningIt(t *testing.T) {
 	}
 	if !strings.Contains(redacted, "[REDACTED]") {
 		t.Fatal("redacted response marker is missing")
-	}
-}
-
-func TestSCIMPatchIsDeterministicAndExcludesServerFields(t *testing.T) {
-	t.Parallel()
-	body, err := scimPatch([]byte(`{"id":"server","userName":"ada","active":true,"schemas":["core"]}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var patch map[string]any
-	if err := json.Unmarshal(body, &patch); err != nil {
-		t.Fatal(err)
-	}
-	operations := patch["Operations"].([]any)
-	if len(operations) != 2 {
-		t.Fatalf("expected two mutable operations, got %d", len(operations))
-	}
-	first := operations[0].(map[string]any)
-	if first["path"] != "active" {
-		t.Fatalf("operations are not sorted: %#v", operations)
 	}
 }
 

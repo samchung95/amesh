@@ -1,6 +1,6 @@
 # AMESH Terraform and OpenTofu provider
 
-This first-party provider manages AMESH configuration through the public HTTP and SCIM APIs. One
+This first-party provider manages AMESH configuration through the public HTTP API. One
 protocol-v5 binary supports Terraform 1.x and OpenTofu 1.x.
 
 ## Local development
@@ -26,7 +26,7 @@ is never written to provider state.
 Every managed resource accepts a JSON or YAML `document`. Formatting-only changes are normalized,
 while refresh records a redacted remote digest and sets `drifted` if it differs from the last apply.
 Import identifiers use `kind|tenant|namespace|key` and may append `|server_id` for server-generated
-SCIM, binding, service-account, tenant or plugin-policy identifiers. Percent-encode literal `|`
+binding, service-account, tenant or plugin-policy identifiers. Percent-encode literal `|`
 characters in individual parts.
 
 Namespace bundles, apps, roles, service accounts and worker-group policy sets are retained by the
