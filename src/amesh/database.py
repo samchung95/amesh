@@ -24,6 +24,9 @@ def create_database_engine(
     url = _with_statement_cache(database_url, settings.database_prepared_statement_cache_size)
     connect_args: dict[str, Any] = {}
     connect_args["ssl"] = database_ssl_argument(settings)
+    # Row security inflates the planner's cost for the short role-loop queries past
+    # jit_above_cost, so PostgreSQL spent ~15ms compiling each to save ~0.1ms of execution (#136).
+    connect_args["server_settings"] = {"jit": "off"}
     return create_async_engine(
         url,
         pool_size=settings.database_pool_size,

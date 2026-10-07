@@ -480,6 +480,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Keep the additive grants while forward-fixing flow-test repositories. Existing forced tenant RLS remains authoritative; revoking runtime privileges breaks current writers, while retained admin grants support older binaries during rollout."
+    },
+    {
+      "file": "0081_idle_loop_indexes.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive indexes while forward-fixing the idle loops. Older binaries ignore them; dropping them restores history-proportional recovery, search-projection and trigger-lease scans. The plain CREATE INDEX blocks writes to executions, task_runs, execution_logs, execution_metrics and trigger_occurrences while it builds, so apply it in a quiet window on large histories."
     }
 ]
 }

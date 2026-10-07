@@ -299,8 +299,36 @@ _LIST_FLOW_EXECUTIONS = text(
     """
 )
 
+# Each branch is index-driven (executions_recovery_open_idx, task_runs_execution_lifecycle_pending_idx)
+# so an idle cycle costs the open work, not the terminal history (#136). Recovery only advances a
+# non-running open execution when its flow has lifecycle tasks, materialized as non-MAIN task runs
+# at creation, so paused or queued executions without them are not returned to crowd the batch.
 _LIST_RECOVERY_CANDIDATES = text(
     """
+    WITH candidates AS (
+        SELECT executions.id
+        FROM executions
+        JOIN tenants ON tenants.id = executions.tenant_id
+        WHERE tenants.slug = :tenant_slug
+          AND executions.state NOT IN ('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')
+          AND (
+              executions.state = 'RUNNING'
+              OR EXISTS (
+                  SELECT 1
+                  FROM task_runs
+                  WHERE task_runs.tenant_id = executions.tenant_id
+                    AND task_runs.execution_id = executions.id
+                    AND task_runs.lifecycle_phase <> 'MAIN'
+              )
+          )
+        UNION
+        SELECT task_runs.execution_id
+        FROM task_runs
+        JOIN tenants ON tenants.id = task_runs.tenant_id
+        WHERE tenants.slug = :tenant_slug
+          AND task_runs.lifecycle_phase <> 'MAIN'
+          AND task_runs.state IN ('WAITING', 'RUNNING', 'RETRY_DELAY')
+    )
     SELECT
         executions.id,
         tenants.slug AS tenant_slug,
@@ -320,30 +348,18 @@ _LIST_RECOVERY_CANDIDATES = text(
         executions.timeout_at,
         executions.cancel_deadline_at,
         executions.lifecycle_evidence
-    FROM executions
+    FROM candidates
+    JOIN executions ON executions.id = candidates.id
     JOIN tenants ON tenants.id = executions.tenant_id
     JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
     WHERE tenants.slug = :tenant_slug
-      AND (
-          NOT EXISTS (
-              SELECT 1
-              FROM task_runs
-              WHERE task_runs.tenant_id = executions.tenant_id
-                AND task_runs.execution_id = executions.id
-                AND task_runs.state = 'RUNNING'
-                AND task_runs.updated_at > :updated_before
-          )
-      )
-      AND (
-          executions.state NOT IN ('CANCELLED', 'SUCCESS', 'FAILED', 'WARNING')
-          OR EXISTS (
-              SELECT 1
-              FROM task_runs
-              WHERE task_runs.tenant_id = executions.tenant_id
-                AND task_runs.execution_id = executions.id
-                AND task_runs.lifecycle_phase <> 'MAIN'
-                AND task_runs.state IN ('WAITING', 'RUNNING', 'RETRY_DELAY')
-          )
+      AND NOT EXISTS (
+          SELECT 1
+          FROM task_runs
+          WHERE task_runs.tenant_id = executions.tenant_id
+            AND task_runs.execution_id = executions.id
+            AND task_runs.state = 'RUNNING'
+            AND task_runs.updated_at > :updated_before
       )
     ORDER BY executions.updated_at ASC, executions.id ASC
     LIMIT :limit

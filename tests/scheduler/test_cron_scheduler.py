@@ -409,6 +409,78 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute(
     asyncio.run(scenario())
 
 
+def test_scheduler_loads_only_active_flows_with_due_schedules(
+    migrated_test_database_url: str,
+) -> None:
+    class LoadRecordingRepository(PostgresExecutionRepository):
+        def __init__(self, engine: AsyncEngine) -> None:
+            super().__init__(engine)
+            self.loaded: list[str] = []
+
+        async def get_flow(
+            self,
+            namespace: str,
+            flow_id: str,
+            *,
+            tenant_id: str,
+            revision: int | None = None,
+        ) -> FlowDefinition:
+            self.loaded.append(flow_id)
+            return await super().get_flow(
+                namespace, flow_id, tenant_id=tenant_id, revision=revision
+            )
+
+    async def scenario() -> None:
+        namespace = f"tests.scheduler.due.{uuid4().hex}"
+        cron = FlowDefinition(
+            id="cron",
+            namespace=namespace,
+            triggers=[
+                TriggerDefinition(
+                    id="every_minute",
+                    type="core.cron",
+                    cron="* * * * *",
+                    timezone="UTC",
+                )
+            ],
+            tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+        )
+        engine = create_async_engine(migrated_test_database_url)
+        repository = LoadRecordingRepository(engine)
+        scheduler_repository = PostgresSchedulerRepository(engine)
+        trigger_runtime = PostgresTriggerRuntimeRepository(engine)
+        try:
+            await repository.apply_flow(cron, tenant_id="default")
+            await repository.apply_flow(
+                cron.model_copy(update={"id": "disabled", "disabled": True}),
+                tenant_id="default",
+            )
+            await repository.apply_flow(
+                cron.model_copy(update={"id": "unscheduled", "triggers": []}),
+                tenant_id="default",
+            )
+            first_poll = datetime(2026, 8, 21, 12, 0, 5, tzinfo=UTC)
+
+            for poll, expected in ((first_poll, 1), (first_poll.replace(second=55), 0)):
+                repository.loaded.clear()
+                assert (
+                    await schedule_once(
+                        repository,
+                        scheduler_repository,
+                        tenant_ids=("default",),
+                        scheduler_id=uuid4(),
+                        now=poll,
+                        trigger_runtime=trigger_runtime,
+                    )
+                    == expected
+                )
+                assert repository.loaded == (["cron"] if expected else [])
+        finally:
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once(
     migrated_test_database_url: str,
 ) -> None:

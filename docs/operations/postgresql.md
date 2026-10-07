@@ -77,6 +77,28 @@ until their generated reports are attached. The accountable roles and next revie
 deferrals are recorded in the
 [specialist qualification register](../how-to/run-local-verification.md#focused-gates-and-specialist-qualification).
 
+## Idle cost check
+
+An idle deployment must not burn CPU in proportion to its history (#136). This check seeds settled
+history into a disposable database and times each role's idle cycle in-process:
+
+```bash
+DATABASE_URL=postgresql+asyncpg://amesh:amesh@127.0.0.1:5432/idlecost \
+  uv run python scripts/qualify_idle_cost.py --seed --output idle-cost.json
+```
+
+Use `--seed` only on a freshly migrated database. Without it, the command times the database as it
+is, for example a restored copy of production history. The timed cycles really schedule, recover
+and project work, so never point the command at a live deployment. The defaults seed 100K executions with
+their task runs, 200K audit events, 500K settled trigger occurrences and 1,000 flows. The command
+exits non-zero when any executor, scheduler, worker or indexer cycle has a p95 above `--budget-ms`
+(100 ms per 1 s cycle). The report also records the indexer's periodic full reconciliation pass,
+which runs at most once every 10 minutes.
+
+AMESH connections set `jit = off`. Row security inflates the planner's cost estimate for short
+role-loop queries past `jit_above_cost`, and compiling each one took about 15 ms to save about
+0.1 ms of execution.
+
 ## Maintenance boundaries
 
 The qualification report is the starting inventory for autovacuum lag, dead-row pressure, statistics

@@ -1579,6 +1579,7 @@ def test_progress_state_backfills_from_0078_and_enforces_tenant_event_ownership(
             assert remaining == [
                 "0079_agent_progress_incremental_state.sql",
                 "0080_flow_test_tenant_runtime_grants.sql",
+                "0081_idle_loop_indexes.sql",
             ]
 
             async with tenant_transaction(engine, "default") as (connection, tenant_uuid):

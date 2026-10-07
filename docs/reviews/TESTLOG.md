@@ -1,5 +1,87 @@
 # Test Log
 
+## Idle CPU proportional to history — #136 (2026-10-07)
+
+Spec: GitHub #136. Measured on an isolated clone of the shared runtime database (PostgreSQL 17,
+11 GB, 121K executions, 271K task runs, 1.4M audit events, 560K trigger occurrences, about 2,000
+flows). The clone ran with its own role stack; mean container CPU was sampled with `docker stats`
+and statement time with `pg_stat_statements`.
+
+| Container | Before (87459d6, 60 s) | After (540 s) | Bound |
+| --- | ---: | ---: | ---: |
+| PostgreSQL | 172.6% | 16.0% | 25% |
+| executor | 11.1% | 1.6% | 10% |
+| scheduler | 63.3% | 3.6% | 10% |
+| worker | 1.0% | 1.6% | 10% |
+| indexer | 0.4% | 4.2% | 10% |
+| maintenance | 0.1% | 0.9% | 10% |
+
+PostgreSQL statement time fell from 1,448 ms to 126 ms per wall-clock second. About half of the
+remainder is the one full reconciliation pass that ran after the roles restarted. The indexer's own
+CPU rose because a cycle no longer waits about 4 s on PostgreSQL. Each cause was confirmed on the
+clone before it was fixed:
+
+- The indexer anti-joined each source's full history against `search_documents` every second,
+  then ran its stale-source sweep, rollups and 14-checksum verification whenever nothing was
+  projected. The audit candidate alone took 3.7 s. Idle cycles now read only the last 2 minutes
+  of execution, task-run, audit, log and metric changes through new recent-change indexes. The
+  full pass runs at most once every 10 minutes, so a deleted or late-committed source converges
+  within one interval rather than one cycle.
+- With any change inside that window, the execution candidate still read every EXECUTION
+  document (100K rows, 58 ms) under the `amesh_runtime` role, against 0.2 ms as the table owner.
+  Row security will not push the join clause into the protected scan, because its `id::text` cast
+  is not leakproof. An `OFFSET 0` lateral now computes the text id first, and the lookup uses the
+  primary key (0.3 ms). The trade-off: the 10-minute full pass's candidates take 6.5 s instead of
+  2.3 s on the clone.
+- The recovery query took 839 ms because its `OR EXISTS` defeated every index. It is now a
+  `UNION` of two index-driven branches (0.8 ms). It also returned 39 paused executions every
+  cycle, which the executor reloaded, compiled and skipped. Recovery now returns a non-running
+  open execution only when its flow has lifecycle tasks. Before, 100 such settled executions
+  would have filled the `LIMIT 100` batch and starved running work.
+- The scheduler loaded and compiled every active flow (about 1,800 `get_flow` calls per second)
+  to find the few with schedules. `list_due_flows` returns only active flows whose cron or
+  interval schedule is due or uninitialized (4.4 ms per cycle).
+- The expired trigger-lease `UPDATE` took 131 ms per cycle, a sequential scan over 560K settled
+  occurrences with none in flight. A partial index on processing occurrences fixes it.
+- After those fixes, the execution and task-run candidates still took about 15 ms each under the
+  `amesh_runtime` role, against 2 ms as the table owner. Row security inflated the planner's cost
+  to 171K, past `jit_above_cost`, and PostgreSQL spent about 18 ms JIT-compiling a plan that
+  executed in 0.1 ms. AMESH connections now set `jit = off`, which brings them to 1.3 ms.
+- The maintenance reconcile gate was left unchanged. Its invariant queries take about 650 to
+  900 ms twice a minute (1 to 2% of PostgreSQL), and the role idled at 0.1% before the change.
+
+Migration 0081 applied in about 1.5 s on the clone. `scripts/qualify_idle_cost.py --seed` on a
+fresh PostgreSQL 17 database passed. It seeded 100K executions with task runs, 200K audit events,
+500K settled occurrences and 1,000 flows in 64 s, plus one fresh projected run inside the
+incremental window. Idle-cycle times against the 100 ms budget:
+
+| Role | p50 | p95 |
+| --- | ---: | ---: |
+| executor | 9.0 ms | 10.2 ms |
+| scheduler | 21.7 ms | 26.7 ms |
+| worker | 8.7 ms | 12.3 ms |
+| indexer | 24.6 ms | 45.3 ms |
+
+The full reconciliation pass took 4.4 s. Before the lateral fix, the same check failed with an
+indexer p50 of 117 ms. Two harness problems surfaced along the way. An hourly seeded cron could
+come due mid-run and put real work into the timed scheduler cycles, so the seed now uses a yearly
+schedule. Audit seeding also ran for over 10 minutes when the chain trigger's plans had been cached
+on an empty table, so the seed now runs `ANALYZE` first.
+
+Red-green regression tests:
+- `test_paused_execution_is_a_recovery_candidate_only_when_its_flow_has_lifecycle_tasks`
+- `test_recovery_candidates_include_terminal_execution_only_with_pending_lifecycle_work`
+- `test_scheduler_loads_only_active_flows_with_due_schedules`
+- `test_idle_projection_defers_full_reconciliation_to_the_full_pass_interval`
+- `test_runtime_connections_disable_jit`
+
+The leakproof join choice has no correct unit-test seam, since it is a plan property, so the seeded
+qualification is its regression check. Against a disposable PostgreSQL 17, the PostgreSQL search,
+recovery, operations, agent-session, conformance and disaster-recovery suites passed together with
+the scheduler, worker, service-role, composition, evidence, MVP API, upgrade and migration suites:
+136 passed, 1 skipped (it needs local `pg_dump`). Ruff, the format check and strict mypy (396
+files) passed.
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.
