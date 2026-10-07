@@ -88,6 +88,7 @@ nav:
       - Upgrades: operations/upgrades.md
       - Session orchestrator deployment: how-to/run-session-orchestrator-self-hosted.md
       - Session orchestrator migration: operations/session-orchestrator-migration.md
+      - Session-runtime qualification: operations/session-runtime-qualification.md
   - Reference:
       - Glossary: reference/glossary.md
       - Workflow resource catalog: reference/resource-catalog.md

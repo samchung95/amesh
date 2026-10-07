@@ -494,7 +494,7 @@ async def _lock_tenant_policy(
                     FROM tenants
                     WHERE id = :tenant_id AND status = 'ACTIVE'
                       AND lifecycle = 'ACTIVE'
-                    FOR UPDATE
+                    FOR NO KEY UPDATE
                     """
                 ),
                 {"tenant_id": tenant_id},

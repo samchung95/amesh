@@ -24,6 +24,12 @@ Qualify correctness, performance and recovery under profile M load and adversari
 ## MVP implementation progress
 
 - 2026-08-21 — MVP fault injection completed 270 unique single-attempt executions with 270 task-pod, 27 server-pod and 13 worker-pod deletions and zero lost or duplicated persisted executions. The product owner explicitly deferred the remainder of the planned uninterrupted 24-hour run. Deferred acceptance criterion: run the checked-in soak for at least 86,400 elapsed seconds on a documented release-candidate topology, produce a passing final report with no failures, and independently verify every execution ID, task-run cardinality, attempt number and output before making broader availability, scale or production-readiness claims. Evidence: [`TESTLOG.md`](../../docs/reviews/TESTLOG.md) and [`scripts/soak_mvp.py`](../../scripts/soak_mvp.py). Profile-M load, scale-out and the broader epic remain open.
+- 2026-10-07: Session-runtime qualification ran provider-free in Compose on one workstation. It covered a load test and a timed backup/restore drill, recorded in the runbook [`session-runtime-qualification.md`](../../docs/operations/session-runtime-qualification.md).
+  - **Load:** one API process passes at 2 starts/s. At the default pool it fails beyond about 10 in-flight sessions, because each session pins two pooled connections (#147).
+  - **Drill:** `PASSED` with RTO 4.4 s and RPO 1.0 s on 125 MB.
+  - **Fixed along the way:** a tenant-row deadlock, a per-create schema re-validation cost and the PostgreSQL 15 client in the runtime image.
+  - **Soak:** a 24-hour soak at 1.2 starts/s started on 2026-10-07. Its driver re-reads every session and checks its output, its attempt and execution epoch, and that no two sessions share an execution or task run. That covers the deferred criterion's verification for the session runtime. The criterion stays open until the soak's final report passes.
+  - **Still open:** the 50 starts/s target, Profile-M load and scale-out.
 
 ## Non-functional requirements
 

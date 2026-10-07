@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- Creating an agent session no longer re-validates every built-in task schema. Each create built
+  the DSL resource registry several times, running the JSON Schema meta-check for all 50 built-in
+  tasks each time. That cost about 1.7 s of API CPU per create and capped one API process near
+  0.6 creates per second. The built-in registry is now validated once per process, and each
+  caller still gets its own copy to extend. Creates on an idle stack fell from 1.69 s to 0.12 s
+  (p50) (EPIC-611).
+- Fixed a PostgreSQL deadlock under concurrent session load that failed requests with HTTP 500.
+  API-request and log-byte quota accounting locked the tenant row `FOR UPDATE`, which waits for
+  every open transaction that inserted a row referencing the tenant. The audit ledger's
+  per-tenant advisory lock then closed the cycle. Quota accounting now takes `FOR NO KEY UPDATE`,
+  which still serializes quota writers but no longer conflicts with foreign-key checks
+  (EPIC-611).
+- The runtime image now ships the PostgreSQL 17 client. It shipped Debian bookworm's client 15,
+  so `amesh recovery exercise` and every recovery point refused to run against the supported
+  PostgreSQL 17 server (EPIC-611).
+- Added a provider-free session-runtime qualification:
+  - `docker/compose.session-qualification.yaml` runs the API, executor and scheduler against a
+    fresh PostgreSQL with a stub model provider.
+  - `scripts/qualify_session_load.py` drives and verifies sessions at a set rate, from the host or
+    as an in-stack soak.
+  - The runbook `docs/operations/session-runtime-qualification.md` covers the load test, the
+    24-hour soak and the timed backup/restore drill (`PASSED`, RTO 4.4 s).
+
+  The load test found that each in-flight session pins two pooled database connections, so one
+  API process at the default pool fails beyond about 10 concurrent sessions (#147). Until that
+  is fixed, size the pool to at least twice the expected in-flight sessions (EPIC-611).
 - The guided workflow editor no longer shows a valid unsaved draft as broken, no longer shows zero
   validation issues as an error, and explains why Save or Run is disabled (#120).
 - The Workflows list shows each workflow's last run status and time, a trigger summary and its

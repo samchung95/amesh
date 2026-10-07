@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from datetime import UTC, date, datetime
+from time import perf_counter
 from typing import Any, cast
 
 import pytest
@@ -161,6 +162,29 @@ def test_builtin_task_ownership_is_explicit_and_plugin_kinds_remain_dynamic() ->
 
     assert registry.task_specification("vendor.dynamic") is None
     assert registry.validate(ResourceKind.TASK, "vendor.dynamic", {"message": "ok"}) == ()
+
+
+def test_default_registry_validates_builtins_once_and_each_caller_extends_its_own() -> None:
+    # Each session create builds executor and handler registries. Re-validating every built-in
+    # schema on each build cost about 1.7 s of API CPU per create (EPIC-611 load test).
+    default_resource_registry()
+    started = perf_counter()
+    registries = [default_resource_registry() for _ in range(20)]
+    assert perf_counter() - started < 1
+    registries[0].register(
+        ResourceSchemaDescriptor(
+            type="vendor.private",
+            kind=ResourceKind.TASK,
+            configuration_schema={"type": "object"},
+            editor=EditorMetadata(
+                title="Private", description="Registered by one caller.", category="Plugins"
+            ),
+        )
+    )
+
+    assert registries[0].validate(ResourceKind.TASK, "vendor.private", {}) == ()
+    assert registries[1].descriptor(ResourceKind.TASK, "vendor.private") is None
+    assert default_resource_registry().descriptor(ResourceKind.TASK, "vendor.private") is None
 
 
 def test_explicit_null_configuration_is_validated_and_handler_view_stays_raw() -> None:

@@ -1,5 +1,53 @@
 # Test Log
 
+## Session-runtime qualification — EPIC-611 (2026-10-07)
+
+Spec: EPIC-611. On 2026-10-07 the owner scoped it to the session runtime only: a provider-free load
+test, a 24-hour soak, and a timed backup/restore drill with a runbook. The runbook
+`docs/operations/session-runtime-qualification.md` has the full results table.
+
+- **Load**, at one API process with the default pool (10 + 10):
+  - At 2 starts/s for 60 s with a 0 ms stub, 120 of 120 sessions passed. Create p95 was 0.22 s and
+    end-to-end p95 1.12 s.
+  - Every run at 5, 10, 20 and 40 starts/s failed. Each failure was a `QueuePool` timeout followed
+    by HTTP 500s and failed sessions, while API CPU stayed near zero.
+  - With a 5 s stub, 1 start/s passed (60 of 60) and 2 starts/s failed. The 2/s run passed again
+    with a 30 + 30 pool (120 of 120).
+  - During the stall, `pg_stat_activity` showed 9 backends idle in transaction after
+    `pg_try_advisory_lock`. These are the session and execution guards, which pin a pooled connection
+    each for the whole run. Filed as #147 (P1), not fixed here.
+- **Deadlock (fixed).** Concurrent creates deadlocked and returned 500. Hypothesis confirmed:
+  - Quota accounting took `FOR UPDATE` on the tenant row. That lock conflicts with the `FOR KEY SHARE`
+    every foreign-key check takes, and the audit ledger's per-tenant advisory lock closed the cycle.
+  - Fix: `FOR NO KEY UPDATE`.
+  - Red/green: `test_api_quota_does_not_wait_for_transactions_referencing_the_tenant` timed out while
+    a `FOR KEY SHARE` holder was open, and passes after the fix.
+- **Create CPU (fixed).** A py-spy profile put 1.69 s of each idle create into
+  `ResourceSchemaRegistry` re-running the Draft 2020-12 meta-check for every built-in schema.
+  - The built-in registry is now validated once per process, and callers get cheap copies.
+  - Red/green: `test_default_registry_validates_builtins_once_and_each_caller_extends_its_own`, where
+    20 builds must take under 1 s.
+  - Idle create p50 fell to 0.12 s.
+- **Driver.** `tests/e2e/test_session_load_driver.py` has 2 tests covering:
+  - the stub's nonce echo;
+  - mismatched answers;
+  - retried or recovered runs (`attempt` or `executionEpoch` above 1);
+  - executions or task runs shared between sessions.
+
+  A live run at 2/s for 20 s passed 40 of 40 under these checks.
+- **Drill.** The first `amesh recovery exercise` failed with `pg_dump major 15 cannot qualify
+  PostgreSQL 17`: the image installed bookworm's client 15. The image now installs
+  `postgresql-client-17` from PGDG through Debian's `postgresql-common`. The rerun `PASSED` against
+  125 MB (755 executions): RTO 4.44 s, RPO 1.01 s, 8.7 s wall, 1 of 1 objects verified, 0
+  reconciliation findings, 0 unresolved gaps.
+- **Stack.** The executor and scheduler inherited the image's HTTP `/health` probe and reported
+  unhealthy. They now use `amesh.entrypoints.role --check readiness`, like the other Compose files.
+- **Soak.** Started on 2026-10-07 at 1.2 starts/s with a 1 s stub, about 104,000 sessions a day.
+  - It runs on an image of this branch merged with #143 (#136 idle CPU), because #143 fixes recovery
+    and JIT costs that grow with history. Without it, a 24-hour soak would mostly re-measure #136.
+  - The report is `data/session-load-report.json`, and the result is appended here when the soak
+    finishes.
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.

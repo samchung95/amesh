@@ -581,3 +581,35 @@ def test_tenant_storage_and_api_quotas_are_atomic(migrated_test_database_url: st
             await engine.dispose()
 
     asyncio.run(scenario())
+
+
+def test_api_quota_does_not_wait_for_transactions_referencing_the_tenant(
+    migrated_test_database_url: str,
+) -> None:
+    # An open insert of any row with a foreign key to the tenant (audit events, sessions) holds
+    # FOR KEY SHARE on the tenant row. Quota consumption waiting on it closed a deadlock cycle
+    # with the audit ledger's per-tenant advisory lock under concurrent session load (EPIC-611).
+    async def scenario() -> None:
+        engine = create_async_engine(migrated_test_database_url)
+        repository = PostgresTenantRepository(engine)
+        tenant = TenantDefinition(slug=f"quota-lock-{uuid4().hex[:10]}", display_name="Quota lock")
+        try:
+            await repository.create(tenant, actor_id="test:admission")
+            async with engine.connect() as referencing:
+                await referencing.execute(
+                    text("SELECT 1 FROM tenants WHERE id = :tenant_id FOR KEY SHARE"),
+                    {"tenant_id": tenant.id},
+                )
+                assert await asyncio.wait_for(repository.consume_api_request(tenant.slug), 5) == 1
+                await referencing.rollback()
+        finally:
+            async with engine.begin() as connection:
+                for statement in (
+                    "DELETE FROM tenant_quota_usage WHERE tenant_id = :tenant_id",
+                    "DELETE FROM audit_events WHERE tenant_id = :tenant_id",
+                    "DELETE FROM tenants WHERE id = :tenant_id",
+                ):
+                    await connection.execute(text(statement), {"tenant_id": tenant.id})
+            await engine.dispose()
+
+    asyncio.run(scenario())

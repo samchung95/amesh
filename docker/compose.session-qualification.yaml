@@ -1,0 +1,145 @@
+# Provider-free session-runtime qualification stack (EPIC-611). It mirrors the session
+# orchestrator's roles (webserver, executor, scheduler) against a fresh PostgreSQL and replaces
+# the model provider with the stub in scripts/qualify_session_load.py. Development credentials
+# only; never point it at a real deployment. See docs/operations/session-runtime-qualification.md.
+name: amesh-qualification
+
+x-environment: &environment
+  APP_ENV: development
+  AUTH_MODE: development
+  DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+  DATABASE_TLS_MODE: disable
+  DATABASE_POOL_SIZE: "10"
+  DATABASE_MAX_OVERFLOW: "10"
+  MODEL_CONTINUATION_KEY_ID: qualification
+  MODEL_CONTINUATION_ENCRYPTION_KEY: 56sxfzMhHF5kTfJeU8mk5ZuckryTJWyUrlByWTmyQbo=
+  OBJECT_STORAGE_BACKEND: local
+  OBJECT_STORAGE_LOCAL_ROOT: /var/lib/amesh/storage
+  PLUGIN_INSTALL_ROOT: /var/lib/amesh/plugins
+  EXECUTION_RUNNER_MODE: local
+  LOCAL_PROCESS_RUNNER_ENABLED: "true"
+  DOCKER_RUNNER_ENABLED: "false"
+  PRODUCT_TELEMETRY_ENABLED: "false"
+  WEBHOOK_SIGNING_KEY: qualification-webhook-signing-key
+  CORE_HTTP_ALLOWED_PRIVATE_HOSTS: '["model-stub"]'
+  SERVICE_ENABLED_ROLES: '["webserver","executor","scheduler"]'
+  SERVICE_CYCLE_SECONDS: "1"
+  # The stub ignores the credential; the agent's model route binds this variable by name.
+  QUALIFICATION_MODEL_KEY: stub-credential
+
+x-application: &application
+  image: ${AMESH_IMAGE:-amesh:qualification}
+  pull_policy: never
+  user: "100:101"
+  read_only: true
+  tmpfs: [/tmp]
+  volumes:
+    - storage:/var/lib/amesh/storage
+    - plugins:/var/lib/amesh/plugins
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    model-stub:
+      condition: service_started
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    command: ["postgres", "-c", "max_connections=200"]
+    environment:
+      POSTGRES_DB: amesh
+      POSTGRES_USER: amesh
+      POSTGRES_PASSWORD: amesh
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  init:
+    image: alpine:3.22
+    command: ["sh", "-c", "chown -R 100:101 /var/lib/amesh/storage /var/lib/amesh/plugins"]
+    volumes:
+      - storage:/var/lib/amesh/storage
+      - plugins:/var/lib/amesh/plugins
+
+  migrate:
+    image: ${AMESH_IMAGE:-amesh:qualification}
+    pull_policy: never
+    command: ["python", "-m", "amesh.entrypoints.migrations"]
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      DATABASE_TLS_MODE: disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+
+  model-stub:
+    image: python:3.12-slim-bookworm
+    command: ["python", "/qualify/qualify_session_load.py", "stub", "--delay-ms", "${STUB_DELAY_MS:-0}"]
+    volumes:
+      - ../scripts/qualify_session_load.py:/qualify/qualify_session_load.py:ro
+
+  api:
+    <<: *application
+    command: ["python", "-m", "amesh.entrypoints.server"]
+    environment:
+      <<: *environment
+      SERVICE_ROLE: webserver
+      SERVICE_INSTANCE_NAME: qualification-webserver
+    ports:
+      - "127.0.0.1:${AMESH_QUALIFICATION_PORT:-18611}:8000"
+
+  executor:
+    <<: *application
+    command: ["python", "-m", "amesh.entrypoints.role"]
+    environment:
+      <<: *environment
+      SERVICE_ROLE: executor
+      SERVICE_INSTANCE_NAME: qualification-executor
+      WORKER_RECOVERY_GRACE_SECONDS: "180"
+    # Roles serve no HTTP, so the image's /health probe would always fail here.
+    healthcheck: &role-healthcheck
+      test: ["CMD", "python", "-m", "amesh.entrypoints.role", "--check", "readiness"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+
+  scheduler:
+    <<: *application
+    command: ["python", "-m", "amesh.entrypoints.role"]
+    environment:
+      <<: *environment
+      SERVICE_ROLE: scheduler
+      SERVICE_INSTANCE_NAME: qualification-scheduler
+    healthcheck: *role-healthcheck
+
+  # Long runs (the 24-hour soak) drive the stack from inside it so they survive the operator's
+  # shell; arguments come from QUALIFICATION_ARGS and the report lands in ../data.
+  driver:
+    image: ${AMESH_IMAGE:-amesh:qualification}
+    pull_policy: never
+    profiles: [driver]
+    user: "100:101"
+    read_only: true
+    command: >-
+      sh -c "python /qualify/qualify_session_load.py run --api-url http://api:8000
+      --report /reports/session-load-report.json $${QUALIFICATION_ARGS}"
+    environment:
+      QUALIFICATION_ARGS: ${QUALIFICATION_ARGS:---rate 1.2 --duration-seconds 86400}
+    volumes:
+      - ../scripts/qualify_session_load.py:/qualify/qualify_session_load.py:ro
+      - ../data:/reports
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  storage:
+  plugins:
