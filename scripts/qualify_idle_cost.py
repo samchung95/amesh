@@ -101,9 +101,10 @@ async def seed(
     namespace = f"qualification.idle.{uuid4().hex[:8]}"
     cron = FlowDefinition.model_validate(
         {
-            "id": "hourly",
+            # A yearly schedule cannot come due mid-run and put real work into the timed cycles.
+            "id": "yearly",
             "namespace": namespace,
-            "triggers": [{"id": "hourly", "type": "core.cron", "cron": "0 * * * *"}],
+            "triggers": [{"id": "yearly", "type": "core.cron", "cron": "0 0 1 1 *"}],
             "tasks": [{"id": "work", "type": "core.return", "value": "ok"}],
         }
     )
@@ -121,10 +122,14 @@ async def seed(
         scheduler,
         tenant_ids=("default",),
         scheduler_id=uuid4(),
-        now=datetime(2026, 1, 1, 12, 0, 5, tzinfo=UTC),
+        now=datetime(2026, 1, 1, 0, 0, 5, tzinfo=UTC),
         trigger_runtime=trigger_runtime,
     )
     settled = "now() - interval '1 day'"
+    async with engine.begin() as connection:
+        # Re-plan the audit chain trigger's lookups on real statistics before cloning: with plans
+        # cached while audit_events was empty, seeding 200K events ran for over 10 minutes.
+        await connection.execute(text("ANALYZE"))
     async with engine.begin() as connection:
         await _clone(
             connection,

@@ -100,6 +100,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (78, "projection_rebuild_execution_scope"),
             (79, "agent_progress_incremental_state"),
             (80, "flow_test_tenant_runtime_grants"),
+            (81, "idle_loop_indexes"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

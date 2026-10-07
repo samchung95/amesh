@@ -314,6 +314,8 @@ _FLOW_PROJECTION = text(
 # cast) into the protected search_documents_v2 scan, so each changed source row hash-joined every
 # document of its type. The OFFSET 0 lateral computes the text id per source row, leaving a
 # leakproof text equality the primary key serves (#136).
+# ponytail: the lateral makes the 10-minute full pass 2-9x slower (6.5 s vs 2.3 s on 1.4M audit
+# rows); give the full pass a direct-cast variant if that pass starts to matter.
 _EXECUTION_PROJECTION = text(
     """
     WITH candidates AS (

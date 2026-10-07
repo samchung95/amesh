@@ -3,7 +3,7 @@
 ## Unreleased
 
 - An idle deployment no longer burns CPU in proportion to its history. On an 11 GB history, idle
-  PostgreSQL CPU fell from 173% to 12% of a core and the scheduler from 63% to 4%. Recovery reads
+  PostgreSQL CPU fell from 173% to 16% of a core and the scheduler from 63% to 4%. Recovery reads
   only open executions and skips paused or queued ones without lifecycle tasks, so they no longer
   crowd running work out of its batch. The scheduler loads only active flows with a due or
   uninitialized schedule. The indexer projects only recent changes each cycle and runs its
