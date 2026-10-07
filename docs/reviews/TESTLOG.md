@@ -1,5 +1,18 @@
 # Test Log
 
+## Access role binding submits the role name — #151 (2026-10-08)
+
+Spec: GitHub #151 (UX walkthrough 2026-10-07, journey J4).
+
+- New `AdministrationPage.test.tsx` (2) drives the Access form through the page with a mocked API
+  client. Picking "Viewer" must send `role_name: "viewer"`, and submitting without a role must not
+  call `createBinding`. Both failed before the fix: the first sent the label, and the second showed
+  "Flow author" while holding `viewer`.
+- The other 13 key-only `<option>`s in `frontend/src` render their key as their text, so their
+  submitted value was already correct.
+- `npm run test` (38 files, 155 tests, coverage thresholds met), `tsc -b` and ESLint on the
+  administration feature passed.
+
 ## Guided editor readiness, workflow list status and navigation pruning — #120 / #122 / #121 (2026-09-27)
 
 Spec: GitHub #120, #122 and #121 (UI audit 2026-09-26); owner decision 3b on 2026-09-27.
